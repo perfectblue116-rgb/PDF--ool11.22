@@ -625,7 +625,7 @@ if(drag.k==='hl'){const r=hlr;hlr=null;drag=null;drawAll();if(r)finishHl(r);retu
    else if(s.ty==='leader'){s.w=Math.max(s.w,120);fitBox(s);s.tip=[s.x-50,s.y+s.h+70];after=s}
    else if(drag.tb){s.sc=D.sc;fitBox(s);after=s}else if(s.ty==='linkarea')setTimeout(()=>{$('#url').focus();msg('リンク先URLを入力してください')},0)}
   syncRib()}
- drag=null;drawAll();syncP();if(after)setTimeout(()=>openIE(after,true),0)}
+ drag=null;if(after){tool='select';syncRib()}drawAll();syncP();if(after)setTimeout(()=>openIE(after,true),0)}
 /* 点の追加。始点付近なら閉じて確定、最後の点付近なら確定（指でも押しやすい判定幅） */
 function polyAdd(i,q){const d=draft;if(!d||d.k||d.pi!==i)return;const closed=['poly','mperi','marea'].includes(d.t),mn=closed?3:2,R=(CO?28:14)/z,n=d.p.length;
  if(closed&&n>=3&&len(q,d.p[0])<R){d.cur=null;finish();msg('始点に接続して確定しました');return}
