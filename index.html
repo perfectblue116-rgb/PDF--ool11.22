@@ -722,15 +722,13 @@ function fillCore(wd,r,W,H,S,cx,cy,gw){const K=S/1.6,vis=new Int16Array(W*H),see
  if(c.length<3)return [];let f=0,fd=-1;for(let j=1;j<c.length;j++){const d=Math.hypot(c[j][0]-c[0][0],c[j][1]-c[0][1]);if(d>fd){fd=d;f=j}}
  return [...rdp(c.slice(0,f+1),.8).slice(0,-1),...rdp([...c.slice(f),c[0]],.8).slice(0,-1)].map(q=>[(q[0]+.5)/S,(q[1]+.5)/S])}
 let fillBusy=false;
-async function autoFill(p,i){if(fillBusy)return;fillBusy=true;try{await autoFill0(p,i)}catch(e){console.error(e);msg('エラー: '+(e.message||e))}finally{fillBusy=false}}
+async function autoFill(p,i){if(fillBusy)return;fillBusy=true;try{msg('解析中…');await new Promise(r=>setTimeout(r,40));await autoFill0(p,i)}catch(e){console.error(e);msg('エラー: '+(e.message||e))}finally{fillBusy=false}}
 async function autoFill0(p,i){const P=E.pages[i],th=+$('#th').value;msg('解析中…');
- if(!P.lum){const S0=Math.max(1.6,Math.min(4,Math.sqrt(16e6/(P.w*P.h)))),v=vp(P,S0),c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);const x=c.getContext('2d',{willReadFrequently:true});x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await P.pg.render({canvasContext:x,viewport:v}).promise;
+ if(!P.lum){const S0=Math.max(1.6,Math.min(4,Math.sqrt((CO?6e6:16e6)/(P.w*P.h)))),v=vp(P,S0),c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);const x=c.getContext('2d',{willReadFrequently:true});x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await P.pg.render({canvasContext:x,viewport:v}).promise;
   const d=x.getImageData(0,0,c.width,c.height).data,l=new Uint8Array(c.width*c.height);for(let k=0,j=0;k<l.length;k++,j+=4)l[k]=d[j]*.3+d[j+1]*.59+d[j+2]*.11;P.lum=l;P.lw=c.width;P.lh=c.height;P.mk=null}
  const W=P.lw,H=P.lh,S=W/P.w;
  if(!P.mk||P.th!==th){const m=fillMask(P.lum,W,H,S,th);P.mk=m.wd;P.mr=m.r;P.th=th}
  const sx=Math.round(p[0]*S),sy=Math.round(p[1]*S),gw=+$('#gw').value;let pts=fillCore(P.mk,P.mr,W,H,S,sx,sy,gw);
- /* 線の上をタップしても塗れるように、近くの点で再試行する */
- if(pts===null){const R=Math.min(14,Math.max(4,Math.round(12/z*S)));for(let r=2;r<=R&&pts===null;r+=2)for(let a=0;a<8&&pts===null;a++)pts=fillCore(P.mk,P.mr,W,H,S,sx+Math.round(Math.cos(a*Math.PI/4)*r),sy+Math.round(Math.sin(a*Math.PI/4)*r),gw)}
  if(pts===null)return msg('囲まれた範囲が見つかりません（線が途切れている可能性。「線検出」で調整してください）');
  if(pts.length<3)return msg('輪郭を取得できませんでした');
  snap();const s=mk(i,'poly',{p:pts,sw:0,hl:1});sel=s.id;drawAll();syncP();msg('塗りつぶしました（頂点数 '+pts.length+'）。Escで選択モードに戻ります')}
@@ -817,8 +815,8 @@ function rotS(s,W,H,d){const m=(x,y)=>d>0?[H-y,x]:[y,W-x];if(s.p)s.p=s.p.map(q=>
 async function rotPage(i,d){const P=E.pages[i];if(!P)throw Error('PDFを開いてください');if(shapes.some(s=>s.pg===i&&s.ty==='orig'))throw Error('元データを移動した図形があるページは回転できません（先に回転してから編集してください）');
  const W=P.w,H=P.h;closeIE();ot=null;shapes.filter(s=>s.pg===i).forEach(s=>rotS(s,W,H,d));P.rot=(P.rot+d*90+360)%360;undo=[];redo=[];await paintBase(P);setZ();updPg();thSoon();msg(`ページ${i+1}を${d>0?'右':'左'}に90°回転しました（保存すると表示のとおりに保存されます）`)}
 $('#edf').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)run(()=>loadEd(f)).then(()=>msg(''))};
-async function loadEd(f){let bytes=new Uint8Array(await f.arrayBuffer()),pdf=await openPdf(bytes),data=null;const encd=pdf.__enc||looksEnc(bytes);
- try{const at=await pdf.getAttachments();if(at&&at['pdftool_edit.json']&&at['pdftool_base.pdf']&&confirm('このPDFには編集用データ（図形・テキスト等）が含まれています。\n編集可能な状態で復元しますか？\n\nOK＝復元／キャンセル＝そのまま開く')){data=JSON.parse(new TextDecoder().decode(at['pdftool_edit.json'].content));bytes=new Uint8Array(at['pdftool_base.pdf'].content);pdf=await pdfjsLib.getDocument({data:bytes.slice()}).promise}}catch(er){data=null}
+async function loadEd(f,pre){let bytes=pre?new Uint8Array(pre.bytes):new Uint8Array(await f.arrayBuffer()),pdf=await openPdf(bytes),data=pre?pre.data:null;const encd=pdf.__enc||looksEnc(bytes);
+ if(!pre)try{const at=await pdf.getAttachments();if(at&&at['pdftool_edit.json']&&at['pdftool_base.pdf']&&confirm('このPDFには編集用データ（図形・テキスト等）が含まれています。\n編集可能な状態で復元しますか？\n\nOK＝復元／キャンセル＝そのまま開く')){data=JSON.parse(new TextDecoder().decode(at['pdftool_edit.json'].content));bytes=new Uint8Array(at['pdftool_base.pdf'].content);pdf=await pdfjsLib.getDocument({data:bytes.slice()}).promise}}catch(er){data=null}
  if(!data&&encd)throw Error('パスワード保護されたPDFは、このアプリでは編集できません（「編集データを埋め込む」で保存したPDFは、パスワード入力後に復元して編集できます）');
  E.bytes=bytes;E.name=f.name.replace(/\.pdf$/i,'').replace(/_PW$/,'').replace(/_編集$/,'');E.pages=[];E.mm=data&&data.mm||0;shapes=data?data.shapes||[]:[];imgs=data?data.imgs||{}:{};sel=null;ot=null;undo=[];redo=[];draft=null;pl=[];curPg=0;bmSel=-1;uid=Math.max(1,...shapes.map(s=>s.id+1),...Object.keys(imgs).map(k=>(+k.slice(1)||0)+1),data&&data.uid||1);
  E.bm=data&&data.bm?data.bm:await readOutline(pdf);$('#pages').innerHTML='';
@@ -992,6 +990,33 @@ addEventListener('pointerup',thEnd);addEventListener('pointercancel',thEnd);
 $('#bmw').classList.toggle('hide',!bmOpen);$('#thw').classList.toggle('hide',!thOpen);thZoom(1);rbm();buildRib();syncP();fitH();
 
 
+
+/* ===== 作業の自動保存（このブラウザ内）と復元 ===== */
+const DB={o:null,open(){return this.o||(this.o=new Promise((ok,ng)=>{const r=indexedDB.open('pdftool',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>ng(r.error)}))},
+ async get(k){const d=await this.open();return new Promise((ok,ng)=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ng(q.error)})},
+ async set(k,v){const d=await this.open();return new Promise((ok,ng)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>ok();t.onerror=()=>ng(t.error);t.onabort=()=>ng(t.error)})},
+ async del(k){const d=await this.open();return new Promise(ok=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=()=>ok();t.onerror=()=>ok()})}};
+let asSig='',asBase=null,asBusy=false,asTimer=0;
+const asInd=(()=>{const d=document.createElement('div');d.style.cssText='position:fixed;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:40;font-size:11px;color:var(--mu);background:var(--cd);border:1px solid var(--bd);border-radius:999px;padding:3px 10px;opacity:0;transition:opacity .4s;pointer-events:none';document.body.appendChild(d);return d})();
+function asShow(t){asInd.textContent=t;asInd.style.opacity=1;clearTimeout(asTimer);asTimer=setTimeout(()=>asInd.style.opacity=0,2500)}
+async function autoSave(force){if(asBusy||!E.bytes||!E.pages.length)return;if(!force&&(ed||drag||draft||lnd))return;
+ const used={};shapes.forEach(s=>{if(s.k&&imgs[s.k])used[s.k]=imgs[s.k]});const rots=E.pages.map(P=>P.rot),mms=E.pages.map(P=>P.mm||0),
+  sig=JSON.stringify([shapes,rots,mms,E.mm,E.bm,Object.keys(used).join(),E.name]);
+ if(sig===asSig&&asBase===E.bytes)return;asBusy=true;
+ try{if(asBase!==E.bytes){const b=E.bytes;await DB.set('base',{name:E.name,bytes:b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength)});asBase=b}
+  await DB.set('edit',{name:E.name,ts:Date.now(),data:{v:1,shapes,imgs:used,rots,mms,mm:E.mm,uid,bm:E.bm}});asSig=sig;
+  const d=new Date();asShow('💾 自動保存 '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0'));
+  if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}
+ catch(e){console.warn('自動保存に失敗',e);asShow('⚠ 自動保存できませんでした（容量不足の可能性）')}finally{asBusy=false}}
+setInterval(()=>autoSave(),4000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)autoSave(true)});addEventListener('pagehide',()=>autoSave(true));
+/* 起動時：前回の作業があれば復元を案内 */
+(async()=>{try{const e=await DB.get('edit'),b=await DB.get('base');if(!e||!b||!e.data)return;
+ const bar=document.createElement('div');bar.style.cssText='position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%);z-index:70;background:var(--cd);border:1px solid var(--ac);border-radius:12px;padding:10px 14px;box-shadow:0 6px 24px #0006;display:flex;gap:10px;align-items:center;flex-wrap:wrap;max-width:94vw;font-size:14px';
+ const d=new Date(e.ts),tx=document.createElement('span');tx.textContent=`前回の作業「${e.name}」（${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}）を復元できます`;
+ const ok=document.createElement('button');ok.className='pri';ok.textContent='復元する';const no=document.createElement('button');no.textContent='破棄';
+ ok.onclick=()=>{bar.remove();showSec('ed');run(()=>loadEd({name:b.name+'.pdf'},{bytes:b.bytes,data:e.data})).then(()=>msg('前回の作業を復元しました'))};
+ no.onclick=async()=>{bar.remove();await DB.del('edit');await DB.del('base')};bar.append(tx,ok,no);document.body.appendChild(bar)}catch(e){}})();
 /* ===== iPad／タッチ操作：2本指ピンチで拡大縮小＋移動、空白を1本指でスクロール、長押しでメニュー ===== */
 (function(){const R=$('#pages'),tp=new Map();let g=null,pan=null,lp=null,raf=0;
  const cdist=()=>{const a=[...tp.values()];return{d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,cx:(a[0].x+a[1].x)/2,cy:(a[0].y+a[1].y)/2}};
