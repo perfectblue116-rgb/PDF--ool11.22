@@ -462,7 +462,7 @@ function prims(s,ex){const o=[],tcl=s.ty==='text'?s.sc:(s.tc||'#000000'),F=s.fa>
  case'leader':o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),sw:0,fill:'#000',fa:0,hf:1,ui:1});o.push({k:'path',d:polyD([[s.x,s.y+s.h],[s.x+s.w,s.y+s.h]]),...sk});o.push({k:'path',d:leadD(leadPts(s),s.sw),...sk});txt(s.x+2,s.y+1);break;
  case'line':case'arrow':o.push({k:'path',d:pathD(s),...sk});break;
  case'pline':o.push({k:'path',d:polyD(s.p),...sk,mj:1,so:s.ao===undefined?1:s.ao});break;
- case'poly':o.push({k:'path',d:pathD(s),...sk,fill:F,fa:s.fa,bm:s.hl});break;
+ case'poly':o.push({k:'path',d:pathD(s),...sk,fill:F,fa:s.fa,bm:s.hl&&(!CO||ex)});break;
  case'image':if(imgs[s.k])o.push({k:'img',u:imgs[s.k],x:s.x,y:s.y,w:s.w,h:s.h});break;
  case'orig':o.push({k:'path',d:rectD(s.ox,s.oy,s.ow,s.oh),sw:0,fill:'#ffffff',fa:1,nohit:1});if(imgs[s.k])o.push({k:'img',u:imgs[s.k],x:s.x,y:s.y,w:s.w,h:s.h});else o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),col:'#2f7bff',sw:1,dash:'3 2',ui:1});break;
  case'dim':{const[a,b]=s.p,d=s.d||0,l0=len(a,b)||1,n=[(b[1]-a[1])/l0,-(b[0]-a[0])/l0],q1=[a[0]+n[0]*d,a[1]+n[1]*d],q2=[b[0]+n[0]*d,b[1]+n[1]*d],r=Math.max(3,s.sw*2.2),m=[(q1[0]+q2[0])/2,(q1[1]+q2[1])/2],L=lab(s),sd=d<0?-1:1,ov=0;
@@ -483,7 +483,7 @@ function primSvg(q,s){const id=`data-id="${s.id}"`+(q.part?` data-part="${q.part
  if(q.k==='text'){const ls=q.tx.split('\n');return(q.lb?`<rect data-lb="${q.lb}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent" style="cursor:move"/>`:'')+(q.hb?`<rect ${id} x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent"/>`:'')+`<text ${q.lb?`data-lb="${q.lb}" style="cursor:move"`:'pointer-events="none"'} font-size="${q.fs}" font-family="${q.ff||FF}"${q.it?' font-style="italic"':''}${q.bd?' font-weight="bold"':''} fill="${q.col}"${q.halo?` stroke="#fff" stroke-width="${q.fs*.25}" paint-order="stroke" stroke-linejoin="round"`:''}>${ls.map((l,i)=>`<tspan x="${q.x}" y="${q.y+q.fs*(1.2*i+.95)}">${esc(l)||' '}</tspan>`).join('')}</text>`}
  const st=`stroke="${q.sw>0&&q.col?q.col:'none'}" stroke-width="${q.sw}" stroke-linejoin="${q.mj?'miter':'round'}" stroke-linecap="${q.mj?'butt':'round'}"${q.mj?' stroke-miterlimit="10"':''}${q.so!==undefined?` stroke-opacity="${q.so}"`:''}${q.dash?` stroke-dasharray="${q.dash}"`:''}`,fl=q.fill&&q.fa>0?`fill="${q.fill}" fill-opacity="${q.fa}"`:'fill="none"';
  if(q.nohit)return`<path d="${q.d}" ${st} ${fl} pointer-events="none"/>`;
- if(q.fill&&q.fa>0)return`<path ${id} d="${q.d}" ${st} ${fl}${q.bm&&!CO?' style="mix-blend-mode:multiply"':''}/>`;
+ if(q.fill&&q.fa>0)return`<path ${id} d="${q.d}" ${st} ${fl}${q.bm?' style="mix-blend-mode:multiply"':''}/>`;
  if(q.hf)return`<path ${id} d="${q.d}" ${st} fill="transparent"/>`;
  return`<path ${id} d="${q.d}" fill="none" stroke="transparent" stroke-width="${Math.max((q.part==='dl'?(CO?40:24):(CO?28:14))/z,q.sw)}"${q.cur?` style="cursor:${q.cur}"`:''}/><path d="${q.d}" ${fl} ${st} pointer-events="none"/>`}
 function shapeSvg(s){let h='';for(const q of prims(s))h+=primSvg(q,s);if(s.url){const b=bbox(s);h+=`<text x="${b[2]}" y="${b[1]}" font-size="${14/z}" pointer-events="none">🔗</text>`}return h}
