@@ -549,7 +549,7 @@ function down(e,i){if(e.button||tool==='bucket')return;closeIE();const P=E.pages
  if(t.dv!==undefined){const s0=cur();if(s0&&s0.p&&selV&&selV.id===s0.id&&s0.p.length>(closedS(s0)?3:2)){snap();s0.p.splice(+t.dv,1);selV=null;drawAll();syncP();msg('折れ点を削除しました')}return}
  if(t.v===undefined)selV=null;
  /* 描画ツールのままでも、既存の図形（・選択ハンドル）をクリックしたら新規作成せず、選択・移動・拡大縮小する（Ctrl/⌘押下で図形の上から描き始め） */
- if((POLYT.includes(tool)||DRAGT.includes(tool)||tool==='dim'||tool==='scale'||tool==='text')&&(t.id||t.h||t.v!==undefined||t.m!==undefined||t.lb!==undefined||t.tp!==undefined)&&!lnd&&!(draft&&draft.pi===i)&&!e.ctrlKey&&!e.metaKey){
+ if((POLYT.includes(tool)||DRAGT.includes(tool)||tool==='dim'||tool==='scale'||tool==='text')&&((t.id&&e.pointerType==='mouse')||t.h||t.v!==undefined||t.m!==undefined||t.lb!==undefined||t.tp!==undefined)&&!lnd&&!(draft&&draft.pi===i)&&!e.ctrlKey&&!e.metaKey){
   if(t.lb!==undefined){sel=+t.lb;ot=null;snap();const s=cur();if(!s.off)s.off=[0,0];drag={k:'l',s:p,o:clone(s),pi:i};drawAll();syncP()}
   else if(t.tp!==undefined){snap();drag={k:'tp',pi:i}}
   else if(t.h||t.v!==undefined||t.m!==undefined){snap();const s=cur();if(t.m!==undefined){s.p.splice(+t.m+1,0,p);drag={k:'v',i:+t.m+1,pi:i};selV={id:s.id,i:+t.m+1}}else if(t.v!==undefined){drag={k:'v',i:+t.v,pi:i};selV={id:s.id,i:+t.v}}else drag={k:'h',h:t.h,o:clone(s),pi:i}}
@@ -622,7 +622,7 @@ function polyAdd(i,q){const d=draft;if(!d||d.k||d.pi!==i)return;const closed=['p
  d.p.push(q);d.cur=q;d.tAdd=performance.now();draw(i)}
 function updFab(){const f=document.getElementById('fab');if(!f)return;const on=!!(draft&&!draft.k&&draft.p&&draft.p.length>0);f.style.display=on?'flex':'none';if(on){const mn=(draft.t==='pline'||draft.t==='mdist')?2:3;document.getElementById('fabok').disabled=draft.p.length<mn}}
 function finish(){snapMk=null;if(!draft||draft.k)return;let p=draft.p;const n=p.length,i=draft.pi,t=draft.t;if(n>1&&len(p[n-1],p[n-2])<2)p=p.slice(0,-1);draft=null;
- if(p.length>=(t==='mdist'||t==='pline'?2:3)){snap();if(t==='poly')done(mk(i,'poly',{p}));else if(t==='pline')done(mk(i,'pline',{p,fa:0,ao:1}));else{const k=t.slice(1),s=mk(i,'meas',{p,mk:k,fs:14,seg:k!=='area',off:k==='dist'?[0,-20]:[0,0],sw:Math.max(1,D.sw||1)});sel=s.id;drawAll();syncP();const v=measVals(s);msg(k==='area'?`面積 ${v.A.toFixed(2)} ㎡／周囲 ${fmtL(v.L)}`:(k==='peri'?'周囲 ':'距離 ')+fmtL(v.L))}}
+ if(p.length>=(t==='mdist'||t==='pline'?2:3)){snap();if(t==='poly'||t==='pline'){done(t==='poly'?mk(i,'poly',{p}):mk(i,'pline',{p,fa:0,ao:1}));if(lastPT!=='mouse'){sel=null;selV=null;drawAll();syncP()}}else{const k=t.slice(1),s=mk(i,'meas',{p,mk:k,fs:14,seg:k!=='area',off:k==='dist'?[0,-20]:[0,0],sw:Math.max(1,D.sw||1)});sel=s.id;drawAll();syncP();const v=measVals(s);msg(k==='area'?`面積 ${v.A.toFixed(2)} ㎡／周囲 ${fmtL(v.L)}`:(k==='peri'?'周囲 ':'距離 ')+fmtL(v.L))}}
  else{syncRib();draw(i)}}
 function delV(p,i){const s=cur();if(!s||!(s.ty==='poly'||s.ty==='pline'||s.ty==='meas')||s.pg!==i||s.p.length<=(closedS(s)?3:2))return false;const j=s.p.findIndex(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<12/z);if(j<0)return false;snap();s.p.splice(j,1);draw(i);return true}
 function bind(svg,i){svg.onpointerdown=e=>down(e,i);svg.onpointermove=e=>move(e,i);svg.onpointerup=up;svg.onpointercancel=up;
