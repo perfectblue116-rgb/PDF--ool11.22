@@ -152,7 +152,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 <span id="txw" style="display:none">文字サイズ<input type="number" id="fs" min="4" value="18"><span id="fnw" style="display:none"><select id="fnt" title="フォント"><option value="">自動（元のフォント／標準）</option><option value="msg">ＭＳ ゴシック</option><option value="msp">ＭＳ Ｐゴシック</option><option value="msm">ＭＳ 明朝</option><option value="mspm">ＭＳ Ｐ明朝</option><option value="maru">丸ゴシック</option><option value="meiryo">メイリオ</option><option value="yug">游ゴシック</option><option value="yum">游明朝</option><option value="arial">Arial</option><option value="times">Times New Roman</option></select><button id="bdb" title="太字"><b>B</b></button><button id="itb" title="斜体"><i>I</i></button></span><span id="txa"><textarea id="tx" placeholder="テキスト（改行可）"></textarea></span></span>
 <span id="sgw" style="display:none"><label><input type="checkbox" id="sg">各辺の寸法を表示</label></span>
 <span id="urw" style="display:none">🔗リンク<input type="text" id="url" placeholder="https://…" style="width:210px"></span>
-<span title="塗りつぶしで線とみなす濃さ。線が薄い図面は大きく">線検出<input type="range" id="th" min="120" max="250" value="200" style="width:70px"></span><span title="塗りつぶしを線の内側へ広げる量(pt)。白い隙間が残るときだけ少し大きく。0なら線に触れる位置まで">塗り広げ<input type="range" id="gw" min="0" max="3" step="0.1" value="0.2" style="width:70px"></span>
+<span title="塗りつぶしで線とみなす濃さ。線が薄い図面は大きく">線検出<input type="range" id="th" min="120" max="250" value="200" style="width:70px"></span><span title="塗りつぶしを線の内側へ広げる量(pt)。白い隙間が残るときだけ少し大きく。0なら線に触れる位置まで">塗り広げ<input type="range" id="gw" min="0" max="3" step="0.1" value="0.2" style="width:70px"></span><label title="オンのとき、線の上をクリック（タップ）した時だけ塗ります。オフにすると線の内側（空白）をクリックしても塗れます"><input type="checkbox" id="lo" checked>線上のみ塗る</label>
 <span id="cal" style="display:none">2点間の実寸法 <input type="number" id="calv" min="0" step="any" style="width:90px"> mm <button class="pri" id="calok">設定</button></span>
 <label title="PDFに図形データを埋め込み、再読込時に編集可能な状態へ復元します（ファイルサイズは元PDF分増えます）"><input type="checkbox" id="emb" checked>編集データを埋め込む</label>
 <label title="保存するPDFを、パスワードを知っている人だけが開けるようにします（AES-256）"><input type="checkbox" id="pwon">🔒保存時にパスワード</label><input type="text" id="pwv" placeholder="パスワード" autocomplete="off" style="width:110px">
@@ -483,7 +483,7 @@ function primSvg(q,s){const id=`data-id="${s.id}"`+(q.part?` data-part="${q.part
  if(q.k==='text'){const ls=q.tx.split('\n');return(q.lb?`<rect data-lb="${q.lb}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent" style="cursor:move"/>`:'')+(q.hb?`<rect ${id} x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent"/>`:'')+`<text ${q.lb?`data-lb="${q.lb}" style="cursor:move"`:'pointer-events="none"'} font-size="${q.fs}" font-family="${q.ff||FF}"${q.it?' font-style="italic"':''}${q.bd?' font-weight="bold"':''} fill="${q.col}"${q.halo?` stroke="#fff" stroke-width="${q.fs*.25}" paint-order="stroke" stroke-linejoin="round"`:''}>${ls.map((l,i)=>`<tspan x="${q.x}" y="${q.y+q.fs*(1.2*i+.95)}">${esc(l)||' '}</tspan>`).join('')}</text>`}
  const st=`stroke="${q.sw>0&&q.col?q.col:'none'}" stroke-width="${q.sw}" stroke-linejoin="${q.mj?'miter':'round'}" stroke-linecap="${q.mj?'butt':'round'}"${q.mj?' stroke-miterlimit="10"':''}${q.so!==undefined?` stroke-opacity="${q.so}"`:''}${q.dash?` stroke-dasharray="${q.dash}"`:''}`,fl=q.fill&&q.fa>0?`fill="${q.fill}" fill-opacity="${q.fa}"`:'fill="none"';
  if(q.nohit)return`<path d="${q.d}" ${st} ${fl} pointer-events="none"/>`;
- if(q.fill&&q.fa>0)return`<path ${id} d="${q.d}" ${st} ${fl}${q.bm?' style="mix-blend-mode:multiply"':''}/>`;
+ if(q.fill&&q.fa>0)return`<path ${id} d="${q.d}" ${st} ${fl}${q.bm&&!CO?' style="mix-blend-mode:multiply"':''}/>`;
  if(q.hf)return`<path ${id} d="${q.d}" ${st} fill="transparent"/>`;
  return`<path ${id} d="${q.d}" fill="none" stroke="transparent" stroke-width="${Math.max((q.part==='dl'?(CO?40:24):(CO?28:14))/z,q.sw)}"${q.cur?` style="cursor:${q.cur}"`:''}/><path d="${q.d}" ${fl} ${st} pointer-events="none"/>`}
 function shapeSvg(s){let h='';for(const q of prims(s))h+=primSvg(q,s);if(s.url){const b=bbox(s);h+=`<text x="${b[2]}" y="${b[1]}" font-size="${14/z}" pointer-events="none">🔗</text>`}return h}
@@ -496,8 +496,8 @@ function selSvg(s){const hs=(CO?16:9)/z,HA=`fill="#fff" stroke="#2f7bff" stroke-
   if(stS(s)&&p.length>1){const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]),pd=plPad(s),X1=Math.min(...xs)-pd,X2=Math.max(...xs)+pd,Y1=Math.min(...ys)-pd,Y2=Math.max(...ys)+pd,bx=[X1,(X1+X2)/2,X2],by=[Y1,(Y1+Y2)/2,Y2],nm=[['nw','n','ne'],['w','','e'],['sw','s','se']];
    o+=`<rect x="${X1}" y="${Y1}" width="${X2-X1}" height="${Y2-Y1}" fill="none" stroke="#2f7bff" stroke-dasharray="${4/z}" stroke-width="${1/z}" pointer-events="none"/>`;
    for(let j=0;j<3;j++)for(let i=0;i<3;i++)if(nm[j][i])o+=`<rect data-h="${nm[j][i]}" x="${bx[i]-hs/2}" y="${by[j]-hs/2}" width="${hs}" height="${hs}" ${HA} style="cursor:pointer"/>`}
-  p.forEach((q,i)=>o+=`<circle data-v="${i}" cx="${q[0]}" cy="${q[1]}" r="${hs/2+1/z}" ${HA} style="cursor:move"/>`);
-  if(s.ty==='poly'||s.ty==='pline'||s.ty==='meas')p.forEach((q,i)=>{if(!cl&&i===p.length-1)return;const n=p[(i+1)%p.length];o+=`<circle data-m="${i}" cx="${(q[0]+n[0])/2}" cy="${(q[1]+n[1])/2}" r="${hs/2.6}" fill="#2f7bff" fill-opacity=".5" stroke="#fff" stroke-width="${1/z}" style="cursor:copy"/>`})}
+  if(p.length<=300)p.forEach((q,i)=>o+=`<circle data-v="${i}" cx="${q[0]}" cy="${q[1]}" r="${hs/2+1/z}" ${HA} style="cursor:move"/>`);
+  if(p.length<=120&&(s.ty==='poly'||s.ty==='pline'||s.ty==='meas'))p.forEach((q,i)=>{if(!cl&&i===p.length-1)return;const n=p[(i+1)%p.length];o+=`<circle data-m="${i}" cx="${(q[0]+n[0])/2}" cy="${(q[1]+n[1])/2}" r="${hs/2.6}" fill="#2f7bff" fill-opacity=".5" stroke="#fff" stroke-width="${1/z}" style="cursor:copy"/>`})}
  return o}
 var selV=null,CO=matchMedia('(pointer:coarse)').matches,pendIE=null,lastPT='mouse';
 addEventListener('pointerdown',e=>{lastPT=e.pointerType},true);
@@ -626,7 +626,7 @@ function finish(){snapMk=null;if(!draft||draft.k)return;let p=draft.p;const n=p.
  else{syncRib();draw(i)}}
 function delV(p,i){const s=cur();if(!s||!(s.ty==='poly'||s.ty==='pline'||s.ty==='meas')||s.pg!==i||s.p.length<=(closedS(s)?3:2))return false;const j=s.p.findIndex(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<12/z);if(j<0)return false;snap();s.p.splice(j,1);draw(i);return true}
 function bind(svg,i){svg.onpointerdown=e=>down(e,i);svg.onpointermove=e=>move(e,i);svg.onpointerup=up;svg.onpointercancel=up;
- svg.onclick=e=>{if(tool==='bucket')autoFill(pt(e,i),i)};
+ svg.onclick=e=>{if(tool==='bucket'&&Date.now()-(window.__pm||0)>400)autoFill(pt(e,i),i)};
  svg.ondblclick=e=>{if(tool==='bucket'){}else if(POLYT.includes(tool))finish();else if(tool==='select'){const id=e.target.dataset&&(e.target.dataset.id||e.target.dataset.lb);const s=shapes.find(x=>x.id===+id);if(s&&TXT.includes(s.ty)){sel=s.id;syncP();openIE(s)}else delV(pt(e,i),i)}};
  svg.oncontextmenu=e=>{e.preventDefault();if(lnd){lineCancel();return}if(POLYT.includes(tool)&&draft&&!draft.k){finish();return}if(delV(pt(e,i),i))return;const id=e.target.dataset&&(e.target.dataset.id||e.target.dataset.lb),p=pt(e,i);
   if(id&&!(draft&&!draft.k)){sel=+id;ot=null;drawAll();syncP();showMenu(e.clientX,e.clientY)}
@@ -684,8 +684,8 @@ const schedRR=()=>{clearTimeout(rrT);rrT=setTimeout(rr,120)};
 function dropTile(P){if(P.tc){P.tc.remove();P.tc=null;P.tr=null}}
 async function tileRR(P,tok,sN){const R=$('#pages').getBoundingClientRect(),r=P.wrap.getBoundingClientRect(),k=r.width/P.w;if(!k)return;const cl=(a,hi)=>Math.min(hi,Math.max(0,a));
  const nx1=cl((R.left-r.left)/k,P.w),nx2=cl((R.right-r.left)/k,P.w),ny1=cl((R.top-r.top)/k,P.h),ny2=cl((R.bottom-r.top)/k,P.h);if(nx2-nx1<.5||ny2-ny1<.5){dropTile(P);return}
- const mx=(nx2-nx1)*.3,my=(ny2-ny1)*.3;let x1=cl(nx1-mx,P.w),x2=cl(nx2+mx,P.w),y1=cl(ny1-my,P.h),y2=cl(ny2+my,P.h),sc=Math.min(sN,Math.sqrt(2.4e7/((x2-x1)*(y2-y1))),128);
- if(sc<sN*.8){x1=nx1;x2=nx2;y1=ny1;y2=ny2;sc=Math.min(sN,Math.sqrt(2.4e7/((x2-x1)*(y2-y1))),128)}
+ const mx=(nx2-nx1)*.3,my=(ny2-ny1)*.3;let x1=cl(nx1-mx,P.w),x2=cl(nx2+mx,P.w),y1=cl(ny1-my,P.h),y2=cl(ny2+my,P.h),sc=Math.min(sN,Math.sqrt((CO?1.2e7:2.4e7)/((x2-x1)*(y2-y1))),128);
+ if(sc<sN*.8){x1=nx1;x2=nx2;y1=ny1;y2=ny2;sc=Math.min(sN,Math.sqrt((CO?1.2e7:2.4e7)/((x2-x1)*(y2-y1))),128)}
  const T=P.tr;if(T&&P.tc&&T.sc>=sc*.97&&T.x1<=nx1+.5&&T.y1<=ny1+.5&&T.x2>=nx2-.5&&T.y2>=ny2-.5)return;
  const w=x2-x1,h=y2-y1,rot=P.rot,v=P.pg.getViewport({scale:sc,rotation:(P.pg.rotate+P.rot)%360,offsetX:-x1*sc,offsetY:-y1*sc}),c=document.createElement('canvas');c.width=Math.max(1,Math.ceil(w*sc));c.height=Math.max(1,Math.ceil(h*sc));
  await P.pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;if(tok!==rrTok||rot!==P.rot||!P.svg||!P.svg.parentNode)return;
@@ -728,9 +728,14 @@ async function autoFill0(p,i){const P=E.pages[i],th=+$('#th').value;msg('解析�
   const d=x.getImageData(0,0,c.width,c.height).data,l=new Uint8Array(c.width*c.height);for(let k=0,j=0;k<l.length;k++,j+=4)l[k]=d[j]*.3+d[j+1]*.59+d[j+2]*.11;P.lum=l;P.lw=c.width;P.lh=c.height;P.mk=null}
  const W=P.lw,H=P.lh,S=W/P.w;
  if(!P.mk||P.th!==th){const m=fillMask(P.lum,W,H,S,th);P.mk=m.wd;P.mr=m.r;P.th=th}
- const sx=Math.round(p[0]*S),sy=Math.round(p[1]*S),gw=+$('#gw').value;let pts=fillCore(P.mk,P.mr,W,H,S,sx,sy,gw);
+ const sx=Math.round(p[0]*S),sy=Math.round(p[1]*S),gw=+$('#gw').value;
+ if($('#lo').checked){const R0=Math.max(2,Math.round((CO?6:3)*S));let hit=false;for(let y=Math.max(0,sy-R0);y<=Math.min(H-1,sy+R0)&&!hit;y++)for(let x=Math.max(0,sx-R0);x<=Math.min(W-1,sx+R0);x++)if(P.lum[y*W+x]<th){hit=true;break}
+  if(!hit)return msg('線の上をクリックしてください（空白部分は塗りません。内側をクリックして塗りたい場合は「線上のみ塗る」をオフに）')}let pts=fillCore(P.mk,P.mr,W,H,S,sx,sy,gw);
  if(pts===null)return msg('囲まれた範囲が見つかりません（線が途切れている可能性。「線検出」で調整してください）');
  if(pts.length<3)return msg('輪郭を取得できませんでした');
+ /* A3など大きい図面では頂点が数千になり、選択ハンドルの描画で固まるため、上限(約300点)まで単純化する */
+ if(pts.length>300){let eps=1/S;while(pts.length>300&&eps<20){eps*=1.6;let f=0,fd=-1;for(let j=1;j<pts.length;j++){const d=Math.hypot(pts[j][0]-pts[0][0],pts[j][1]-pts[0][1]);if(d>fd){fd=d;f=j}}
+   const np=[...rdp(pts.slice(0,f+1),eps).slice(0,-1),...rdp([...pts.slice(f),pts[0]],eps).slice(0,-1)];if(np.length>=3)pts=np;else break}}
  snap();const s=mk(i,'poly',{p:pts,sw:0,hl:1});sel=s.id;drawAll();syncP();msg('塗りつぶしました（頂点数 '+pts.length+'）。Escで選択モードに戻ります')}
 
 /* ===== PDF文字の編集・ハイライト ===== */
@@ -1025,17 +1030,20 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)autoSave(tr
  R.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;tp.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(tp.size>=2){clearLp();cancelOp();pan=null;if(!g){const c=cdist(),rc=R.getBoundingClientRect();g={d0:c.d,z0:z,px:(R.scrollLeft+c.cx-rc.left)/z,py:(R.scrollTop+c.cy-rc.top)/z}}e.stopPropagation();e.preventDefault();return}
   const t=e.target.dataset||{},onObj=t.id||t.h||t.v!==undefined||t.m!==undefined||t.lb!==undefined||t.tp!==undefined||t.dv!==undefined;
-  if(tool==='select'&&!onObj)pan={id:e.pointerId,x:e.clientX,y:e.clientY,sl:R.scrollLeft,st:R.scrollTop,on:false};
+  if((tool==='select'&&!onObj)||tool==='bucket')pan={id:e.pointerId,x:e.clientX,y:e.clientY,sl:R.scrollLeft,st:R.scrollTop,on:false};
   if(onObj){clearLp();lp={id:e.pointerId,x:e.clientX,y:e.clientY,t:setTimeout(()=>{if(!lp)return;const x=lp.x,y=lp.y;lp=null;const el=document.elementFromPoint(x,y);if(el)el.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:x,clientY:y,button:2}))},550)}}
  },true);
  R.addEventListener('pointermove',e=>{if(e.pointerType!=='touch'||!tp.has(e.pointerId))return;const q=tp.get(e.pointerId);q.x=e.clientX;q.y=e.clientY;
   if(lp&&lp.id===e.pointerId&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)>10)clearLp();
   if(g&&tp.size>=2){e.stopPropagation();e.preventDefault();if(raf)return;raf=requestAnimationFrame(()=>{raf=0;if(!g||tp.size<2)return;const c=cdist(),rc=R.getBoundingClientRect(),nz=Math.min(ZMAX,Math.max(ZMIN,g.z0*c.d/g.d0));
     if(Math.abs(nz-z)/z>.005){z=nz;setZm();setZ()}R.scrollLeft=g.px*z-(c.cx-rc.left);R.scrollTop=g.py*z-(c.cy-rc.top)});return}
-  if(pan&&pan.id===e.pointerId&&tp.size===1){const dx=e.clientX-pan.x,dy=e.clientY-pan.y;if(!pan.on&&Math.hypot(dx,dy)>8)pan.on=true;if(pan.on){R.scrollLeft=pan.sl-dx;R.scrollTop=pan.st-dy;e.stopPropagation();e.preventDefault()}}
+  if(pan&&pan.id===e.pointerId&&tp.size===1){const dx=e.clientX-pan.x,dy=e.clientY-pan.y;if(!pan.on&&Math.hypot(dx,dy)>8)pan.on=true;if(pan.on){window.__pm=Date.now();R.scrollLeft=pan.sl-dx;R.scrollTop=pan.st-dy;e.stopPropagation();e.preventDefault()}}
  },true);
  const end=e=>{if(e.pointerType!=='touch')return;const was=!!g;tp.delete(e.pointerId);if(lp&&lp.id===e.pointerId)clearLp();if(pan&&pan.id===e.pointerId)pan=null;if(tp.size<2)g=null;if(was)e.stopPropagation()};
  R.addEventListener('pointerup',end,true);R.addEventListener('pointercancel',end,true);
+ /* 長押しメニュー等でpointerupが#pagesに届かず「2本指のまま」になるのを防ぐ：指が全て離れたら状態を必ずリセット */
+ ['touchend','touchcancel'].forEach(n=>document.addEventListener(n,e=>{if(!e.touches.length){tp.clear();g=null;pan=null;clearLp()}},true));
+ addEventListener('pointerup',e=>{if(e.pointerType==='touch')tp.delete(e.pointerId)},true);addEventListener('pointercancel',e=>{if(e.pointerType==='touch')tp.delete(e.pointerId)},true);
  /* iPad Safariのページ自体の拡大を無効化（アプリ内ズームを使う） */
  ['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault()));
 })();
