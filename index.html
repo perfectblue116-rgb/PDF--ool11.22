@@ -1031,7 +1031,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)autoSave(tr
   if(tp.size>=2){clearLp();cancelOp();pan=null;if(!g){const c=cdist(),rc=R.getBoundingClientRect();g={d0:c.d,z0:z,px:(R.scrollLeft+c.cx-rc.left)/z,py:(R.scrollTop+c.cy-rc.top)/z}}e.stopPropagation();e.preventDefault();return}
   const t=e.target.dataset||{},onObj=t.id||t.h||t.v!==undefined||t.m!==undefined||t.lb!==undefined||t.tp!==undefined||t.dv!==undefined;
   if((tool==='select'&&!onObj)||tool==='bucket')pan={id:e.pointerId,x:e.clientX,y:e.clientY,sl:R.scrollLeft,st:R.scrollTop,on:false};
-  if(onObj){clearLp();lp={id:e.pointerId,x:e.clientX,y:e.clientY,t:setTimeout(()=>{if(!lp)return;const x=lp.x,y=lp.y;lp=null;const el=document.elementFromPoint(x,y);if(el)el.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:x,clientY:y,button:2}))},550)}}
+  if(onObj){clearLp();lp={id:e.pointerId,x:e.clientX,y:e.clientY,t:setTimeout(()=>{if(!lp)return;const x=lp.x,y=lp.y;lp=null;if(draft&&!draft.k)draft.pend=0;if(drag&&(drag.k==='dp'||drag.k==='m'))drag=null;if(lnd)lineCancel();const el=document.elementFromPoint(x,y);if(el)el.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:x,clientY:y,button:2}))},550)}}
  },true);
  R.addEventListener('pointermove',e=>{if(e.pointerType!=='touch'||!tp.has(e.pointerId))return;const q=tp.get(e.pointerId);q.x=e.clientX;q.y=e.clientY;
   if(lp&&lp.id===e.pointerId&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)>10)clearLp();
