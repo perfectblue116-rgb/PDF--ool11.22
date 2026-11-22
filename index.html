@@ -2,7 +2,7 @@
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PDFツール</title>
-<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#2563eb"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#2563eb"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="PDFツール">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
@@ -49,7 +49,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 #pages{display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding:14px;background:#7d838d;flex:1;min-height:0;overflow:auto}
 #pages .empty{color:#fff;margin:auto;font-size:16px;text-align:center}
 .pg{position:relative;background:#fff;box-shadow:0 2px 10px #0006;flex:none;margin:0 auto}
-.pg canvas{width:100%;display:block}.pg svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;overflow:visible}
+.pg canvas{width:100%;display:block;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.pg svg{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}html,body{touch-action:pan-x pan-y}.pg svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;overflow:visible}
 .cs svg{cursor:crosshair}
 #cm{display:none;position:fixed;z-index:50;background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:8px;box-shadow:0 4px 16px #0004;flex-direction:column;gap:6px;min-width:170px}#cm label{display:flex;justify-content:space-between;align-items:center;gap:8px}#cm button{text-align:left}#cm input[type=color]{width:40px;height:26px;padding:0}
 #ie{display:none;position:fixed;z-index:60;border:1px dashed var(--ac);background:rgba(255,255,255,.92);font-family:'Hiragino Sans','Yu Gothic',Meiryo,sans-serif;line-height:1.2;padding:0;margin:0;resize:none;overflow:hidden;outline:none;border-radius:0}
@@ -974,6 +974,29 @@ const thEnd=e=>{const d=thDr;if(!d||e.pointerId!==d.id)return;thDr=null;if(!d.on
 addEventListener('pointerup',thEnd);addEventListener('pointercancel',thEnd);
 $('#bmw').classList.toggle('hide',!bmOpen);$('#thw').classList.toggle('hide',!thOpen);thZoom(1);rbm();buildRib();syncP();fitH();
 
+
+/* ===== iPad／タッチ操作：2本指ピンチで拡大縮小＋移動、空白を1本指でスクロール、長押しでメニュー ===== */
+(function(){const R=$('#pages'),tp=new Map();let g=null,pan=null,lp=null,raf=0;
+ const cdist=()=>{const a=[...tp.values()];return{d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,cx:(a[0].x+a[1].x)/2,cy:(a[0].y+a[1].y)/2}};
+ const cancelOp=()=>{if(lnd){lineCancel();return}if(drag&&['m','h','v','l','tp','dl'].includes(drag.k)){drag=null;try{unde()}catch(e){}}else drag=null};
+ const clearLp=()=>{if(lp){clearTimeout(lp.t);lp=null}};
+ R.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;tp.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(tp.size>=2){clearLp();cancelOp();pan=null;if(!g){const c=cdist(),rc=R.getBoundingClientRect();g={d0:c.d,z0:z,px:(R.scrollLeft+c.cx-rc.left)/z,py:(R.scrollTop+c.cy-rc.top)/z}}e.stopPropagation();e.preventDefault();return}
+  const t=e.target.dataset||{},onObj=t.id||t.h||t.v!==undefined||t.m!==undefined||t.lb!==undefined||t.tp!==undefined||t.dv!==undefined;
+  if(tool==='select'&&!onObj)pan={id:e.pointerId,x:e.clientX,y:e.clientY,sl:R.scrollLeft,st:R.scrollTop,on:false};
+  if(onObj){clearLp();lp={id:e.pointerId,x:e.clientX,y:e.clientY,t:setTimeout(()=>{if(!lp)return;const x=lp.x,y=lp.y;lp=null;const el=document.elementFromPoint(x,y);if(el)el.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:x,clientY:y,button:2}))},550)}}
+ },true);
+ R.addEventListener('pointermove',e=>{if(e.pointerType!=='touch'||!tp.has(e.pointerId))return;const q=tp.get(e.pointerId);q.x=e.clientX;q.y=e.clientY;
+  if(lp&&lp.id===e.pointerId&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)>10)clearLp();
+  if(g&&tp.size>=2){e.stopPropagation();e.preventDefault();if(raf)return;raf=requestAnimationFrame(()=>{raf=0;if(!g||tp.size<2)return;const c=cdist(),rc=R.getBoundingClientRect(),nz=Math.min(ZMAX,Math.max(ZMIN,g.z0*c.d/g.d0));
+    if(Math.abs(nz-z)/z>.005){z=nz;setZm();setZ()}R.scrollLeft=g.px*z-(c.cx-rc.left);R.scrollTop=g.py*z-(c.cy-rc.top)});return}
+  if(pan&&pan.id===e.pointerId&&tp.size===1){const dx=e.clientX-pan.x,dy=e.clientY-pan.y;if(!pan.on&&Math.hypot(dx,dy)>8)pan.on=true;if(pan.on){R.scrollLeft=pan.sl-dx;R.scrollTop=pan.st-dy;e.stopPropagation();e.preventDefault()}}
+ },true);
+ const end=e=>{if(e.pointerType!=='touch')return;const was=!!g;tp.delete(e.pointerId);if(lp&&lp.id===e.pointerId)clearLp();if(pan&&pan.id===e.pointerId)pan=null;if(tp.size<2)g=null;if(was)e.stopPropagation()};
+ R.addEventListener('pointerup',end,true);R.addEventListener('pointercancel',end,true);
+ /* iPad Safariのページ自体の拡大を無効化（アプリ内ズームを使う） */
+ ['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault()));
+})();
 /* ===== PWA：インストール／PDFの「プログラムから開く」対応 ===== */
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 if('launchQueue' in window)launchQueue.setConsumer(async lp=>{if(!lp.files||!lp.files.length)return;try{const f=await lp.files[0].getFile();showSec('ed');await run(()=>loadEd(f));msg('')}catch(e){msg('ファイルを開けませんでした: '+(e.message||e))}});
