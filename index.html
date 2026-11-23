@@ -162,7 +162,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 <section id="ed" class="ed on">
 <div class="tb" id="props">
 <span>線色<input type="color" id="sc" value="#ff0000"></span><span>塗り<input type="color" id="fc" value="#ffff00"></span>
-<span>透過<input type="range" id="fa" min="0" max="100" value="50" style="width:70px"></span><span>線幅<input type="number" id="sw" min="0" value="2" step="0.5"></span>
+<span title="塗りの濃さ。0で塗りなし（完全に透明）、100で不透明">透過<input type="range" id="fa" min="0" max="100" step="1" value="50" style="width:110px"><b id="fav" style="display:inline-block;min-width:34px;text-align:right">50%</b></span><span>線幅<input type="number" id="sw" min="0" value="2" step="0.5"></span>
 <span id="tcw" style="display:none">文字色<input type="color" id="tc" value="#000000"></span>
 <span id="txw" style="display:none">文字サイズ<input type="number" id="fs" min="4" value="18"> 行間<input type="number" id="lh" min="0.5" max="5" step="0.1" value="1.2" title="行間（文字サイズの倍率。1.2が標準）" style="width:56px"><span id="fnw" style="display:none"><select id="fnt" title="フォント"><option value="">自動（元のフォント／標準）</option><option value="msg">ＭＳ ゴシック</option><option value="msp">ＭＳ Ｐゴシック</option><option value="msm">ＭＳ 明朝</option><option value="mspm">ＭＳ Ｐ明朝</option><option value="maru">丸ゴシック</option><option value="meiryo">メイリオ</option><option value="yug">游ゴシック</option><option value="yum">游明朝</option><option value="arial">Arial</option><option value="times">Times New Roman</option></select><button id="bdb" title="太字"><b>B</b></button><button id="itb" title="斜体"><i>I</i></button></span><span id="txa"><textarea id="tx" placeholder="テキスト（改行可）"></textarea></span></span>
 <span id="sgw" style="display:none"><label><input type="checkbox" id="sg">各辺の寸法を表示</label></span>
@@ -573,7 +573,8 @@ const pt=(e,i)=>{const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(E.pag
 const sqP=(a,p)=>{const dx=p[0]-a[0],dy=p[1]-a[1],d=Math.max(Math.abs(dx),Math.abs(dy));return[a[0]+(dx<0?-d:d),a[1]+(dy<0?-d:d)]};
 const mk=(i,ty,o)=>{const s={id:uid++,pg:i,ty,sc:D.sc,fc:D.fc,fa:D.fa,sw:D.sw,tc:D.tc,fs:D.fs,tx:'',fn:D.fn,bd:D.bd,it:D.it,...o};shapes.push(s);return s},
  done=s=>{sel=s.id;ot=null;tool='select';syncRib();drawAll();syncP()};
-function syncP(){const sh=cur(),s=sh||D,ty=s.ty;$('#sc').value=s.sc;$('#fc').value=s.fc;$('#fa').value=(s.ty==='pline'?(s.ao===undefined?1:s.ao):s.fa)*100;$('#sw').value=s.sw;$('#tc').value=s.tc||D.tc;
+function favUp(){const v=+$('#fa').value;$('#fav').textContent=v<=0?'なし':Math.round(v)+'%'}
+function syncP(){const sh=cur(),s=sh||D,ty=s.ty;$('#sc').value=s.sc;$('#fc').value=s.fc;$('#fa').value=(s.ty==='pline'?(s.ao===undefined?1:s.ao):s.fa)*100;favUp();$('#sw').value=s.sw;$('#tc').value=s.tc||D.tc;
  const tx=TXT.includes(ty),dm=ty==='dim'||ty==='meas';$('#tcw').style.display=tx&&ty!=='text'?'':'none';$('#txw').style.display=tx||dm?'':'none';$('#txa').style.display=tx?'':'none';
  if(tx||dm)$('#fs').value=Math.round(s.fs);if(tx)$('#lh').value=s.lh||1.2;if(tx)$('#tx').value=s.tx||'';$('#fnw').style.display=tx?'':'none';if(tx){$('#fnt').value=s.fn||'';$('#bdb').classList.toggle('on',!!s.bd);$('#itb').classList.toggle('on',!!s.it)}$('#sgw').style.display=ty==='meas'?'':'none';if(ty==='meas')$('#sg').checked=s.seg!==false;
  $('#urw').style.display=sh?'':'none';$('#url').value=sh?(s.url||''):'';fitH()}
@@ -1004,7 +1005,7 @@ addEventListener('keydown',e=>{const g=e.target.tagName;if(g==='INPUT'||g==='TEX
 /* ===== プロパティ ===== */
 const PM={sc:v=>({sc:v}),fc:v=>({fc:v}),fa:v=>({fa:v/100}),sw:v=>({sw:Math.max(0,+v)}),fs:v=>({fs:Math.max(4,+v||4)}),lh:v=>({lh:Math.max(.5,Math.min(5,+v||1.2))}),tx:v=>({tx:v}),tc:v=>({tc:v}),url:v=>({url:v.trim()}),fnt:v=>({fn:v})};
 $('#props').addEventListener('focusin',()=>{if(ot)lift();cur()&&snap()});
-$('#props').addEventListener('input',e=>{const f=PM[e.target.id];if(!f)return;const o=f(e.target.value),s=cur();if(!['tx','url'].includes(e.target.id))Object.assign(D,o);if(s){Object.assign(s,o);if(s.ty==='pline'&&e.target.id==='fa')s.ao=o.fa;fitBox(s);draw(s.pg)}});
+$('#props').addEventListener('input',e=>{if(e.target.id==='fa'){if(+e.target.value<=3)e.target.value=0;favUp()}const f=PM[e.target.id];if(!f)return;const o=f(e.target.value),s=cur();if(!['tx','url'].includes(e.target.id))Object.assign(D,o);if(s){Object.assign(s,o);if(s.ty==='pline'&&e.target.id==='fa')s.ao=o.fa;fitBox(s);draw(s.pg)}});
 const tgl=k=>{const s=cur();if(!s)return;s[k]=!s[k];D[k]=s[k]?1:0;fitBox(s);draw(s.pg);syncP()};$('#bdb').onclick=()=>tgl('bd');$('#itb').onclick=()=>tgl('it');
 $('#sg').onchange=e=>{const s=cur();if(s){snap();s.seg=e.target.checked;draw(s.pg)}};
 
@@ -1069,7 +1070,7 @@ function showMenu(x,y){const s=cur();if(!s)return;const img=s.ty==='image'||s.ty
  cm.style.left=L+'px';cm.style.top=T+'px'}
 var cmId=null,cmPick=false;
 /* メニュー表示中の図形をIDで保持する（スポイトで画面をクリックして選択が外れても、その図形に色を反映する） */
-const cmApply=e=>{const s=shapes.find(x=>x.id===cmId),f=s&&{m_sc:v=>s.sc=v,m_fc:v=>s.fc=v,m_fa:v=>s.fa=v/100,m_sw:v=>s.sw=Math.max(0,+v)}[e.target.id];if(!s||!f)return;if(!cmS){snap();cmS=true}f(e.target.value);draw(s.pg);syncP();if(e.type==='change'&&e.target.type==='color')cmPick=false};
+const cmApply=e=>{if(e.target.id==='m_fa'&&+e.target.value<=3)e.target.value=0;const s=shapes.find(x=>x.id===cmId),f=s&&{m_sc:v=>s.sc=v,m_fc:v=>s.fc=v,m_fa:v=>s.fa=v/100,m_sw:v=>s.sw=Math.max(0,+v)}[e.target.id];if(!s||!f)return;if(!cmS){snap();cmS=true}f(e.target.value);draw(s.pg);syncP();if(e.type==='change'&&e.target.type==='color')cmPick=false};
 cm.addEventListener('input',cmApply);cm.addEventListener('change',cmApply);
 cm.addEventListener('click',e=>{if(e.target.type==='color')cmPick=true});
 cm.addEventListener('input',e=>{const id=e.target.id;if(id!=='mm_sc'&&id!=='mm_fc')return;if(!cmS){snap();cmS=true}const v=e.target.value;shapes.forEach(s=>{if(!msel.has(s.id))return;if(id==='mm_sc'&&s.ty!=='image'&&s.ty!=='orig')s.sc=v;else if(id==='mm_fc'&&['rect','ellipse','cloud','poly','callout'].includes(s.ty))s.fc=v});drawAll()});
