@@ -211,7 +211,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 </aside>
 <aside id="ffw" class="hide">
 <div class="bmh"><b>記入項目</b><span id="ffn" class="hint" style="padding:0;background:none;border:0"></span><button id="ffx" title="閉じる">✕</button></div>
-<div class="ffo"><label>フォント <select id="ffont"></select></label><label>日付 <select id="ffdf"><option value="w">令和8年1月1日</option><option value="s">2026年1月1日</option><option value="sl">2026/1/1</option></select></label><button class="pri" id="ffrg" title="一覧にない欄：PDF上でドラッグして範囲を指定し、そのまま文字入力">範囲指定入力</button><span id="ffinf" class="hint" style="padding:0;background:none;border:0;flex-basis:100%"></span></div>
+<div class="ffo"><label>フォント <select id="ffont"></select></label><label>日付 <select id="ffdf"><option value="w">令和8年1月1日</option><option value="s">2026年1月1日</option><option value="sl">2026/1/1</option></select></label><button id="eraB" title="新元号を登録する">元号登録</button><button class="pri" id="ffrg" title="一覧にない欄：PDF上でドラッグして範囲を指定し、そのまま文字入力">範囲指定入力</button><span id="ffinf" class="hint" style="padding:0;background:none;border:0;flex-basis:100%"></span></div>
 <div id="ffl"></div>
 <div class="ffb"><button class="pri" id="ffsv">PDF保存</button><span class="hint" style="padding:0;background:none;border:0">入力するとPDFに反映されます。一覧にない欄は「範囲指定入力」でPDF上をドラッグして直接入力できます</span></div>
 </aside>
@@ -219,7 +219,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 <div id="cm"></div>
 <textarea id="ie"></textarea>
 <div id="fbar"><button id="fbd" title="カレンダーで日付を入力">📅 日付</button><span id="fbf"></span></div>
-<div id="dpop"><b>📅 日付</b><input type="date" id="dpi"><select id="dpf"><option value="w">令和8年1月1日</option><option value="s">2026年1月1日</option><option value="sl">2026/1/1</option></select><button class="pri" id="dpok">入力</button><button id="dpt" title="日付ではなく文字で入力する">文字入力</button><button id="dpx" title="閉じる">✕</button></div>
+<div id="dpop"><b>📅 日付</b><input type="date" id="dpi"><select id="dpf"><option value="w">令和8年1月1日</option><option value="s">2026年1月1日</option><option value="sl">2026/1/1</option></select><button class="pri" id="dpok">入力</button><button id="eraB2" title="新元号を登録する">元号登録</button><button id="dpt" title="日付ではなく文字で入力する">文字入力</button><button id="dpx" title="閉じる">✕</button></div>
 <div id="st"></div>
 
 <script>
@@ -898,15 +898,30 @@ function ffInfo(){const el=$('#ffinf');if(!el)return;const P=E.pages[Math.min(cu
  const d=ffDom(P);if(!d){el.textContent='';return}const k=guessKey(d.nm);el.textContent=`PDFのフォント：${d.nm||'不明'} → ${k?FONTS[k][0]:'標準フォント'}で入力（自動）`}
 async function ffAutoFont(){try{let P=E.pages.find(p=>p.ti&&p.ti.length);if(!P){P=E.pages[0];if(!P.ti)await textItems(P)}const d=ffDom(P);if(!d)return'';const k=guessKey(d.nm);D.fn=k;ffInfo();return`PDFのフォント「${d.nm||'不明'}」を自動判定しました（${k?FONTS[k][0]:'標準フォント'}で入力）。`}catch(e){return''}}
 $('#ffont').onchange=e=>{ffFn=e.target.value;snap();shapes.forEach(s=>{const P=E.pages[s.pg],f=ffOf(s);if(!f||!P)return;s.fn=ffFn||ffFontOf(P,f).key||'';ffLayout(s,f)});drawAll();ffInfo()};
+/* --- 元号テーブル（新元号は「元号登録」から追加可能。ブラウザに保存） --- */
+const ERA0=[['令和','2019-05-01'],['平成','1989-01-08'],['昭和','1926-12-25'],['大正','1912-07-30'],['明治','1868-01-25']];
+var eraUser=[];try{eraUser=JSON.parse(localStorage.getItem('pdftool_eras')||'[]').filter(e=>e&&e.n&&/^\d{4}-\d{2}-\d{2}$/.test(e.s))}catch(e){}
+const eraList=()=>{const m=new Map();ERA0.forEach(([n,d])=>m.set(n,d));eraUser.forEach(e=>m.set(e.n,e.s));return[...m].map(([n,d])=>({n,s:d})).sort((a,b)=>a.s<b.s?1:-1)};
+const eraNames=()=>eraList().map(e=>e.n);
+function eraOf(iso){const e=eraList().find(e=>iso>=e.s);return e?{name:e.n,n:+iso.slice(0,4)-+e.s.slice(0,4)+1}:null}
+function eraBase(n){const e=eraList().find(e=>e.n===n);return e?+e.s.slice(0,4)-1:null}
+function eraSave(){try{localStorage.setItem('pdftool_eras',JSON.stringify(eraUser))}catch(e){}}
+function eraDlg(){let d=document.getElementById('erapop');if(!d){d=document.createElement('div');d.id='erapop';d.style.cssText='position:fixed;inset:0;z-index:80;background:#0006;display:flex;align-items:center;justify-content:center';document.body.appendChild(d)}
+ const rows=()=>eraList().map(e=>{const u=eraUser.some(x=>x.n===e.n);return`<tr><td style="padding:2px 10px">${esc(e.n)}</td><td style="padding:2px 10px">${e.s}〜</td><td>${u?`<button data-del="${esc(e.n)}">削除</button>`:'<span style="color:var(--mu);font-size:11px">標準</span>'}</td></tr>`}).join('');
+ const draw=()=>{d.innerHTML=`<div style="background:var(--cd);color:var(--fg);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;max-width:92vw;box-shadow:0 8px 30px #0006"><b>元号の登録</b><div style="font-size:12px;color:var(--mu);margin:4px 0 8px">新元号が始まったら、元号名と開始日を登録すると、日付入力・和暦変換に使われます。</div><table style="border-collapse:collapse;margin-bottom:10px">${rows()}</table><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><input type="text" id="ern" placeholder="元号名（例：〇〇）" style="width:130px"><input type="date" id="erd" style="font:inherit;color:var(--fg);background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:3px 6px"><button class="pri" id="era">登録</button><button id="erc">閉じる</button></div></div>`;
+  d.querySelector('#erc').onclick=()=>d.remove();
+  d.querySelector('#era').onclick=()=>{const n=d.querySelector('#ern').value.trim(),v=d.querySelector('#erd').value;if(!n||!v)return msg('元号名と開始日を入力してください');if(n.length>6)return msg('元号名が長すぎます');eraUser=eraUser.filter(e=>e.n!==n);eraUser.push({n,s:v});eraSave();setDf(ffDf);msg(`元号「${n}」（${v}〜）を登録しました`);draw()};
+  d.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{eraUser=eraUser.filter(e=>e.n!==b.dataset.del);eraSave();setDf(ffDf);draw()})};
+ draw()}
 /* --- 日付：カレンダー入力 --- */
 const isDateLbl=t=>{t=(t||'').replace(/\s+/g,'');return(/日付|年月日|月日|年\s*月|期日|納期|締切|〆切|着手|着工|完成|完了|竣工|引渡|引き渡し|開始|終了|期限|日時|令和|平成|昭和|西暦|生年|誕生|date|DATE|Date|(?:[^\d\s]日|年|月)[（(]?(?:記入|予定)?[）)]?$/.test(t))&&!/期間|時間|日数|日間|年数|回数|曜日|月額|年額|年齢|年収|年間|月数|面積/.test(t)};
 function ffIsDate(P,f){if(f.dt===undefined)f.dt=isDateLbl(ffLabel(P,f));return f.dt}
 function fmtDate(iso,fm){fm=fm||ffDf;const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');if(!m)return'';const y=+m[1],mo=+m[2],d=+m[3];
  if(fm==='sl')return`${y}/${mo}/${d}`;if(fm==='s')return`${y}年${mo}月${d}日`;
- const t=y*10000+mo*100+d,er=t>=20190501?['令和',2018]:t>=19890108?['平成',1988]:t>=19261225?['昭和',1925]:['大正',1911],n=y-er[1];return`${er[0]}${n===1?'元':n}年${mo}月${d}日`}
+ const eo=eraOf(iso);if(!eo)return`${y}年${mo}月${d}日`;return`${eo.name}${eo.n===1?'元':eo.n}年${mo}月${d}日`}
 function setDf(v){ffDf=v;$('#ffdf').value=v;$('#dpf').value=v;try{localStorage.setItem('pdftool_datefmt',v)}catch(e){}
  if(shapes.some(s=>s.fk&&s.di)){snap();const done=new Set();[...shapes].forEach(s=>{if(!s.fk||!s.di)return;const f=ffFieldOf(s);if(!f)return;if(f.k==='d'){if(done.has(f))return;done.add(f);ffApplyDate(s.pg,f,s.di);return}s.raw=fmtDate(s.di);ffLayout(s,f)});drawAll();ffVals()}}
-$('#ffdf').onchange=e=>setDf(e.target.value);$('#dpf').onchange=e=>setDf(e.target.value);
+$('#eraB').onclick=eraDlg;$('#eraB2').onclick=eraDlg;$('#ffdf').onchange=e=>setDf(e.target.value);$('#dpf').onchange=e=>setDf(e.target.value);
 function showDate(i,f){const P=E.pages[i],r=P.svg.getBoundingClientRect(),k=r.width/P.w,d=$('#dpop'),s=shapes.find(x=>x.pg===i&&x.fk===ffKey(f)),t=new Date(),td=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
  dpCur={i,f};f.dt=true;ffAct={pi:i,f};$('#dpi').value=(s&&s.di)||td;d.style.display='flex';
  const w=d.offsetWidth||320,h=d.offsetHeight||50;let L=Math.max(4,Math.min(r.left+f.x*k,innerWidth-w-4)),T=r.top+(f.y+f.h)*k+6;if(T+h>innerHeight-4)T=Math.max(4,r.top+f.y*k-h-6);d.style.left=L+'px';d.style.top=T+'px';
@@ -925,13 +940,13 @@ function dateFields(items){const G=[];items.forEach(o=>{const n=o.s.length;if(!n
   const di=row.findIndex((g,k)=>k>mi&&g.c==='日'&&g.x0-m.x1<260),d=row[di];if(!d)return;
   const blank=(x0,x1)=>!row.some(g=>g!==a&&g!==m&&g!==d&&g.x0>=x0-.5&&g.x1<=x1+.5&&g.c.trim()),pv=row.slice(0,ri).reverse().find(g=>g.c.trim())||{x1:a.x0-Math.min(a.h*4,60)};
   const gy=[pv.x1,a.x0],gm=[a.x1,m.x0],gd=[m.x1,d.x0];if(gy[1]-gy[0]<8||gm[1]-gm[0]<8||gd[1]-gd[0]<8)return;if(!blank(gy[0],gy[1])||!blank(gm[0],gm[1])||!blank(gd[0],gd[1]))return;
-  const pre=row.filter(g=>g.x1<=a.x0+.5&&g.x0>a.x0-120).map(g=>g.c).join(''),era=(/令和/.exec(pre)||/平成/.exec(pre)||/昭和/.exec(pre)||[''])[0],suf=row.filter(g=>g.x0>=d.x1-.5&&g.x0<d.x1+70).map(g=>g.c).join('').replace(/\s+/g,'').slice(0,6);
+  const pre=row.filter(g=>g.x1<=a.x0+.5&&g.x0>a.x0-120).map(g=>g.c).join(''),era=(new RegExp(eraNames().join('|')).exec(pre)||[''])[0],suf=row.filter(g=>g.x0>=d.x1-.5&&g.x0<d.x1+70).map(g=>g.c).join('').replace(/\s+/g,'').slice(0,6);
   out.push({x:gy[0],y:a.b-a.h*.95,w:d.x1-gy[0],h:a.h*1.25,k:'d',dt:true,lb:'日付'+(suf?'（'+suf+'）':''),dgp:{y:gy,m:gm,d:gd},b:a.b,hh:a.h,era});[a,m,d].forEach(g=>used.add(G.indexOf(g)))});
  return out}
 function ffApplyDate(pi,f,iso){const key=ffKey(f),P=E.pages[pi];shapes=shapes.filter(s=>!(s.pg===pi&&s.fk===key));
  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');if(!m){drawAll();syncP();return}
- const y=+m[1],mo=+m[2],d=+m[3],t=y*10000+mo*100+d,base={'令和':2018,'平成':1988,'昭和':1925},eb=t>=20190501?2018:t>=19890108?1988:t>=19261225?1925:1911;
- let yt;if(f.era&&base[f.era]&&y-base[f.era]>=1)yt=String(y-base[f.era]);else if(f.era||ffDf==='w')yt=String(y-eb);else yt=String(y);
+ const y=+m[1],mo=+m[2],d=+m[3],eo=eraOf(iso),bs=f.era?eraBase(f.era):null;
+ let yt;if(bs!=null&&y-bs>=1)yt=String(y-bs);else if(ffDf==='w'||f.era)yt=eo?eo.name+(eo.n===1?'元':eo.n):String(y);else yt=String(y);
  [['y',yt],['m',String(mo)],['d',String(d)]].forEach(([k,tx])=>{const g=f.dgp[k],s=mk(pi,'text',{x:g[0],y:f.b,tx,fs:12,sc:'#000000',bd:0,fn:'',it:0,fk:key,dg:k,raw:tx,di:iso});ffStyle(s,P,f);
   let fs=Math.max(7,Math.min(f.hh*.95,20));s.fs=fs;fit(s);while(s.w>g[1]-g[0]-1&&fs>6){fs-=.5;s.fs=fs;fit(s)}s.x=(g[0]+g[1])/2-s.w/2;s.y=f.b-fs*.95});
  drawAll();syncP()}
