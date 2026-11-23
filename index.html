@@ -783,7 +783,11 @@ async function autoFill0(p,i){const P=E.pages[i],th=+$('#th').value;msg('解析�
  /* A3など大きい図面では頂点が数千になり、選択ハンドルの描画で固まるため、上限(約300点)まで単純化する */
  if(pts.length>300){let eps=1/S;while(pts.length>300&&eps<20){eps*=1.6;let f=0,fd=-1;for(let j=1;j<pts.length;j++){const d=Math.hypot(pts[j][0]-pts[0][0],pts[j][1]-pts[0][1]);if(d>fd){fd=d;f=j}}
    const np=[...rdp(pts.slice(0,f+1),eps).slice(0,-1),...rdp([...pts.slice(f),pts[0]],eps).slice(0,-1)];if(np.length>=3)pts=np;else break}}
- snap();const s=mk(i,'poly',{p:pts,sw:0,hl:1});sel=s.id;drawAll();syncP();msg('塗りつぶしました（頂点数 '+pts.length+'）。Escで選択モードに戻ります')}
+ /* 同じ場所を再度クリックしたときは重ねて作らず、既存の塗りを選択して色・透過を現在の設定に更新する */
+ const bb=q=>{const xs=q.map(v=>v[0]),ys=q.map(v=>v[1]);return[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)]},nb=bb(pts);
+ const dup=shapes.find(x=>x.pg===i&&x.ty==='poly'&&x.hl&&x.p&&x.p.length>=3&&bb(x.p).every((v,k)=>Math.abs(v-nb[k])<=3));
+ if(dup){snap();dup.fc=D.fc;dup.fa=D.fa;sel=dup.id;drawAll();syncP();msg('同じ場所は重ねずに、既存の塗りを更新しました');return}
+ snap();const s=mk(i,'poly',{p:pts,sw:0,hl:1});sel=s.id;ot=null;selV=null;drag=null;msel=new Set();drawAll();syncP();msg('塗りつぶしました（頂点数 '+pts.length+'）。Escで選択モードに戻ります')}
 
 /* ===== PDF文字の編集・ハイライト ===== */
 let hlr=null;
@@ -1005,7 +1009,7 @@ addEventListener('keydown',e=>{const g=e.target.tagName;if(g==='INPUT'||g==='TEX
 /* ===== プロパティ ===== */
 const PM={sc:v=>({sc:v}),fc:v=>({fc:v}),fa:v=>({fa:Math.pow(v/100,2)}),sw:v=>({sw:Math.max(0,+v)}),fs:v=>({fs:Math.max(4,+v||4)}),lh:v=>({lh:Math.max(.5,Math.min(5,+v||1.2))}),tx:v=>({tx:v}),tc:v=>({tc:v}),url:v=>({url:v.trim()}),fnt:v=>({fn:v})};
 $('#props').addEventListener('focusin',()=>{if(ot)lift();cur()&&snap()});
-$('#props').addEventListener('input',e=>{if(e.target.id==='fa'){if(+e.target.value<=3)e.target.value=0;favUp()}const f=PM[e.target.id];if(!f)return;const o=f(e.target.value),s=cur();if(!['tx','url'].includes(e.target.id))Object.assign(D,o);if(s){Object.assign(s,o);if(s.ty==='pline'&&e.target.id==='fa')s.ao=o.fa;fitBox(s);draw(s.pg)}});
+$('#props').addEventListener('input',e=>{if(e.target.id==='fa'){if(+e.target.value<=3)e.target.value=0;favUp()}const f=PM[e.target.id];if(!f)return;const o=f(e.target.value),s=cur()||shapes.find(x=>x.id===sel);if(!['tx','url'].includes(e.target.id))Object.assign(D,o);if(s){Object.assign(s,o);if(s.ty==='pline'&&e.target.id==='fa')s.ao=o.fa;fitBox(s);drawAll()}});
 const tgl=k=>{const s=cur();if(!s)return;s[k]=!s[k];D[k]=s[k]?1:0;fitBox(s);draw(s.pg);syncP()};$('#bdb').onclick=()=>tgl('bd');$('#itb').onclick=()=>tgl('it');
 $('#sg').onchange=e=>{const s=cur();if(s){snap();s.seg=e.target.checked;draw(s.pg)}};
 
