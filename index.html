@@ -99,6 +99,21 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 .thn{font-size:12px;color:var(--mu);margin-top:3px}
 .thi.dpb::before,.thi.dpa::after{content:"";position:absolute;left:4px;right:4px;height:4px;background:var(--ac);border-radius:2px;z-index:2}
 .thi.dpb::before{top:0}.thi.dpa::after{bottom:0}
+#ffw{flex:none;width:300px;min-width:200px;max-width:70vw;resize:horizontal;overflow:hidden;background:var(--cd);border-right:1px solid var(--bd);display:flex;flex-direction:column;font-size:13px}
+#ffw.hide{display:none}#ffl{flex:1;min-height:0;overflow:auto;padding:4px 12px 40px}#ffl .empty{color:var(--mu);padding:20px 4px;text-align:center}
+.ffg{font-size:12px;color:var(--ac);font-weight:700;border-bottom:1px solid var(--bd);margin:12px 0 4px;padding-bottom:2px}
+.ffi{margin:8px 0}.ffi label{display:block;font-size:12px;color:var(--mu);margin-bottom:2px}
+.ffi input,.ffi textarea{width:100%;font:inherit;font-size:14px;color:var(--fg);background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:6px 8px;resize:vertical}
+.ffi.act input,.ffi.act textarea{border-color:#ff7a00;box-shadow:0 0 0 2px #ff7a0044;outline:none}
+#ffw .ffb{display:flex;gap:6px;align-items:center;padding:6px 8px;border-top:1px solid var(--bd)}
+#fbar{display:none;position:fixed;z-index:61;gap:8px;align-items:center;background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:3px 8px;box-shadow:0 2px 10px #0004;font-size:12px;color:var(--fg)}
+#fbar button{padding:2px 8px}
+#dpop{display:none;position:fixed;z-index:62;gap:6px 8px;align-items:center;flex-wrap:wrap;background:var(--cd);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;box-shadow:0 4px 16px #0004;font-size:13px;max-width:92vw}
+#dpop input[type=date],#dpop select{font:inherit;color:var(--fg);background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:3px 6px}
+.ffo{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--fg)}
+.ffo select{font:inherit;color:var(--fg);background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:2px 4px;max-width:150px}
+.ffdt{border:0;background:none;padding:0 4px;opacity:.4;cursor:pointer;font-size:12px}.ffdt.on{opacity:1}
+.ffi input[type=date]{width:100%;font:inherit;font-size:14px;color:var(--fg);background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:5px 8px}
 </style></head><body>
 <header>
 <div id="tabs"><img id="logo" src="data:image/png;base64,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" alt="エステート住宅産業株式会社" width="951" height="84"><b>PDFツール</b><span id="tabb"></span><span class="sp"></span><span id="pi"></span><label>拡大<input type="range" id="zm" min="0" max="1000" value="191"></label><button id="qh" title="操作説明" style="margin-left:8px;padding:1px 8px">?</button></div>
@@ -149,7 +164,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 <span>線色<input type="color" id="sc" value="#ff0000"></span><span>塗り<input type="color" id="fc" value="#ffff00"></span>
 <span>透過<input type="range" id="fa" min="0" max="100" value="50" style="width:70px"></span><span>線幅<input type="number" id="sw" min="0" value="2" step="0.5"></span>
 <span id="tcw" style="display:none">文字色<input type="color" id="tc" value="#000000"></span>
-<span id="txw" style="display:none">文字サイズ<input type="number" id="fs" min="4" value="18"><span id="fnw" style="display:none"><select id="fnt" title="フォント"><option value="">自動（元のフォント／標準）</option><option value="msg">ＭＳ ゴシック</option><option value="msp">ＭＳ Ｐゴシック</option><option value="msm">ＭＳ 明朝</option><option value="mspm">ＭＳ Ｐ明朝</option><option value="maru">丸ゴシック</option><option value="meiryo">メイリオ</option><option value="yug">游ゴシック</option><option value="yum">游明朝</option><option value="arial">Arial</option><option value="times">Times New Roman</option></select><button id="bdb" title="太字"><b>B</b></button><button id="itb" title="斜体"><i>I</i></button></span><span id="txa"><textarea id="tx" placeholder="テキスト（改行可）"></textarea></span></span>
+<span id="txw" style="display:none">文字サイズ<input type="number" id="fs" min="4" value="18"> 行間<input type="number" id="lh" min="0.5" max="5" step="0.1" value="1.2" title="行間（文字サイズの倍率。1.2が標準）" style="width:56px"><span id="fnw" style="display:none"><select id="fnt" title="フォント"><option value="">自動（元のフォント／標準）</option><option value="msg">ＭＳ ゴシック</option><option value="msp">ＭＳ Ｐゴシック</option><option value="msm">ＭＳ 明朝</option><option value="mspm">ＭＳ Ｐ明朝</option><option value="maru">丸ゴシック</option><option value="meiryo">メイリオ</option><option value="yug">游ゴシック</option><option value="yum">游明朝</option><option value="arial">Arial</option><option value="times">Times New Roman</option></select><button id="bdb" title="太字"><b>B</b></button><button id="itb" title="斜体"><i>I</i></button></span><span id="txa"><textarea id="tx" placeholder="テキスト（改行可）"></textarea></span></span>
 <span id="sgw" style="display:none"><label><input type="checkbox" id="sg">各辺の寸法を表示</label></span>
 <span id="urw" style="display:none">🔗リンク<input type="text" id="url" placeholder="https://…" style="width:210px"></span>
 <span title="塗りつぶしで線とみなす濃さ。線が薄い図面は大きく">線検出<input type="range" id="th" min="120" max="250" value="200" style="width:70px"></span><span title="塗りつぶしを線の内側へ広げる量(pt)。白い隙間が残るときだけ少し大きく。0なら線に触れる位置まで">塗り広げ<input type="range" id="gw" min="0" max="3" step="0.1" value="0.2" style="width:70px"></span><label title="オンのとき、線の上をクリック（タップ）した時だけ塗ります。オフにすると線の内側（空白）をクリックしても塗れます"><input type="checkbox" id="lo" checked>線上のみ塗る</label>
@@ -194,9 +209,17 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 <ul id="bml"></ul>
 <div class="hint bmn">行をクリックでそのページへ移動。選んだ行の下に追加されます。Shift+Enterで細目を追加。保存は「ホーム → PDF保存」です。</div>
 </aside>
+<aside id="ffw" class="hide">
+<div class="bmh"><b>記入項目</b><span id="ffn" class="hint" style="padding:0;background:none;border:0"></span><button id="ffx" title="閉じる">✕</button></div>
+<div class="ffo"><label>フォント <select id="ffont"></select></label><label>日付 <select id="ffdf"><option value="w">令和8年1月1日</option><option value="s">2026年1月1日</option><option value="sl">2026/1/1</option></select></label><button class="pri" id="ffrg" title="一覧にない欄：PDF上でドラッグして範囲を指定し、そのまま文字入力">範囲指定入力</button><span id="ffinf" class="hint" style="padding:0;background:none;border:0;flex-basis:100%"></span></div>
+<div id="ffl"></div>
+<div class="ffb"><button class="pri" id="ffsv">PDF保存</button><span class="hint" style="padding:0;background:none;border:0">入力するとPDFに反映されます。一覧にない欄は「範囲指定入力」でPDF上をドラッグして直接入力できます</span></div>
+</aside>
 <div id="pages"><div class="empty">「ホーム → 開く」または PDF をここにドラッグ&amp;ドロップ</div></div></div></section>
 <div id="cm"></div>
 <textarea id="ie"></textarea>
+<div id="fbar"><button id="fbd" title="カレンダーで日付を入力">📅 日付</button><span id="fbf"></span></div>
+<div id="dpop"><b>📅 日付</b><input type="date" id="dpi"><select id="dpf"><option value="w">令和8年1月1日</option><option value="s">2026年1月1日</option><option value="sl">2026/1/1</option></select><button class="pri" id="dpok">入力</button><button id="dpt" title="日付ではなく文字で入力する">文字入力</button><button id="dpx" title="閉じる">✕</button></div>
 <div id="st"></div>
 
 <script>
@@ -233,14 +256,15 @@ peri:'M5 18V8l7-4 7 4v10z',area:'<path d="M5 18V8l7-4 7 4v10z" fill="currentColo
 merge:'M4 4h8v10H4zM12 10h8v10h-8z',split:'M12 3v18M3 6h6v12H3zM15 6h6v12h-6z',a3:'M3 5h7v14H3zM14 5h7v14h-7zM11 12h2',
 lock:'M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4M12 15v3',comp:'M4 4l6 6M10 5v5H5M20 4l-6 6M14 5v5h5M4 20l6-6M10 19v-5H5M20 20l-6-6M14 19v-5h5',bm:'M6 3h12v18l-6-5-6 5z',
 zin:'M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15zM16 16l5 5M8 10.5h5M10.5 8v5',zout:'M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15zM16 16l5 5M8 10.5h5',
-tedit:'M4 6h11M9.5 6v9M12 21l1-4 7-7 3 3-7 7z',hl:'M4 21h16M8 15l8-8 3 3-8 8H8z',stamp:'M9 4h6v6l3 3v2H6v-2l3-3zM5 20h14',xls:'M4 4h16v16H4zM4 10h16M4 15h16M10 4v16',fit:'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',thumb:'<rect x="4" y="3" width="7" height="8"/><rect x="13" y="3" width="7" height="8"/><rect x="4" y="13" width="7" height="8"/><rect x="13" y="13" width="7" height="8"/>',plus:'M12 5v14M5 12h14',marq:'<rect x="4" y="4" width="16" height="16" stroke-dasharray="3 2"/><path d="M9 9l6 6M15 9l-6 6"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17h.01"/>'};
+tedit:'M4 6h11M9.5 6v9M12 21l1-4 7-7 3 3-7 7z',hl:'M4 21h16M8 15l8-8 3 3-8 8H8z',stamp:'M9 4h6v6l3 3v2H6v-2l3-3zM5 20h14',xls:'M4 4h16v16H4zM4 10h16M4 15h16M10 4v16',fit:'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',thumb:'<rect x="4" y="3" width="7" height="8"/><rect x="13" y="3" width="7" height="8"/><rect x="4" y="13" width="7" height="8"/><rect x="13" y="13" width="7" height="8"/>',plus:'M12 5v14M5 12h14',form:'M4 4h16v16H4zM4 10h16M10 10v10',marq:'<rect x="4" y="4" width="16" height="16" stroke-dasharray="3 2"/><path d="M9 9l6 6M15 9l-6 6"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17h.01"/>'};
+IC.ellipse='<ellipse cx="12" cy="12" rx="9" ry="6"/>';
 const ic=n=>{const v=IC[n]||'';return'<svg viewBox="0 0 24 24">'+(v[0]==='<'?v:`<path d="${v}"/>`)+'</svg>'};
 
 /* ===== 状態 ===== */
 let E={bytes:null,name:'',pages:[],bm:[],mm:0},z=1.25,shapes=[],sel=null,tool='select',D={sc:'#ff0000',fc:'#ffff00',fa:.5,sw:2,fs:18,tc:'#000000',fn:'',bd:0,it:0},imgs={},draft=null,drag=null,undo=[],redo=[],uid=1,pend=null,ot=null,ed=null,pl=[],pickOrig=true,curPg=0,tab='home',bmSel=-1,sec='ed',dropPt=null,rrT=0,rrTok=0,cmS=false,bmOpen=false,thOpen=innerWidth>=700,thSel=new Set([0]),thAuto=true,thW=130,thAnchor=0,thIO=null,thT=0,thQ=Promise.resolve(),lnd=null,thDr=null,thMoved=0,thMq=null;
 const FF="'Hiragino Sans','Yu Gothic',Meiryo,sans-serif",PAD=4,
- POLYT=['poly','pline','mdist','mperi','marea'],DRAGT=['rect','cloud','line','arrow','callout','leader','linkarea','tbox'],TXT=['text','rect','cloud','callout','leader'],
- isB=s=>['rect','cloud','image','text','callout','leader','orig','linkarea'].includes(s.ty),closedS=s=>s.ty==='poly'||(s.ty==='meas'&&s.mk!=='dist'),stS=s=>s.ty==='pline'||s.ty==='poly',plPad=s=>8/z+(s.sw||0)/2,
+ POLYT=['poly','pline','mdist','mperi','marea'],DRAGT=['rect','ellipse','cloud','line','arrow','callout','leader','linkarea','tbox'],TXT=['text','rect','cloud','callout','leader'],
+ isB=s=>['rect','ellipse','cloud','image','text','callout','leader','orig','linkarea'].includes(s.ty),closedS=s=>s.ty==='poly'||(s.ty==='meas'&&s.mk!=='dist'),stS=s=>s.ty==='pline'||s.ty==='poly',plPad=s=>8/z+(s.sw||0)/2,
  cur=()=>ot?null:shapes.find(s=>s.id===sel),clone=o=>JSON.parse(JSON.stringify(o)),
  snap=()=>{undo.push(JSON.stringify(shapes));if(undo.length>60)undo.shift();redo=[]},
  vp=(P,s)=>P.pg.getViewport({scale:s,rotation:(P.pg.rotate+P.rot)%360});
@@ -249,21 +273,21 @@ const FF="'Hiragino Sans','Yu Gothic',Meiryo,sans-serif",PAD=4,
 const ROT=[['a:rotl','左90°','rotL'],['a:rotr','右90°','rotR'],['a:rotal','全頁 左','rotL'],['a:rotar','全頁 右','rotR']];
 const TABS=[['home','ホーム'],['cm','注釈'],['ms','測定'],['pg','整理'],['vw','表示']];
 const RB={
- home:[['ファイル',[['a:open','開く','open'],['a:save','PDF保存','save']]],['編集',[['a:undo','元に戻す','undo'],['a:redo','やり直し','redo'],['a:del','削除','del']]],['選択',[['t:select','選択','sel'],['t:marq','範囲選択','marq'],['a:orig','元データも選択','orig']]],['PDF文字',[['t:tedit','文字編集','tedit'],['t:hl','ハイライト','hl']]],['スタンプ',[['a:stamp','スタンプ','stamp'],['a:stadd','登録','image']]],['ページ回転(表示ページ)',ROT],['パネル',[['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]]],
- cm:[['テキスト',[['t:text','テキスト','text'],['t:tbox','枠付テキスト','tbox'],['t:callout','吹き出し','callout'],['t:leader','引き出し線','leader']]],['図形',[['t:rect','矩形','rect'],['t:line','直線','line'],['t:arrow','矢印','arrow'],['t:poly','多角形','poly'],['t:pline','ポリライン','pline'],['t:cloud','雲形','cloud'],['t:bucket','塗りつぶし','bucket']]],['PDF文字',[['t:tedit','文字編集','tedit'],['t:hl','ハイライト','hl']]],['選択',[['t:marq','範囲選択','marq']]],['画像',[['t:image','画像挿入','image']]],['スタンプ',[['a:stamp','スタンプ','stamp'],['a:stadd','登録','image']]],['リンク',[['a:link','リンク設定','link'],['t:linkarea','範囲リンク','linkarea']]],['重ね順',[['a:top','最前面','top'],['a:up','前面','up'],['a:down','背面','down'],['a:bot','最背面','bot']]]],
+ home:[['ファイル',[['a:open','開く','open'],['a:save','PDF保存','save']]],['編集',[['a:undo','元に戻す','undo'],['a:redo','やり直し','redo'],['a:del','削除','del']]],['選択',[['t:select','選択','sel'],['t:marq','範囲選択','marq'],['a:orig','元データも選択','orig']]],['PDF文字',[['t:tedit','文字編集','tedit'],['t:hl','ハイライト','hl']]],['スタンプ',[['a:stamp','スタンプ','stamp'],['a:stadd','登録','image']]],['ページ回転(表示ページ)',ROT],['パネル',[['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]],['記入欄',[['a:fft','記入欄パネル','form'],['t:ffill','枠をタップ','form'],['t:frange','範囲指定入力','tbox']]]],
+ cm:[['テキスト',[['t:text','テキスト','text'],['t:tbox','枠付テキスト','tbox'],['t:callout','吹き出し','callout'],['t:leader','引き出し線','leader']]],['図形',[['t:rect','矩形','rect'],['t:ellipse','〇（円）','ellipse'],['t:line','直線','line'],['t:arrow','矢印','arrow'],['t:poly','多角形','poly'],['t:pline','ポリライン','pline'],['t:cloud','雲形','cloud'],['t:bucket','塗りつぶし','bucket']]],['PDF文字',[['t:tedit','文字編集','tedit'],['t:hl','ハイライト','hl']]],['選択',[['t:marq','範囲選択','marq']]],['画像',[['t:image','画像挿入','image']]],['スタンプ',[['a:stamp','スタンプ','stamp'],['a:stadd','登録','image']]],['リンク',[['a:link','リンク設定','link'],['t:linkarea','範囲リンク','linkarea']]],['重ね順',[['a:top','最前面','top'],['a:up','前面','up'],['a:down','背面','down'],['a:bot','最背面','bot']]]],
  ms:[['縮尺',[['t:scale','寸法設定','scale']]],['測定',[['t:dim','寸法','dim'],['t:mdist','距離','dist'],['t:mperi','周囲','peri'],['t:marea','面積','area']]]],
- pg:[['ツール',[['s:mg','結合','merge'],['s:sp','分割','split'],['s:a3','A4→A3','a3'],['s:cp','圧縮','comp'],['s:pw','パスワード','lock'],['s:xl','Excel変換','xls'],['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]],['ページ回転(表示ページ)',ROT]],
+ pg:[['ツール',[['s:mg','結合','merge'],['s:sp','分割','split'],['s:a3','A4→A3','a3'],['s:cp','圧縮','comp'],['s:pw','パスワード','lock'],['s:xl','Excel変換','xls'],['a:fft','記入欄パネル','form'],['t:ffill','枠をタップして入力','form'],['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]],['ページ回転(表示ページ)',ROT]],
  vw:[['パネル',[['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]],['ズーム',[['a:zin','拡大','zin'],['a:zout','縮小','zout'],['a:zfit','幅に合わせる','fit']]],['ヘルプ',[['a:help','操作説明','help']]]]};
 $('#tabb').innerHTML=TABS.map(t=>`<button class="tab" data-tab="${t[0]}">${t[1]}</button>`).join('');
 function buildRib(){$('#rib').innerHTML=RB[tab].map(g=>`<div class="grp"><div class="it">${g[1].map(b=>`<button class="rb" data-i="${b[0]}" title="${b[1]}">${ic(b[2])}<span>${b[1]}</span></button>`).join('')}</div><small>${g[0]}</small></div>`).join('');syncRib();fitH()}
 function syncRib(){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
- document.querySelectorAll('#rib .rb').forEach(b=>{const[k,v]=b.dataset.i.split(':');b.classList.toggle('on',(k==='t'&&sec==='ed'&&v===tool)||(k==='s'&&v===sec)||(b.dataset.i==='a:orig'&&pickOrig)||(b.dataset.i==='a:bmt'&&bmOpen))});
+ document.querySelectorAll('#rib .rb').forEach(b=>{const[k,v]=b.dataset.i.split(':');b.classList.toggle('on',(k==='t'&&sec==='ed'&&v===tool)||(k==='s'&&v===sec)||(b.dataset.i==='a:orig'&&pickOrig)||(b.dataset.i==='a:bmt'&&bmOpen)||(b.dataset.i==='a:fft'&&ffOpen))});
  $('#pages').classList.toggle('cs',tool!=='select');document.querySelectorAll('#rail button').forEach(b=>b.classList.toggle('on',(b.dataset.p==='th'&&thOpen)||(b.dataset.p==='bm'&&bmOpen)));document.querySelectorAll('#rib .rb[data-i="a:tht"]').forEach(b=>b.classList.toggle('on',thOpen))}
 function setTab(k){tab=k;buildRib();if(k!=='pg')showSec('ed')}
 function showSec(id){sec=id;document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===id));syncRib();fitH()}
-function setTool(v){if(draft&&!draft.k)finish();lineCancel();mq=null;if(v!=='marq')msel=new Set();showSec('ed');draft=null;ot=null;closeIE();$('#cal').style.display='none';if(v==='image'){$('#imgf').click();return}tool=v;syncRib();drawAll();syncP()}
+function setTool(v){if(draft&&!draft.k)finish();lineCancel();mq=null;if(v!=='marq')msel=new Set();showSec('ed');draft=null;ot=null;closeIE();$('#cal').style.display='none';if(v==='image'){$('#imgf').click();return}tool=v;syncRib();drawAll();syncP();if(v==='ffill')ffEnter();if(v==='frange')frEnter()}
 const ZMAX=64,ZMIN=.5,setZm=()=>{$('#zm').value=Math.round(1000*Math.log(z/ZMIN)/Math.log(ZMAX/ZMIN))},zoomBy=f=>{z=Math.min(ZMAX,Math.max(ZMIN,z*f));setZm();setZ()};
-const ACT={tht:()=>thToggle(),stamp:()=>stToggle(),stadd:()=>{stToggle(true);$('#stf').click()},bmt:()=>bmToggle(),open:()=>{showSec('ed');$('#edf').click()},save:()=>run(doExport),undo:()=>unde(),redo:()=>rede(),del:()=>delS(),
+const ACT={fft:()=>ffToggle(),tht:()=>thToggle(),stamp:()=>stToggle(),stadd:()=>{stToggle(true);$('#stf').click()},bmt:()=>bmToggle(),open:()=>{showSec('ed');$('#edf').click()},save:()=>run(doExport),undo:()=>unde(),redo:()=>rede(),del:()=>delS(),
  orig:()=>{pickOrig=!pickOrig;ot=null;drawAll();syncRib();msg(pickOrig?'元データの選択：オン（図形が無い所をクリックでPDF内の画像・図形を選択）':'元データの選択：オフ')},
  rotl:()=>run(()=>rotPage(curPg,-1)),rotr:()=>run(()=>rotPage(curPg,1)),rotal:()=>run(async()=>{for(let i=0;i<E.pages.length;i++)await rotPage(i,-1)}),rotar:()=>run(async()=>{for(let i=0;i<E.pages.length;i++)await rotPage(i,1)}),
  top:()=>zorder('top'),up:()=>zorder('up'),down:()=>zorder('down'),bot:()=>zorder('bot'),
@@ -393,7 +417,7 @@ async function openPdf(bytes){let enc=false;const t=pdfjsLib.getDocument({data:b
 /* ===== しおり ===== */
 const grpEnd=i=>{let p=i;while(p>0&&E.bm[p].l)p--;let j=p+1;while(j<E.bm.length&&E.bm[j].l)j++;return j};
 function rbm(){$('#bml').innerHTML=E.bm.map((b,i)=>`<li class="${b.l?'sub':''}${i===bmSel?' sel':''}" data-i="${i}"><div class="bmrow"><span class="bmi">${b.l?'└':'▾'}</span><input type="text" data-a="t" value="${esc(b.t).replace(/"/g,'&quot;')}"><input type="number" data-a="p" title="ページ" min="1" max="${E.pages.length||1}" value="${b.p+1}"></div><div class="bmtools"><button data-a="lv">${b.l?'大項目にする':'細目にする'}</button><button data-a="u" title="上へ">↑</button><button data-a="d" title="下へ">↓</button><button data-a="x" title="削除">✕</button></div></li>`).join('')||'<li class="hint" style="background:none;border:0;cursor:default">しおりはありません</li>';const sl=$('#bml li.sel');if(sl)sl.scrollIntoView({block:'nearest'})}
-function bmToggle(f){bmOpen=f===undefined?!bmOpen:f;if(bmOpen&&thOpen){thOpen=false;$('#thw').classList.add('hide')}showSec('ed');$('#bmw').classList.toggle('hide',!bmOpen);if(bmOpen){$('#bmpg').value=curPg+1;rbm()}syncRib();fitH();if(E.pages.length&&typeof schedRR==='function')schedRR()}
+function bmToggle(f){bmOpen=f===undefined?!bmOpen:f;if(bmOpen&&thOpen){thOpen=false;$('#thw').classList.add('hide')}if(bmOpen&&ffOpen){ffOpen=false;$('#ffw').classList.add('hide');drawAll()}showSec('ed');$('#bmw').classList.toggle('hide',!bmOpen);if(bmOpen){$('#bmpg').value=curPg+1;rbm()}syncRib();fitH();if(E.pages.length&&typeof schedRR==='function')schedRR()}
 function bmJump(i){const b=E.bm[i],P=b&&E.pages[b.p];if(!P)return;const R=$('#pages');R.scrollTop+=P.wrap.getBoundingClientRect().top-R.getBoundingClientRect().top-14;updPg()}
 function bmAdd(l){if(!E.pages.length)return msg('先にPDFを開いてください');const p=Math.min(E.pages.length,Math.max(1,+$('#bmpg').value||1))-1,t=$('#bmt').value.trim()||(l?'細目':'大項目')+(E.bm.length+1);let at;
  if(l){if(!E.bm.length)return msg('先に大項目を追加してください');at=bmSel<0?E.bm.length:(E.bm[bmSel].l?bmSel+1:grpEnd(bmSel))}else at=bmSel<0?E.bm.length:grpEnd(bmSel);
@@ -429,17 +453,18 @@ const fam=s=>s.fn&&FONTS[s.fn]?FONTS[s.fn][1]:(s.ff||FF);
 function guessKey(n){n=n||'';if(/meiryo|メイリオ/i.test(n))return'meiryo';if(/yu\s?-?gothic|游ゴシック/i.test(n))return'yug';if(/yu\s?-?mincho|游明朝/i.test(n))return'yum';if(/pmincho|p明朝|Ｐ明朝/i.test(n))return'mspm';if(/times/i.test(n))return'times';if(/mincho|明朝|ryumin|serif|ming|song/i.test(n))return'msm';if(/pgothic|pゴシック|Ｐゴシック/i.test(n))return'msp';if(/maru|丸/i.test(n))return'maru';if(/arial|helvet/i.test(n))return'arial';if(/gothic|ゴシック|sans|kozgo|kaku/i.test(n))return'msg';return''}
 /* ===== 図形ジオメトリ ===== */
 const mc=document.createElement('canvas').getContext('2d');
-function fit(s){mc.font=`${s.it?'italic ':''}${s.bd?'bold ':''}${s.fs}px ${fam(s)}`;const L=(s.tx||' ').split('\n');s.w=Math.max(...L.map(l=>mc.measureText(l).width),s.fs*.5);s.h=L.length*s.fs*1.2}
+function fit(s){mc.font=`${s.it?'italic ':''}${s.bd?'bold ':''}${s.fs}px ${fam(s)}`;const L=(s.tx||' ').split('\n');s.w=Math.max(...L.map(l=>mc.measureText(l).width),s.fs*.5);s.h=s.fs*((s.lh||1.2)*(L.length-1)+1.2)}
 function fitBox(s){if(s.ty==='text'){fit(s);return}if(!TXT.includes(s.ty))return;
- if(s.ty==='leader'){const t={tx:s.tx||' ',fs:s.fs,ff:fam(s),it:s.it,bd:s.bd};fit(t);s.w=Math.max(s.w,t.w+8,60);s.h=t.h+6;return}
- if(s.tx){const t={tx:s.tx,fs:s.fs,ff:fam(s),it:s.it,bd:s.bd};fit(t);s.w=Math.max(s.w,t.w+2*PAD);s.h=Math.max(s.h,t.h+2*PAD)}}
+ if(s.ty==='leader'){const t={tx:s.tx||' ',fs:s.fs,lh:s.lh,ff:fam(s),it:s.it,bd:s.bd};fit(t);s.w=Math.max(s.w,t.w+8,60);s.h=t.h+6;return}
+ if(s.tx){const t={tx:s.tx,fs:s.fs,lh:s.lh,ff:fam(s),it:s.it,bd:s.bd};fit(t);s.w=Math.max(s.w,t.w+2*PAD);s.h=Math.max(s.h,t.h+2*PAD)}}
 function cloudD(x,y,w,h){const r0=Math.max(10,Math.min(w,h)/4),P=[],ed2=(a,b,c,d)=>{const n=Math.max(1,Math.round(Math.hypot(c-a,d-b)/r0/1.6));for(let i=0;i<n;i++)P.push([a+(c-a)*i/n,b+(d-b)*i/n])};
  ed2(x,y,x+w,y);ed2(x+w,y,x+w,y+h);ed2(x+w,y+h,x,y+h);ed2(x,y+h,x,y);let d='M'+P[0].join(' ');
  for(let i=1;i<=P.length;i++){const a=P[i-1],b=P[i%P.length],r=Math.hypot(b[0]-a[0],b[1]-a[1])*.62;d+=`A${r} ${r} 0 0 1 ${b[0]} ${b[1]}`}return d+'Z'}
-const rectD=(x,y,w,h)=>`M${x} ${y}L${x+w} ${y}L${x+w} ${y+h}L${x} ${y+h}Z`,
+const ellD=(x,y,w,h)=>{const rx=Math.max(w,.1)/2,ry=Math.max(h,.1)/2,cx=x+rx,cy=y+ry;return`M${cx-rx} ${cy}A${rx} ${ry} 0 1 0 ${cx+rx} ${cy}A${rx} ${ry} 0 1 0 ${cx-rx} ${cy}Z`},
+  rectD=(x,y,w,h)=>`M${x} ${y}L${x+w} ${y}L${x+w} ${y+h}L${x} ${y+h}Z`,
  polyD=(p,c)=>'M'+p.map(q=>q.join(' ')).join('L')+(c?'Z':''),
  headD=(a,b,sw)=>{const an=Math.atan2(b[1]-a[1],b[0]-a[0]),hl=Math.max(12,sw*5),h=d=>[b[0]-hl*Math.cos(an+d),b[1]-hl*Math.sin(an+d)];return`M${h(.5).join(' ')}L${b.join(' ')}L${h(-.5).join(' ')}`};
-function pathD(s){if(s.ty==='rect'||s.ty==='linkarea')return rectD(s.x,s.y,s.w,s.h);if(s.ty==='cloud')return cloudD(s.x,s.y,s.w,s.h);if(s.ty==='poly')return polyD(s.p,1);if(s.ty==='line')return polyD(s.p);return polyD(s.p)+headD(s.p[0],s.p[1],s.sw)}
+function pathD(s){if(s.ty==='ellipse')return ellD(s.x,s.y,s.w,s.h);if(s.ty==='rect'||s.ty==='linkarea')return rectD(s.x,s.y,s.w,s.h);if(s.ty==='cloud')return cloudD(s.x,s.y,s.w,s.h);if(s.ty==='poly')return polyD(s.p,1);if(s.ty==='line')return polyD(s.p);return polyD(s.p)+headD(s.p[0],s.p[1],s.sw)}
 function leadPts(s){const tp=s.tip,left=tp[0]<s.x+s.w/2,sx=left?s.x:s.x+s.w,sy=s.ty==='callout'?s.y+s.h/2:s.y+s.h;return[[sx,sy],[sx+(left?-24:24),sy],tp]}
 const leadD=(p,sw)=>polyD(p)+headD(p[1],p[2],sw);
 const mmOf=pg=>E.pages[pg].mm||E.mm||0,dimTxt=s=>{const m=mmOf(s.pg);return m?Math.round(len(s.p[0],s.p[1])*m).toLocaleString('en-US'):'?'},lab=s=>{const a=s.p[0],b=s.p[1],d=s.d||0,l0=len(a,b)||1;return[(a[0]+b[0])/2+(b[1]-a[1])/l0*d+s.off[0],(a[1]+b[1])/2-(b[0]-a[0])/l0*d+s.off[1]]};
@@ -453,10 +478,11 @@ function bbox(s){let xs,ys;if(s.p){xs=s.p.map(q=>q[0]);ys=s.p.map(q=>q[1])}else{
 
 /* 図形→描画プリミティブ（画面とPDF出力で共通） */
 function prims(s,ex){const o=[],tcl=s.ty==='text'?s.sc:(s.tc||'#000000'),F=s.fa>0?s.fc:null,sk={col:s.sc,sw:s.sw},hide=!ex&&s.id===ed;
- const txt=(x,y)=>{if(s.tx&&!hide){const t={k:'text',x,y,tx:s.tx,fs:s.fs,col:tcl,ff:fam(s),it:s.it,bd:s.bd};fit(t);o.push(t)}};
+ const txt=(x,y)=>{if(s.tx&&!hide){const t={k:'text',x,y,tx:s.tx,fs:s.fs,lh:s.lh,col:tcl,ff:fam(s),it:s.it,bd:s.bd};fit(t);o.push(t)}};
  switch(s.ty){
- case'text':if(!hide){const t={k:'text',x:s.x,y:s.y,tx:s.tx,fs:s.fs,col:s.sc,hb:1,ff:fam(s),it:s.it,bd:s.bd};fit(t);o.push(t)}else o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),sw:0,fill:'#000',fa:0,hf:1,ui:1});break;
- case'rect':case'cloud':o.push({k:'path',d:pathD(s),...sk,fill:F,fa:s.fa,hf:!!s.tx,bm:s.hl});txt(s.x+PAD,s.y+PAD);break;
+ case'text':if(!hide){const t={k:'text',x:s.x,y:s.y,tx:s.tx,fs:s.fs,lh:s.lh,col:s.sc,hb:1,ff:fam(s),it:s.it,bd:s.bd};fit(t);o.push(t)}else o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),sw:0,fill:'#000',fa:0,hf:1,ui:1});break;
+ case'ellipse':o.push({k:'path',d:ellD(s.x,s.y,s.w,s.h),...sk,fill:F,fa:s.fa});break;
+  case'rect':case'cloud':o.push({k:'path',d:pathD(s),...sk,fill:F,fa:s.fa,hf:!!s.tx,bm:s.hl});txt(s.x+PAD,s.y+PAD);break;
  case'linkarea':o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),col:s.sc,sw:s.sw,fill:s.fc,fa:s.fa,dash:'5 3',ui:1});break;
  case'callout':o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),...sk,fill:F,fa:s.fa,hf:1});o.push({k:'path',d:leadD(leadPts(s),s.sw),...sk});txt(s.x+PAD,s.y+PAD);break;
  case'leader':o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),sw:0,fill:'#000',fa:0,hf:1,ui:1});o.push({k:'path',d:polyD([[s.x,s.y+s.h],[s.x+s.w,s.y+s.h]]),...sk});o.push({k:'path',d:leadD(leadPts(s),s.sw),...sk});txt(s.x+2,s.y+1);break;
@@ -480,7 +506,7 @@ function prims(s,ex){const o=[],tcl=s.ty==='text'?s.sc:(s.tc||'#000000'),F=s.fa>
 function primSvg(q,s){const id=`data-id="${s.id}"`+(q.part?` data-part="${q.part}"`:'');
  if(q.k==='dot')return`<circle cx="${q.x}" cy="${q.y}" r="${q.r}" fill="${q.col}" pointer-events="none"/>`;
  if(q.k==='img')return`<image ${id} href="${q.u}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" preserveAspectRatio="none"/>`;
- if(q.k==='text'){const ls=q.tx.split('\n');return(q.lb?`<rect data-lb="${q.lb}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent" style="cursor:move"/>`:'')+(q.hb?`<rect ${id} x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent"/>`:'')+`<text ${q.lb?`data-lb="${q.lb}" style="cursor:move"`:'pointer-events="none"'} font-size="${q.fs}" font-family="${q.ff||FF}"${q.it?' font-style="italic"':''}${q.bd?' font-weight="bold"':''} fill="${q.col}"${q.halo?` stroke="#fff" stroke-width="${q.fs*.25}" paint-order="stroke" stroke-linejoin="round"`:''}>${ls.map((l,i)=>`<tspan x="${q.x}" y="${q.y+q.fs*(1.2*i+.95)}">${esc(l)||' '}</tspan>`).join('')}</text>`}
+ if(q.k==='text'){const ls=q.tx.split('\n');return(q.lb?`<rect data-lb="${q.lb}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent" style="cursor:move"/>`:'')+(q.hb?`<rect ${id} x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent"/>`:'')+`<text ${q.lb?`data-lb="${q.lb}" style="cursor:move"`:'pointer-events="none"'} font-size="${q.fs}" font-family="${q.ff||FF}"${q.it?' font-style="italic"':''}${q.bd?' font-weight="bold"':''} fill="${q.col}"${q.halo?` stroke="#fff" stroke-width="${q.fs*.25}" paint-order="stroke" stroke-linejoin="round"`:''}>${ls.map((l,i)=>`<tspan x="${q.x}" y="${q.y+q.fs*((q.lh||1.2)*i+.95)}">${esc(l)||' '}</tspan>`).join('')}</text>`}
  const st=`stroke="${q.sw>0&&q.col?q.col:'none'}" stroke-width="${q.sw}" stroke-linejoin="${q.mj?'miter':'round'}" stroke-linecap="${q.mj?'butt':'round'}"${q.mj?' stroke-miterlimit="10"':''}${q.so!==undefined?` stroke-opacity="${q.so}"`:''}${q.dash?` stroke-dasharray="${q.dash}"`:''}`,fl=q.fill&&q.fa>0?`fill="${q.fill}" fill-opacity="${q.fa}"`:'fill="none"';
  if(q.nohit)return`<path d="${q.d}" ${st} ${fl} pointer-events="none"/>`;
  if(q.fill&&q.fa>0)return`<path ${id} d="${q.d}" ${st} ${fl}${q.bm?' style="mix-blend-mode:multiply"':''}/>`;
@@ -499,7 +525,7 @@ function selSvg(s){const hs=(CO?16:9)/z,HA=`fill="#fff" stroke="#2f7bff" stroke-
   if(p.length<=300)p.forEach((q,i)=>o+=`<circle data-v="${i}" cx="${q[0]}" cy="${q[1]}" r="${hs/2+1/z}" ${HA} style="cursor:move"/>`);
   if(p.length<=120&&(s.ty==='poly'||s.ty==='pline'||s.ty==='meas'))p.forEach((q,i)=>{if(!cl&&i===p.length-1)return;const n=p[(i+1)%p.length];o+=`<circle data-m="${i}" cx="${(q[0]+n[0])/2}" cy="${(q[1]+n[1])/2}" r="${hs/2.6}" fill="#2f7bff" fill-opacity=".5" stroke="#fff" stroke-width="${1/z}" style="cursor:copy"/>`})}
  return o}
-var selV=null,msel=new Set(),mq=null,CO=matchMedia('(pointer:coarse)').matches,pendIE=null,lastPT='mouse';
+var ffOpen=false,ffAct=null,ffSnap=false,ffPg=-1,ffTok=0,selV=null,msel=new Set(),mq=null,CO=matchMedia('(pointer:coarse)').matches,pendIE=null,lastPT='mouse';
 addEventListener('pointerdown',e=>{lastPT=e.pointerType},true);
 addEventListener('click',()=>{if(pendIE){const[s0,a0]=pendIE;pendIE=null;openIE(s0,a0)}},true);
 function openIEg(s,a){if(lastPT==='mouse')setTimeout(()=>openIE(s,a),0);else pendIE=[s,a]}
@@ -511,6 +537,7 @@ function addVtx(s,p){const n=s.p.length,cl=closedS(s);let bj=-1,bd=1e9,bq=null;f
  if(bj<0||bd>10/z)return false;s.p.splice(bj+1,0,bq);selV={id:s.id,i:bj+1};return true}
 function draw(i){updFab();const P=E.pages[i];if(!P)return;let h='';shapes.filter(s=>s.pg===i).forEach(s=>h+=shapeSvg(s));const s=cur();if(s&&s.pg===i)h+=selSvg(s)+vBadge(s);
  shapes.filter(s=>s.pg===i&&msel.has(s.id)).forEach(s=>{const b=bbox(s),m=3/z;h+=`<rect x="${b[0]-m}" y="${b[1]-m}" width="${b[2]-b[0]+2*m}" height="${b[3]-b[1]+2*m}" fill="#e53935" fill-opacity=".08" stroke="#e53935" stroke-width="${1.5/z}" stroke-dasharray="${5/z}" pointer-events="none"/>`});
+ if((tool==='ffill'||tool==='frange'||ffOpen)&&P.fl)P.fl.forEach(f=>{const ac=ffAct&&ffAct.pi===i&&ffAct.f===f;h+=`<rect x="${f.x}" y="${f.y}" width="${f.w}" height="${f.h}" fill="${ac?'#ff7a00':'#2563eb'}" fill-opacity="${ac?.22:.1}" stroke="${ac?'#ff7a00':'#2563eb'}" stroke-width="${(ac?2:1)/z}" pointer-events="none"/>`});
  if(mq&&mq.pi===i){const x1=Math.min(mq.s[0],mq.cur[0]),y1=Math.min(mq.s[1],mq.cur[1]);h+=`<rect x="${x1}" y="${y1}" width="${Math.abs(mq.cur[0]-mq.s[0])}" height="${Math.abs(mq.cur[1]-mq.s[1])}" fill="#2f7bff" fill-opacity=".1" stroke="#2f7bff" stroke-width="${1.5/z}" stroke-dasharray="${5/z}" pointer-events="none"/>`}
  if(ot&&ot.pg===i)h+=`<rect x="${ot.x}" y="${ot.y}" width="${ot.w}" height="${ot.h}" fill="#2f7bff" fill-opacity=".08" stroke="#2f7bff" stroke-width="${1.5/z}" stroke-dasharray="${5/z}" pointer-events="none"/>`;
  if(snapMk&&snapMk.pi===i&&(draft||drag)){const q=snapMk.p,r=7/z;h+=`<g pointer-events="none" stroke="#ff7a00" stroke-width="${1.6/z}" fill="none"><circle cx="${q[0]}" cy="${q[1]}" r="${r}"/><path d="M${q[0]-r*1.5} ${q[1]}H${q[0]+r*1.5}M${q[0]} ${q[1]-r*1.5}V${q[1]+r*1.5}"/></g>`}
@@ -540,14 +567,15 @@ function snapPl(i,p,e,a,ex){const r=snapFind(i,p,e,ex);snapMk=r?{pi:i,p:r}:null;
 const mag=(a,p,e)=>{if(!a||e.altKey)return p;if(e.shiftKey)return ortho(a,p);const dx=p[0]-a[0],dy=p[1]-a[1],th=Math.tan(12*Math.PI/180);if(Math.abs(dy)<=Math.abs(dx)*th)return[p[0],a[1]];if(Math.abs(dx)<=Math.abs(dy)*th)return[a[0],p[1]];return p};
 const pt=(e,i)=>{const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(E.pages[i].svg.getScreenCTM().inverse());return[q.x,q.y]},
  ortho=(a,p)=>Math.abs(p[0]-a[0])>Math.abs(p[1]-a[1])?[p[0],a[1]]:[a[0],p[1]];
+const sqP=(a,p)=>{const dx=p[0]-a[0],dy=p[1]-a[1],d=Math.max(Math.abs(dx),Math.abs(dy));return[a[0]+(dx<0?-d:d),a[1]+(dy<0?-d:d)]};
 const mk=(i,ty,o)=>{const s={id:uid++,pg:i,ty,sc:D.sc,fc:D.fc,fa:D.fa,sw:D.sw,tc:D.tc,fs:D.fs,tx:'',fn:D.fn,bd:D.bd,it:D.it,...o};shapes.push(s);return s},
- done=s=>{sel=s.id;ot=null;if(tool==='image')tool='select';syncRib();drawAll();syncP()};
+ done=s=>{sel=s.id;ot=null;tool='select';syncRib();drawAll();syncP()};
 function syncP(){const sh=cur(),s=sh||D,ty=s.ty;$('#sc').value=s.sc;$('#fc').value=s.fc;$('#fa').value=(s.ty==='pline'?(s.ao===undefined?1:s.ao):s.fa)*100;$('#sw').value=s.sw;$('#tc').value=s.tc||D.tc;
  const tx=TXT.includes(ty),dm=ty==='dim'||ty==='meas';$('#tcw').style.display=tx&&ty!=='text'?'':'none';$('#txw').style.display=tx||dm?'':'none';$('#txa').style.display=tx?'':'none';
- if(tx||dm)$('#fs').value=Math.round(s.fs);if(tx)$('#tx').value=s.tx||'';$('#fnw').style.display=tx?'':'none';if(tx){$('#fnt').value=s.fn||'';$('#bdb').classList.toggle('on',!!s.bd);$('#itb').classList.toggle('on',!!s.it)}$('#sgw').style.display=ty==='meas'?'':'none';if(ty==='meas')$('#sg').checked=s.seg!==false;
+ if(tx||dm)$('#fs').value=Math.round(s.fs);if(tx)$('#lh').value=s.lh||1.2;if(tx)$('#tx').value=s.tx||'';$('#fnw').style.display=tx?'':'none';if(tx){$('#fnt').value=s.fn||'';$('#bdb').classList.toggle('on',!!s.bd);$('#itb').classList.toggle('on',!!s.it)}$('#sgw').style.display=ty==='meas'?'':'none';if(ty==='meas')$('#sg').checked=s.seg!==false;
  $('#urw').style.display=sh?'':'none';$('#url').value=sh?(s.url||''):'';fitH()}
 function lenMsg(d){const m=mmOf(d.pi);if(!m)return;const p=[...d.p,d.cur].filter(Boolean);let L=0;for(let i=1;i<p.length;i++)L+=len(p[i-1],p[i]);msg((d.t==='mperi'||d.t==='marea'&&p.length>2?'周囲 ':'距離 ')+fmtL((d.t==='mperi'||d.t==='marea')&&p.length>2?(L+len(p[p.length-1],p[0]))*m:L*m))}
-function down(e,i){if(e.button||tool==='bucket')return;closeIE();const P=E.pages[i],p=pt(e,i),t=e.target.dataset||{};curPg=i;
+function down(e,i){if(e.button||tool==='bucket'||tool==='ffill')return;closeIE();const P=E.pages[i],p=pt(e,i),t=e.target.dataset||{};curPg=i;if(tool==='frange'){frDown(e,i,p,t);return}
  if(tool==='marq'){hideMenu();if(mq&&mq.pi===i&&mq.wait){mqEnd(p);return}msel=new Set();sel=null;ot=null;mq={pi:i,s:p,cur:p,moved:false,wait:false,pt:e.pointerType};P.svg.setPointerCapture(e.pointerId);drawAll();syncP();return}
  if(t.dv!==undefined){const s0=cur();if(s0&&s0.p&&selV&&selV.id===s0.id&&s0.p.length>(closedS(s0)?3:2)){snap();s0.p.splice(+t.dv,1);selV=null;drawAll();syncP();msg('折れ点を削除しました')}return}
  if(t.v===undefined)selV=null;
@@ -563,7 +591,7 @@ function down(e,i){if(e.button||tool==='bucket')return;closeIE();const P=E.pages
    polyAdd(i,q);return}
  if(tool==='dim'||tool==='scale'){if(tool==='dim'&&!mmOf(i))return msg('先に「寸法設定」で、寸法が分かる2点と実寸法を設定してください');if(!draft||draft.pi!==i||draft.k!==tool)draft={pi:i,p:[],k:tool};if(draft.wait)return;if(!draft.p.length){draft.p=[p];draft.cur=p;draw(i);return}const a=draft.p[0],b=e.shiftKey?ortho(a,p):p,L0=len(a,b);if(L0<2)return;
  if(tool==='scale'){draft.p=[a,b];draft.cur=null;draft.wait=1;$('#cal').style.display='';$('#calv').focus();msg('2点間の実寸法(mm)を入力して「設定」を押してください');draw(i);return}
- snap();const fz=16,n0=[(b[1]-a[1])/L0,-(b[0]-a[0])/L0],sg=(n0[1]>.001||(Math.abs(n0[1])<=.001&&n0[0]<0))?-1:1,g=fz*.9+4,s=mk(i,'dim',{p:[a,b],fs:fz,sw:Math.max(2,D.sw||2),d:36*sg,off:[n0[0]*sg*g,n0[1]*sg*g]});draft=null;sel=s.id;drawAll();syncP();return}
+ snap();const fz=16,n0=[(b[1]-a[1])/L0,-(b[0]-a[0])/L0],sg=(n0[1]>.001||(Math.abs(n0[1])<=.001&&n0[0]<0))?-1:1,g=fz*.9+4,s=mk(i,'dim',{p:[a,b],fs:fz,sw:Math.max(2,D.sw||2),d:36*sg,off:[n0[0]*sg*g,n0[1]*sg*g]});draft=null;sel=s.id;tool='select';syncRib();drawAll();syncP();return}
  if(tool==='tedit'){editText(i,p);return}
  if(tool==='hl'){hlr={pi:i,x:p[0],y:p[1],w:0,h:0,a:p};drag={k:'hl',pi:i,s:p};P.svg.setPointerCapture(e.pointerId);return}
  if(tool==='text'){snap();const s=mk(i,'text',{x:p[0],y:p[1],tx:'テキスト',fs:D.fs,sc:'#000000',bd:1});fit(s);tool='select';done(s);openIEg(s,true);return}
@@ -571,7 +599,7 @@ function down(e,i){if(e.button||tool==='bucket')return;closeIE();const P=E.pages
  if(DRAGT.includes(tool)&&lnd&&lnd.pi===i){lineEnd(lnd.box?p:(e.shiftKey?ortho(lnd.s,p):p));return}
  if(tool==='line'||tool==='arrow'){lineCancel();snap();const s=mk(i,tool,{p:[p,p]});lnd={id:s.id,pi:i,s:p,moved:false};sel=s.id;ot=null;draw(i);syncP();P.svg.setPointerCapture(e.pointerId);return}
  if(DRAGT.includes(tool)){lineCancel();snap();const ty=tool==='tbox'?'rect':tool,o=(ty==='line'||ty==='arrow')?{p:[p,p]}:{x:p[0],y:p[1],w:0,h:0};
-  if(ty==='linkarea')Object.assign(o,{sc:'#2563eb',fc:'#2563eb',fa:.12,sw:1});if(tool==='tbox')Object.assign(o,{fc:'#ffffff',fa:1});
+  if(ty==='linkarea')Object.assign(o,{sc:'#2563eb',fc:'#2563eb',fa:.12,sw:1});if(tool==='tbox'||tool==='callout'||tool==='cloud')Object.assign(o,{fc:'#ffffff',fa:1});if(tool==='ellipse')Object.assign(o,{fa:0,sw:Math.max(2,D.sw||2)});
   const s=mk(i,ty,o);lnd={id:s.id,pi:i,s:p,cur:p,moved:false,box:1,tb:tool==='tbox'};sel=s.id;ot=null;boxPrev(s);draw(i);syncP();P.svg.setPointerCapture(e.pointerId);return}
  if(t.lb!==undefined){sel=+t.lb;ot=null;snap();const s=cur();if(!s.off)s.off=[0,0];drag={k:'l',s:p,o:clone(s),pi:i};drawAll();syncP()}
  else if(t.tp!==undefined){snap();drag={k:'tp',pi:i}}
@@ -599,7 +627,7 @@ function showMulti(x,y){cmS=false;cmId=null;cmPick=false;const n=msel.size;
  cm.style.maxHeight=(innerHeight-8)+'px';cm.style.display='flex';const W=cm.offsetWidth||200,H=cm.offsetHeight||180,cl=(v,a,b)=>Math.max(a,Math.min(v,b));
  cm.style.left=cl(x-W/2,4,innerWidth-W-4)+'px';cm.style.top=cl(y-H-36>4?y-H-36:y+36,4,innerHeight-H-4)+'px'}
 function delMulti(){if(!msel.size)return;snap();const n=msel.size;shapes=shapes.map(s=>msel.has(s.id)?(s.ty==='orig'?{id:uid++,pg:s.pg,ty:'rect',x:s.ox,y:s.oy,w:s.ow,h:s.oh,sc:'#ffffff',fc:'#ffffff',fa:1,sw:0,tc:'#000000',fs:18,tx:''}:null):s).filter(Boolean);msel=new Set();sel=null;drawAll();syncP();msg(n+'個の図形を削除しました（元に戻す／Ctrl+Zで復元できます）')}
-function move(e,i){if(mq&&mq.pi===i){mq.cur=pt(e,i);if(len(mq.s,mq.cur)*z>6)mq.moved=true;draw(i);return}if(lnd&&lnd.pi===i){const p=pt(e,i),s=shapes.find(x=>x.id===lnd.id);if(s){lnd.cur=p;if(lnd.box)setBox(s,lnd.s,p);else s.p=[lnd.s,e.shiftKey?ortho(lnd.s,p):p];if(len(lnd.s,p)*z>6)lnd.moved=true;draw(i)}return}
+function move(e,i){if(mq&&mq.pi===i){mq.cur=pt(e,i);if(len(mq.s,mq.cur)*z>6)mq.moved=true;draw(i);return}if(lnd&&lnd.pi===i){let p=pt(e,i);const s=shapes.find(x=>x.id===lnd.id);if(s&&lnd.box&&e.shiftKey&&s.ty==='ellipse')p=sqP(lnd.s,p);if(s){lnd.cur=p;if(lnd.box)setBox(s,lnd.s,p);else s.p=[lnd.s,e.shiftKey?ortho(lnd.s,p):p];if(len(lnd.s,p)*z>6)lnd.moved=true;draw(i)}return}
  if(draft&&draft.pi===i&&!draft.wait){const p=pt(e,i),l=draft.p[draft.p.length-1];draft.cur=draft.t==='pline'?snapPl(i,p,e,l):(e.shiftKey&&l?ortho(l,p):p);if(draft.t&&draft.t!=='poly'&&draft.t!=='pline')lenMsg(draft);draw(i);return}
  if(drag&&drag.k==='hl'&&drag.pi===i){const p=pt(e,i);hlr={pi:i,x:Math.min(drag.s[0],p[0]),y:Math.min(drag.s[1],p[1]),w:Math.abs(p[0]-drag.s[0]),h:Math.abs(p[1]-drag.s[1]),a:drag.s,b:p};draw(i);return}
  if(!drag||drag.pi!==i)return;const p=pt(e,i),s=cur();if(!s)return;
@@ -614,9 +642,9 @@ function setBox(s,a,p){s.x=Math.min(a[0],p[0]);s.y=Math.min(a[1],p[1]);s.w=Math.
 function boxPrev(s){if(s.ty==='callout'){s.w=Math.max(s.w,120);s.h=Math.max(s.h,40);s.tip=[s.x-60,s.y+s.h+70];fitBox(s)}else if(s.ty==='leader'){s.w=Math.max(s.w,120);s.tip=[s.x-50,s.y+s.h+70];fitBox(s)}}
 function lineEnd(p){const s=shapes.find(x=>x.id===lnd.id),L=lnd;lnd=null;
  if(s&&L.box){s.x=Math.min(L.s[0],p[0]);s.y=Math.min(L.s[1],p[1]);s.w=Math.abs(p[0]-L.s[0]);s.h=Math.abs(p[1]-L.s[1]);if((s.ty==='callout'||s.ty==='leader')&&(s.w<3||s.h<3)){s.w=Math.max(s.w,120);s.h=Math.max(s.h,40)}drag={k:'c',s:L.s,pi:L.pi,tb:L.tb};up();return}
- if(s){s.p=[s.p[0],p];if(len(s.p[0],s.p[1])<3){shapes=shapes.filter(x=>x!==s);sel=null}}drawAll();syncRib();syncP()}
+ if(s){s.p=[s.p[0],p];if(len(s.p[0],s.p[1])<3){shapes=shapes.filter(x=>x!==s);sel=null}else tool='select'}drawAll();syncRib();syncP()}
 function lineCancel(){if(!lnd)return;const id=lnd.id;lnd=null;shapes=shapes.filter(x=>x.id!==id);if(sel===id)sel=null;drawAll();syncP()}
-function up(){snapMk=null;if(mq&&!mq.wait){if(mq.moved)mqEnd(mq.cur);else if(mq.pt==='mouse'){mq.wait=true;msg('範囲の反対側でもう一度クリックすると範囲が確定します（Escで取消）')}else{mq=null;drawAll()}return}if(lnd){if(lnd.moved){const s=shapes.find(x=>x.id===lnd.id);lineEnd(lnd.box?(lnd.cur||lnd.s):(s&&s.p?s.p[1]:lnd.s))}return}if(drag&&drag.k==='dp'){const q=draft&&draft.cur;drag=null;if(draft&&draft.pend&&q){draft.pend=0;polyAdd(draft.pi,q)}return}
+function up(){snapMk=null;if(mq&&mq.fr){const m=mq;mq=null;drawAll();frEnd(m);return}if(mq&&!mq.wait){if(mq.moved)mqEnd(mq.cur);else if(mq.pt==='mouse'){mq.wait=true;msg('範囲の反対側でもう一度クリックすると範囲が確定します（Escで取消）')}else{mq=null;drawAll()}return}if(lnd){if(lnd.moved){const s=shapes.find(x=>x.id===lnd.id);lineEnd(lnd.box?(lnd.cur||lnd.s):(s&&s.p?s.p[1]:lnd.s))}return}if(drag&&drag.k==='dp'){const q=draft&&draft.cur;drag=null;if(draft&&draft.pend&&q){draft.pend=0;polyAdd(draft.pi,q)}return}
 if(!drag)return;if(drag.k==='m'&&drag.was&&!drag.mv&&lastPT!=='mouse'){const s1=cur();if(s1&&TXT.includes(s1.ty)){drag=null;drawAll();syncP();pendIE=[s1,false];return}}
 if(drag.k==='hl'){const r=hlr;hlr=null;drag=null;drawAll();if(r)finishHl(r);return}const s=cur();let after=null;
  if(drag.k==='m'&&drag.addv&&!drag.mv&&s&&s.p){s.p=clone(drag.o.p);if(addVtx(s,drag.addv)){drag=null;drawAll();syncP();msg('折れ点を追加しました（点をクリックすると×で削除できます）');return}}
@@ -625,7 +653,7 @@ if(drag.k==='hl'){const r=hlr;hlr=null;drag=null;drawAll();if(r)finishHl(r);retu
    else if(s.ty==='leader'){s.w=Math.max(s.w,120);fitBox(s);s.tip=[s.x-50,s.y+s.h+70];after=s}
    else if(drag.tb){s.sc=D.sc;fitBox(s);after=s}else if(s.ty==='linkarea')setTimeout(()=>{$('#url').focus();msg('リンク先URLを入力してください')},0)}
   syncRib()}
- drag=null;if(after){tool='select';syncRib()}drawAll();syncP();if(after)setTimeout(()=>openIE(after,true),0)}
+ const wasC=drag.k==='c';drag=null;if(wasC&&cur()){tool='select';syncRib()}drawAll();syncP();if(after)setTimeout(()=>openIE(after,true),0)}
 /* 点の追加。始点付近なら閉じて確定、最後の点付近なら確定（指でも押しやすい判定幅） */
 function polyAdd(i,q){const d=draft;if(!d||d.k||d.pi!==i)return;const closed=['poly','mperi','marea'].includes(d.t),mn=closed?3:2,R=(CO?28:14)/z,n=d.p.length;
  if(closed&&n>=3&&len(q,d.p[0])<R){d.cur=null;finish();msg('始点に接続して確定しました');return}
@@ -634,11 +662,11 @@ function polyAdd(i,q){const d=draft;if(!d||d.k||d.pi!==i)return;const closed=['p
  d.p.push(q);d.cur=q;d.tAdd=performance.now();draw(i)}
 function updFab(){const f=document.getElementById('fab');if(!f)return;const on=!!(draft&&!draft.k&&draft.p&&draft.p.length>0);f.style.display=on?'flex':'none';if(on){const mn=(draft.t==='pline'||draft.t==='mdist')?2:3;document.getElementById('fabok').disabled=draft.p.length<mn}}
 function finish(){snapMk=null;if(!draft||draft.k)return;let p=draft.p;const n=p.length,i=draft.pi,t=draft.t;if(n>1&&len(p[n-1],p[n-2])<2)p=p.slice(0,-1);draft=null;
- if(p.length>=(t==='mdist'||t==='pline'?2:3)){snap();if(t==='poly'||t==='pline'){done(t==='poly'?mk(i,'poly',{p}):mk(i,'pline',{p,fa:0,ao:1}));if(lastPT!=='mouse'){sel=null;selV=null;drawAll();syncP()}}else{const k=t.slice(1),s=mk(i,'meas',{p,mk:k,fs:14,seg:k!=='area',off:k==='dist'?[0,-20]:[0,0],sw:Math.max(1,D.sw||1)});sel=s.id;drawAll();syncP();const v=measVals(s);msg(k==='area'?`面積 ${v.A.toFixed(2)} ㎡／周囲 ${fmtL(v.L)}`:(k==='peri'?'周囲 ':'距離 ')+fmtL(v.L))}}
+ if(p.length>=(t==='mdist'||t==='pline'?2:3)){snap();if(t==='poly'||t==='pline'){done(t==='poly'?mk(i,'poly',{p}):mk(i,'pline',{p,fa:0,ao:1}))}else{const k=t.slice(1),s=mk(i,'meas',{p,mk:k,fs:14,seg:k!=='area',off:k==='dist'?[0,-20]:[0,0],sw:Math.max(1,D.sw||1)});sel=s.id;tool='select';syncRib();drawAll();syncP();const v=measVals(s);msg(k==='area'?`面積 ${v.A.toFixed(2)} ㎡／周囲 ${fmtL(v.L)}`:(k==='peri'?'周囲 ':'距離 ')+fmtL(v.L))}}
  else{syncRib();draw(i)}}
 function delV(p,i){const s=cur();if(!s||!(s.ty==='poly'||s.ty==='pline'||s.ty==='meas')||s.pg!==i||s.p.length<=(closedS(s)?3:2))return false;const j=s.p.findIndex(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<12/z);if(j<0)return false;snap();s.p.splice(j,1);draw(i);return true}
 function bind(svg,i){svg.onpointerdown=e=>down(e,i);svg.onpointermove=e=>move(e,i);svg.onpointerup=up;svg.onpointercancel=up;
- svg.onclick=e=>{if(tool==='bucket'&&Date.now()-(window.__pm||0)>400)autoFill(pt(e,i),i)};
+ svg.onclick=e=>{if(tool==='bucket'&&Date.now()-(window.__pm||0)>400)autoFill(pt(e,i),i);else if(tool==='ffill'&&Date.now()-(window.__pm||0)>400)ffTap(e,i)};
  svg.ondblclick=e=>{if(tool==='bucket'){}else if(POLYT.includes(tool))finish();else if(tool==='select'){const id=e.target.dataset&&(e.target.dataset.id||e.target.dataset.lb);const s=shapes.find(x=>x.id===+id);if(s&&TXT.includes(s.ty)){sel=s.id;syncP();openIE(s)}else delV(pt(e,i),i)}};
  svg.oncontextmenu=e=>{e.preventDefault();if(mq){mq=null;drawAll();return}if(lnd){lineCancel();return}if(POLYT.includes(tool)&&draft&&!draft.k){finish();return}if(delV(pt(e,i),i))return;const id=e.target.dataset&&(e.target.dataset.id||e.target.dataset.lb),p=pt(e,i);
   if(id&&!(draft&&!draft.k)){sel=+id;ot=null;drawAll();syncP();showMenu(e.clientX,e.clientY)}
@@ -646,12 +674,12 @@ function bind(svg,i){svg.onpointerdown=e=>down(e,i);svg.onpointermove=e=>move(e,
 
 /* ===== テキスト直接編集 ===== */
 const ie=$('#ie');
-function ieBox(s){if(s.ty==='text')return[s.x,s.y,s.w,s.h];if(s.ty==='leader')return[s.x+2,s.y+1,s.w-4,s.h-3];return[s.x+PAD,s.y+PAD,s.w-2*PAD,s.h-2*PAD]}
-function placeIE(s){const P=E.pages[s.pg],r=P.svg.getBoundingClientRect(),k=r.width/P.w,b=ieBox(s);ie.style.cssText=`display:block;left:${r.left+b[0]*k}px;top:${r.top+b[1]*k}px;width:${Math.max(b[2]*k+6,70)}px;height:${Math.max(b[3]*k+4,s.fs*k*1.3)}px;font-size:${s.fs*k}px;color:${s.ty==='text'?s.sc:(s.tc||'#000')};font-family:${fam(s)};font-style:${s.it?'italic':'normal'};font-weight:${s.bd?'bold':'normal'}`}
-function openIE(s,selAll,ns){if(!s)return;closeIE();if(!ns)snap();ed=s.id;drawAll();placeIE(s);ie.value=s.tx||'';ie.focus();if(selAll)ie.select()}
-function closeIE(){if(ed==null)return;const id=ed;ed=null;ie.style.display='none';const s=shapes.find(x=>x.id===id);if(s&&s.ty==='text'&&!s.tx.trim()){shapes=shapes.filter(x=>x!==s);if(sel===id)sel=null}drawAll();syncP()}
-ie.oninput=()=>{const s=shapes.find(x=>x.id===ed);if(!s)return;s.tx=ie.value;fitBox(s);placeIE(s);draw(s.pg);if($('#tx'))$('#tx').value=s.tx};
-ie.onblur=()=>closeIE();ie.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ie.blur()}e.stopPropagation()};
+function ieBox(s){const f0=ffOf(s);if(f0)return[f0.x,f0.y,f0.w,f0.h];if(s.ty==='text')return[s.x,s.y,s.w,s.h];if(s.ty==='leader')return[s.x+2,s.y+1,s.w-4,s.h-3];return[s.x+PAD,s.y+PAD,s.w-2*PAD,s.h-2*PAD]}
+function placeIE(s){const P=E.pages[s.pg],r=P.svg.getBoundingClientRect(),k=r.width/P.w,b=ieBox(s);ie.style.cssText=`display:block;left:${r.left+b[0]*k}px;top:${r.top+b[1]*k}px;width:${Math.max(b[2]*k+6,70)}px;height:${Math.max(b[3]*k+4,s.fs*k*1.3)}px;font-size:${s.fs*k}px;line-height:${s.lh||1.2};color:${s.ty==='text'?s.sc:(s.tc||'#000')};font-family:${fam(s)};font-style:${s.it?'italic':'normal'};font-weight:${s.bd?'bold':'normal'}`}
+function openIE(s,selAll,ns){if(!s)return;closeIE();if(!ns)snap();ed=s.id;drawAll();placeIE(s);ie.value=(s.fk&&s.raw!==undefined)?s.raw:(s.tx||'');ie.focus();if(selAll)ie.select()}
+function closeIE(){if(ed==null)return;const id=ed;ed=null;ie.style.display='none';fbarHide();const s=shapes.find(x=>x.id===id);if(s&&s.ty==='text'&&!s.tx.trim()){const f0=ffOf(s);shapes=shapes.filter(x=>x!==s);if(sel===id)sel=null;if(f0&&!(dpCur&&dpCur.f===f0))ffGC(s.pg,f0)}drawAll();syncP()}
+ie.oninput=()=>{const s=shapes.find(x=>x.id===ed);if(!s)return;const f0=ffOf(s);if(f0){s.raw=ie.value;s.di='';ffLayout(s,f0);ffVals()}else{s.tx=ie.value;fitBox(s)}placeIE(s);draw(s.pg);if($('#tx'))$('#tx').value=s.tx};
+ie.onblur=()=>closeIE();ie.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ie.blur()}else if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){const s=shapes.find(x=>x.id===ed),f0=s&&ffOf(s);if(f0&&f0.h<=28){e.preventDefault();ie.blur()}}e.stopPropagation()};
 
 /* ===== 元データ（PDF内の画像・図形）の検出と編集可能化 ===== */
 async function loadOps(P){if(P.ops)return P.ops;const O=pdfjsLib.OPS,ol=await P.pg.getOperatorList(),out=[],F=ol.fnArray,A=ol.argsArray,V=P.pg.view,PA=Math.max(1,(V[2]-V[0])*(V[3]-V[1]));let m=[1,0,0,1,0,0],fc=[0,0,0],st=[],subs=[],cu=null;
@@ -706,7 +734,7 @@ async function rr(){const tok=++rrTok,dpr=window.devicePixelRatio||1,R=$('#pages
  const sN=z*dpr,s=Math.min(Math.max(1.6,sN),Math.sqrt(1.6e7/(P.w*P.h)),16);
  if(!(s<=P.rs*1.05&&s>=P.rs*.5)){const v=vp(P,s),c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);await P.pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;if(tok!==rrTok)return;P.wrap.replaceChild(c,P.dc);P.dc=c;P.rs=s}
  if(sN>s*1.02&&r.bottom>R.top&&r.top<R.bottom)await tileRR(P,tok,sN);else dropTile(P)}}
-function updPg(){if(!E.pages.length||sec!=='ed')return;const R=$('#pages').getBoundingClientRect(),cy=(R.top+R.bottom)/2;let b=0,bd=1e12;E.pages.forEach((P,i)=>{const r=P.wrap.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-cy);if(d<bd){bd=d;b=i}});curPg=b;{const n=$('#bmpg');if(n&&n!==document.activeElement)n.value=b+1}$('#pi').textContent=`ページ ${b+1}/${E.pages.length}`;thSync()}
+function updPg(){if(!E.pages.length||sec!=='ed')return;const R=$('#pages').getBoundingClientRect(),cy=(R.top+R.bottom)/2;let b=0,bd=1e12;E.pages.forEach((P,i)=>{const r=P.wrap.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-cy);if(d<bd){bd=d;b=i}});curPg=b;{const n=$('#bmpg');if(n&&n!==document.activeElement)n.value=b+1}$('#pi').textContent=`ページ ${b+1}/${E.pages.length}`;thSync();if(ffOpen&&ffPg!==b&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#ffl')))ffBuild()}
 $('#pages').addEventListener('scroll',()=>{schedRR();updPg()});
 addEventListener('wheel',e=>{if(!(e.shiftKey||e.ctrlKey||e.metaKey))return;e.preventDefault();if(!$('#ed').classList.contains('on')||!E.pages.length)return;const d=e.deltaY||e.deltaX;if(!d)return;const R=$('#pages'),rc=R.getBoundingClientRect(),ox=Math.min(Math.max(e.clientX-rc.left,0),rc.width),oy=Math.min(Math.max(e.clientY-rc.top,0),rc.height),old=z;z=Math.min(ZMAX,Math.max(.5,z*(d<0?1.12:1/1.12)));setZm();setZ();const q=z/old;R.scrollLeft=(R.scrollLeft+ox)*q-ox;R.scrollTop=(R.scrollTop+oy)*q-oy},{passive:false});
 $('#calok').onclick=()=>{if(!draft||draft.k!=='scale'||!draft.wait)return;const v=+$('#calv').value;if(!(v>0))return msg('実寸法(mm)を入力してください');const[a,b]=draft.p,P=E.pages[draft.pi];P.mm=E.mm=v/len(a,b);draft=null;$('#cal').style.display='none';$('#calv').value='';tool='dim';syncRib();drawAll();msg('寸法を設定しました。「寸法／距離／周囲／面積」で測定できます（寸法ツールに切り替え済み）')};
@@ -795,6 +823,145 @@ async function finishHl(r){const i=r.pi,P=E.pages[i];curPg=i;let items=[];try{it
  if(!rects.length)return msg(tiny?'文字の上をクリック、または文字を囲むようにドラッグしてください':'範囲内に文字が見つかりませんでした');
  snap();rects.forEach(q=>mk(i,'rect',{x:q[0],y:q[1],w:q[2],h:q[3],sc:D.fc,fc:D.fc,fa:1,sw:0,hl:1}));sel=null;drawAll();syncP();msg('蛍光ペンを引きました（文字範囲に自動フィット）。色は「塗り」、図形を選んで「透過」で濃さを変更できます')}
 
+/* ===== 記入欄の自動分析（文字データのあるPDF）と入力 ===== */
+async function findFields(P){if(P.fl)return P.fl;if(P.flp)return P.flp;
+ return P.flp=(async()=>{const items=await textItems(P);if(!items.length){P.fl=(P.mf||[]).slice();return P.fl}
+  const S=Math.max(1,Math.min(2.5,Math.sqrt(3.5e6/(P.w*P.h)))),v=vp(P,S),W=Math.ceil(v.width),H=Math.ceil(v.height),c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d',{willReadFrequently:true});g.fillStyle='#fff';g.fillRect(0,0,W,H);await P.pg.render({canvasContext:g,viewport:v}).promise;
+  const d=g.getImageData(0,0,W,H).data,N=W*H,ink=new Uint8Array(N);for(let k=0,j=0;k<N;k++,j+=4)ink[k]=(d[j]*.3+d[j+1]*.59+d[j+2]*.11)<200?1:0;
+  const m=ink.slice();for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const k=y*W+x;if(ink[k]){m[k-1]=1;m[k+1]=1;m[k-W]=1;m[k+W]=1}}
+  const sx=W/P.w,sy=H/P.h,vis=new Uint8Array(N),st=new Int32Array(N),out=[],tb=items.map(o=>[o.x,o.b-o.h*.88,o.x+o.w,o.b+o.h*.22]),hitT=(x0,y0,x1,y1)=>tb.some(b=>Math.min(b[2],x1)-Math.max(b[0],x0)>1.5&&Math.min(b[3],y1)-Math.max(b[1],y0)>2);
+  for(let s0=0;s0<N;s0++){if(m[s0]||vis[s0])continue;let sp=0,mnx=W,mxx=0,mny=H,mxy=0,cnt=0,bd=false;st[sp++]=s0;vis[s0]=1;
+   while(sp){const k=st[--sp],px=k%W,py=(k/W)|0;cnt++;if(px<mnx)mnx=px;if(px>mxx)mxx=px;if(py<mny)mny=py;if(py>mxy)mxy=py;if(!px||!py||px===W-1||py===H-1)bd=true;
+    if(px>0&&!m[k-1]&&!vis[k-1]){vis[k-1]=1;st[sp++]=k-1}if(px<W-1&&!m[k+1]&&!vis[k+1]){vis[k+1]=1;st[sp++]=k+1}if(py>0&&!m[k-W]&&!vis[k-W]){vis[k-W]=1;st[sp++]=k-W}if(py<H-1&&!m[k+W]&&!vis[k+W]){vis[k+W]=1;st[sp++]=k+W}}
+   if(bd)continue;const bw=mxx-mnx+1,bh=mxy-mny+1,x0=(mnx-1)/sx,y0=(mny-1)/sy,w=(bw+2)/sx,h=(bh+2)/sy;
+   if(w<16||h<8||h>Math.min(300,P.h*.4)||w>P.w*.95||cnt/(bw*bh)<.9)continue;if(hitT(x0+1,y0+1,x0+w-1,y0+h-1))continue;out.push({x:x0,y:y0,w,h,k:'c'});if(out.length>=400)break}
+  /* 枠のない下線（「氏名 ______」など、横に項目名がある線） */
+  try{const ops=await loadOps(P),vt=vp(P,1).transform;for(const o of ops){if(o.k!=='path')continue;const cs=[[o.bb[0],o.bb[1]],[o.bb[2],o.bb[3]],[o.bb[0],o.bb[3]],[o.bb[2],o.bb[1]]].map(q=>ap(vt,q[0],q[1])),xs=cs.map(q=>q[0]),ys=cs.map(q=>q[1]),x0=Math.min(...xs),x1=Math.max(...xs),yy=Math.min(...ys),y1=Math.max(...ys),ww=x1-x0;
+    if(y1-yy>2.5||ww<36||ww>P.w*.9)continue;const fh=16,fy=yy-fh;if(fy<0)continue;if(hitT(x0,fy+1,x1,yy-.5))continue;
+    if(!items.some(t=>t.b>fy+4&&t.b<yy+4&&((t.x+t.w<=x0+2&&t.x+t.w>x0-70)||(t.x>=x1-2&&t.x<x1+70))))continue;
+    const cx=x0+ww/2,cy=fy+fh/2;if(out.some(f=>cx>=f.x&&cx<=f.x+f.w&&cy>=f.y&&cy<=f.y+f.h))continue;if(out.some(f=>f.k==='l'&&Math.abs(f.y+f.h-yy)<3&&f.x<x1&&f.x+f.w>x0))continue;out.push({x:x0,y:fy,w:ww,h:fh,k:'l'})}}catch(e){}
+  try{out.push(...dateFields(items))}catch(e){console.warn(e)}out.push(...(P.mf||[]));out.sort((a,b)=>a.y-b.y||a.x-b.x);P.fl=out;return out})()}
+async function ffEnter(){if(!E.pages.length)return msg('先にPDFを開いてください');msg('記入欄を分析中…');for(const P of E.pages){try{await findFields(P)}catch(e){console.warn(e)}if(tool!=='ffill')return;drawAll()}
+ const n=E.pages.reduce((a,P)=>a+(P.fl?P.fl.length:0),0);msg(n?`記入欄 ${n}か所（青枠）。入力したい欄をタップ／クリックしてください。終了は「選択」またはEsc`:'記入欄を検出できませんでした（スキャンPDF、または枠・下線のないPDFの可能性があります）')}
+/* 左の「記入項目」パネル：各欄に入力するとPDF上にテキストとして反映 */
+function ffToggle(f){ffOpen=f===undefined?!ffOpen:f;if(ffOpen){if(thOpen){thOpen=false;$('#thw').classList.add('hide')}if(bmOpen){bmOpen=false;$('#bmw').classList.add('hide')}}showSec('ed');$('#ffw').classList.toggle('hide',!ffOpen);if(ffOpen)ffBuild();else ffAct=null;syncRib();fitH();drawAll();if(E.pages.length)schedRR()}
+const ffKey=f=>Math.round(f.x)+'_'+Math.round(f.y),ffClean=g=>g.map(o=>o.s).join('').replace(/\s+/g,'').slice(0,24);
+function ffLabel(P,f){if(f.k==='d')return f.lb||'日付';const it=P.ti||[];let c=it.filter(o=>{const cy=o.b-o.h*.35;return cy>f.y&&cy<f.y+f.h&&o.x+o.w<=f.x+3});
+ if(c.length){c.sort((a,b)=>b.x-a.x);const g=[c[0]];let lx=c[0].x;for(let k=1;k<c.length;k++){if(lx-(c[k].x+c[k].w)<30){g.unshift(c[k]);lx=c[k].x}else break}const t=ffClean(g);if(t)return t}
+ c=it.filter(o=>o.b<=f.y+2&&o.b>f.y-50&&o.x<f.x+f.w&&o.x+o.w>f.x);
+ if(c.length){c.sort((a,b)=>b.b-a.b);const g=c.filter(o=>Math.abs(o.b-c[0].b)<o.h*.4).sort((a,b)=>a.x-b.x),t=ffClean(g);if(t)return t}
+ return f.k==='m'?'範囲指定の入力欄':'記入欄'}
+async function ffBuild(){const L=$('#ffl');if(!ffOpen)return;const tk=++ffTok;
+ if(!E.pages.length){L.innerHTML='<div class="empty">PDFを開くと、記入欄を自動で分析してここに表示します</div>';$('#ffn').textContent='';return}
+ L.innerHTML='<div class="empty">記入欄を分析中…</div>';
+ const cp=Math.min(curPg,E.pages.length-1);try{await findFields(E.pages[cp])}catch(e){console.warn(e)}
+ if(!ffOpen||tk!==ffTok)return;ffPg=cp;const multi=E.pages.length>1;let h='',n=0;
+ E.pages.forEach((P,pi)=>{if(pi!==cp)return;const fl=P.fl||[];if(!fl.length)return;if(multi)h+=`<div class="ffg">ページ ${pi+1} / ${E.pages.length}（ページを移動すると切り替わります）</div>`;
+  fl.forEach((f,fi)=>{n++;const key=ffKey(f),sh=shapes.find(s=>s.pg===pi&&s.fk===key),dt=ffIsDate(P,f),v=sh?(sh.raw!==undefined?sh.raw:sh.tx):'';
+   h+=`<div class="ffi" data-p="${pi}" data-f="${fi}"><label>${esc(ffLabel(P,f))}<button class="ffdt${dt?' on':''}" title="${dt?'日付（カレンダー）入力。クリックで文字入力に切替':'クリックでカレンダー入力に切替'}">📅</button></label>${dt?`<input type="date" value="${esc(sh&&sh.di||'')}">`:(f.h>=26?`<textarea rows="2">${esc(v)}</textarea>`:`<input type="text" value="${esc(v).replace(/"/g,'&quot;')}">`)}</div>`})});
+ L.innerHTML=h||'<div class="empty">このページには記入欄が見つかりません（スキャン、または枠・下線のないページの可能性があります）。上の「範囲指定入力」で、PDF上をドラッグして直接入力できます</div>';$('#ffn').textContent=n?n+'件':'';ffInfo();drawAll()}
+function ffVals(){if(!ffOpen)return;document.querySelectorAll('#ffl .ffi').forEach(w=>{const pi=+w.dataset.p,P=E.pages[pi],f=P&&P.fl&&P.fl[+w.dataset.f];if(!f)return;const sh=shapes.find(s=>s.pg===pi&&s.fk===ffKey(f)),el=w.querySelector('input,textarea');if(el&&document.activeElement!==el)el.value=sh?(el.type==='date'?(sh.di||''):(sh.raw!==undefined?sh.raw:sh.tx)):''})}
+function ffWrap(raw,fs,mw,fm){mc.font=`${fs}px ${fm||FF}`;const out=[];for(const para of raw.split('\n')){if(!para){out.push('');continue}let ln='';for(const ch of para){if(ln&&mc.measureText(ln+ch).width>mw){out.push(ln);ln=ch}else ln+=ch}out.push(ln)}return out}
+function ffLayout(s,f){const mw=f.w-6,fm=fam(s);let fs,L;
+ if(f.h<=28){fs=Math.max(8,Math.min(s.fsd||14,f.h*.7));L=s.raw.split('\n');for(;fs>7;fs-=.5){mc.font=`${fs}px ${fm}`;if(Math.max(...L.map(l=>mc.measureText(l).width))<=mw)break}fs=Math.max(7,fs)}
+ else{fs=Math.min(s.fsd||12,18);for(;fs>=7;fs-=.5){L=ffWrap(s.raw,fs,mw,fm);if(L.length*fs*1.2<=f.h-2)break}if(fs<7){fs=7;L=ffWrap(s.raw,7,mw,fm)}}
+ s.fs=fs;s.tx=L.join('\n');fit(s);s.x=f.x+3;s.y=L.length===1?f.y+(f.h-fs*1.2)/2:f.y+2}
+function ffApply(pi,f,val,iso){if(f.k==='d')return ffApplyDate(pi,f,val?iso:'');const key=ffKey(f),P=E.pages[pi];let s=shapes.find(x=>x.pg===pi&&x.fk===key);
+ if(!val.trim()){if(s){shapes=shapes.filter(x=>x!==s);if(sel===s.id)sel=null}drawAll();syncP();return}
+ if(!s){s=mk(pi,'text',{x:f.x+3,y:f.y,tx:' ',fs:12,sc:'#000000',bd:0,fn:'',it:0,fk:key});ffStyle(s,P,f)}
+ s.raw=val;s.di=iso||'';ffLayout(s,f);drawAll()}
+function ffShow(pi,f){const P=E.pages[pi],R=$('#pages'),rc=R.getBoundingClientRect(),pr=P.wrap.getBoundingClientRect(),k=pr.width/P.w,top=pr.top+f.y*k,bot=top+f.h*k;if(top<rc.top+20||bot>rc.bottom-20)R.scrollTop+=top-rc.top-rc.height/3;updPg()}
+$('#ffl').addEventListener('focusin',e=>{const w=e.target.closest('.ffi');if(!w)return;ffSnap=false;const pi=+w.dataset.p,P=E.pages[pi],f=P&&P.fl&&P.fl[+w.dataset.f];if(!f)return;ffAct={pi,f};document.querySelectorAll('#ffl .ffi').forEach(x=>x.classList.toggle('act',x===w));drawAll();ffShow(pi,f)});
+$('#ffl').addEventListener('input',e=>{const w=e.target.closest('.ffi');if(!w)return;const pi=+w.dataset.p,P=E.pages[pi],f=P&&P.fl&&P.fl[+w.dataset.f];if(!f)return;if(!ffSnap){snap();ffSnap=true}if(e.target.type==='date')ffApply(pi,f,e.target.value?fmtDate(e.target.value):'',e.target.value);else ffApply(pi,f,e.target.value)});
+$('#ffl').addEventListener('focusout',()=>setTimeout(()=>{if(ffOpen&&ffPg!==curPg&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#ffl')))ffBuild()},0));
+$('#ffx').onclick=()=>ffToggle(false);$('#ffsv').onclick=()=>run(doExport);
+function ffTap(e,i){const P=E.pages[i];if(!P)return;const p=pt(e,i),id=e.target.dataset&&e.target.dataset.id,tx=id&&shapes.find(s=>s.id===+id&&s.ty==='text');
+ if(tx&&tx.dg){const f0=ffFieldOf(tx);if(f0){sel=tx.id;drawAll();showDate(i,f0);return}}
+ if(tx){sel=tx.id;drawAll();syncP();openIE(tx,false);return}
+ const f=(P.fl||[]).find(f=>p[0]>=f.x&&p[0]<=f.x+f.w&&p[1]>=f.y&&p[1]<=f.y+f.h);if(!f)return msg('青い記入欄の上をタップしてください（欄にない箇所は「範囲指定入力」でPDF上をドラッグ）');
+ const ex=shapes.find(s=>s.pg===i&&s.ty==='text'&&!s.fk&&s.x<f.x+f.w&&s.x+s.w>f.x&&s.y<f.y+f.h&&s.y+s.h>f.y);if(ex){sel=ex.id;drawAll();syncP();openIE(ex,false);return}
+ openField(i,f,true)}
+/* ===== 範囲指定入力・フォント自動判定・日付カレンダー ===== */
+var ffFn='',ffDf='w',dpCur=null;try{ffDf=localStorage.getItem('pdftool_datefmt')||'w'}catch(e){}
+$('#ffont').innerHTML='<option value="">自動（PDFから判定）</option>'+Object.keys(FONTS).map(k=>`<option value="${k}">${FONTS[k][0]}</option>`).join('');
+$('#ffdf').value=ffDf;$('#dpf').value=ffDf;
+const ffFieldOf=s=>{if(!s||!s.fk)return null;const P=E.pages[s.pg];return P&&(P.fl||[]).find(f=>ffKey(f)===s.fk)||null},ffOf=s=>s&&s.dg?null:ffFieldOf(s);
+/* --- フォント：ページ内で最も多く使われているフォント／欄の近くの項目名のフォントから判定 --- */
+function ffDom(P){if(!P.ti)return null;if(P.fnd!==undefined)return P.fnd;const g={};P.ti.forEach(o=>{const k=o.nm||'',e=g[k]||(g[k]={n:0,o});e.n+=o.s.length;if(o.s.length>e.o.s.length)e.o=o});let b=null;for(const k in g)if(!b||g[k].n>b.n)b=g[k];return P.fnd=b?b.o:null}
+function ffFontOf(P,f){const it=P.ti||[];let best=null,bd=1e9;
+ for(const o of it){const cy=o.b-o.h*.35;let d=1e9;if(cy>f.y-2&&cy<f.y+f.h+2&&o.x+o.w<=f.x+3)d=f.x-(o.x+o.w);else if(o.b<=f.y+2&&o.b>f.y-50&&o.x<f.x+f.w&&o.x+o.w>f.x)d=f.y-o.b+150;if(d<bd){bd=d;best=o}}
+ if(!best||bd>500)best=ffDom(P);
+ return{key:best?guessKey(best.nm):'',nm:best&&best.nm||'',h:best?best.h:0}}
+function ffStyle(s,P,f){const d=ffFontOf(P,f);s.fn=ffFn||d.key||'';s.it=0;s.bd=0;if(d.h)s.fsd=Math.max(8,Math.min(18,Math.round(d.h*.9*2)/2))}
+function ffInfo(){const el=$('#ffinf');if(!el)return;const P=E.pages[Math.min(curPg,E.pages.length-1)];if(!P){el.textContent='';return}
+ if(!P.ti||!P.ti.length){el.textContent='文字データが無いPDFのため、標準フォントで入力します';return}
+ const d=ffDom(P);if(!d){el.textContent='';return}const k=guessKey(d.nm);el.textContent=`PDFのフォント：${d.nm||'不明'} → ${k?FONTS[k][0]:'標準フォント'}で入力（自動）`}
+async function ffAutoFont(){try{let P=E.pages.find(p=>p.ti&&p.ti.length);if(!P){P=E.pages[0];if(!P.ti)await textItems(P)}const d=ffDom(P);if(!d)return'';const k=guessKey(d.nm);D.fn=k;ffInfo();return`PDFのフォント「${d.nm||'不明'}」を自動判定しました（${k?FONTS[k][0]:'標準フォント'}で入力）。`}catch(e){return''}}
+$('#ffont').onchange=e=>{ffFn=e.target.value;snap();shapes.forEach(s=>{const P=E.pages[s.pg],f=ffOf(s);if(!f||!P)return;s.fn=ffFn||ffFontOf(P,f).key||'';ffLayout(s,f)});drawAll();ffInfo()};
+/* --- 日付：カレンダー入力 --- */
+const isDateLbl=t=>{t=(t||'').replace(/\s+/g,'');return(/日付|年月日|月日|年\s*月|期日|納期|締切|〆切|着手|着工|完成|完了|竣工|引渡|引き渡し|開始|終了|期限|日時|令和|平成|昭和|西暦|生年|誕生|date|DATE|Date|(?:[^\d\s]日|年|月)[（(]?(?:記入|予定)?[）)]?$/.test(t))&&!/期間|時間|日数|日間|年数|回数|曜日|月額|年額|年齢|年収|年間|月数|面積/.test(t)};
+function ffIsDate(P,f){if(f.dt===undefined)f.dt=isDateLbl(ffLabel(P,f));return f.dt}
+function fmtDate(iso,fm){fm=fm||ffDf;const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');if(!m)return'';const y=+m[1],mo=+m[2],d=+m[3];
+ if(fm==='sl')return`${y}/${mo}/${d}`;if(fm==='s')return`${y}年${mo}月${d}日`;
+ const t=y*10000+mo*100+d,er=t>=20190501?['令和',2018]:t>=19890108?['平成',1988]:t>=19261225?['昭和',1925]:['大正',1911],n=y-er[1];return`${er[0]}${n===1?'元':n}年${mo}月${d}日`}
+function setDf(v){ffDf=v;$('#ffdf').value=v;$('#dpf').value=v;try{localStorage.setItem('pdftool_datefmt',v)}catch(e){}
+ if(shapes.some(s=>s.fk&&s.di)){snap();const done=new Set();[...shapes].forEach(s=>{if(!s.fk||!s.di)return;const f=ffFieldOf(s);if(!f)return;if(f.k==='d'){if(done.has(f))return;done.add(f);ffApplyDate(s.pg,f,s.di);return}s.raw=fmtDate(s.di);ffLayout(s,f)});drawAll();ffVals()}}
+$('#ffdf').onchange=e=>setDf(e.target.value);$('#dpf').onchange=e=>setDf(e.target.value);
+function showDate(i,f){const P=E.pages[i],r=P.svg.getBoundingClientRect(),k=r.width/P.w,d=$('#dpop'),s=shapes.find(x=>x.pg===i&&x.fk===ffKey(f)),t=new Date(),td=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+ dpCur={i,f};f.dt=true;ffAct={pi:i,f};$('#dpi').value=(s&&s.di)||td;d.style.display='flex';
+ const w=d.offsetWidth||320,h=d.offsetHeight||50;let L=Math.max(4,Math.min(r.left+f.x*k,innerWidth-w-4)),T=r.top+(f.y+f.h)*k+6;if(T+h>innerHeight-4)T=Math.max(4,r.top+f.y*k-h-6);d.style.left=L+'px';d.style.top=T+'px';
+ if(ffOpen)ffBuild();const di=$('#dpi');di.focus();try{di.showPicker&&di.showPicker()}catch(e){}}
+function dpClose(){const c=dpCur;dpCur=null;$('#dpop').style.display='none';if(c)ffGC(c.i,c.f)}
+$('#dpi').onchange=e=>{if(!dpCur)return;const v=e.target.value;snap();ffApply(dpCur.i,dpCur.f,v?fmtDate(v):'',v);ffVals()};
+$('#dpok').onclick=dpClose;$('#dpx').onclick=dpClose;
+$('#dpt').onclick=()=>{const c=dpCur;if(!c)return;if(c.f.k==='d')return msg('この欄は「年・月・日」の位置に数字を入れる日付欄のため、カレンダー入力のみです');c.f.dt=false;dpCur=null;$('#dpop').style.display='none';if(ffOpen)ffBuild();openField(c.i,c.f,true)};
+$('#dpop').onkeydown=e=>{if(e.key==='Escape')dpClose()};
+$('#ffl').addEventListener('click',e=>{const b=e.target.closest('.ffdt');if(!b)return;e.preventDefault();const w=b.closest('.ffi'),pi=+w.dataset.p,P=E.pages[pi],f=P&&P.fl&&P.fl[+w.dataset.f];if(!f||f.k==='d')return;f.dt=!ffIsDate(P,f);ffBuild()});
+/* --- 印刷済みの「令和 年 月 日」を検出し、年・月・日の間に数字だけを入れる日付欄にする --- */
+function dateFields(items){const G=[];items.forEach(o=>{const n=o.s.length;if(!n||n>60)return;const cw=o.w/n;for(let i=0;i<n;i++)G.push({c:o.s[i],x0:o.x+i*cw,x1:o.x+(i+1)*cw,b:o.b,h:o.h})});
+ const out=[],used=new Set();
+ G.forEach((a,ia)=>{if(a.c!=='年'||used.has(ia))return;const row=G.filter(g=>Math.abs(g.b-a.b)<a.h*.4&&g.h>a.h*.6&&g.h<a.h*1.6).sort((p,q)=>p.x0-q.x0),ri=row.indexOf(a);
+  const mi=row.findIndex((g,k)=>k>ri&&g.c==='月'&&g.x0-a.x1<260),m=row[mi];if(!m)return;
+  const di=row.findIndex((g,k)=>k>mi&&g.c==='日'&&g.x0-m.x1<260),d=row[di];if(!d)return;
+  const blank=(x0,x1)=>!row.some(g=>g!==a&&g!==m&&g!==d&&g.x0>=x0-.5&&g.x1<=x1+.5&&g.c.trim()),pv=row.slice(0,ri).reverse().find(g=>g.c.trim())||{x1:a.x0-Math.min(a.h*4,60)};
+  const gy=[pv.x1,a.x0],gm=[a.x1,m.x0],gd=[m.x1,d.x0];if(gy[1]-gy[0]<8||gm[1]-gm[0]<8||gd[1]-gd[0]<8)return;if(!blank(gy[0],gy[1])||!blank(gm[0],gm[1])||!blank(gd[0],gd[1]))return;
+  const pre=row.filter(g=>g.x1<=a.x0+.5&&g.x0>a.x0-120).map(g=>g.c).join(''),era=(/令和/.exec(pre)||/平成/.exec(pre)||/昭和/.exec(pre)||[''])[0],suf=row.filter(g=>g.x0>=d.x1-.5&&g.x0<d.x1+70).map(g=>g.c).join('').replace(/\s+/g,'').slice(0,6);
+  out.push({x:gy[0],y:a.b-a.h*.95,w:d.x1-gy[0],h:a.h*1.25,k:'d',dt:true,lb:'日付'+(suf?'（'+suf+'）':''),dgp:{y:gy,m:gm,d:gd},b:a.b,hh:a.h,era});[a,m,d].forEach(g=>used.add(G.indexOf(g)))});
+ return out}
+function ffApplyDate(pi,f,iso){const key=ffKey(f),P=E.pages[pi];shapes=shapes.filter(s=>!(s.pg===pi&&s.fk===key));
+ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');if(!m){drawAll();syncP();return}
+ const y=+m[1],mo=+m[2],d=+m[3],t=y*10000+mo*100+d,base={'令和':2018,'平成':1988,'昭和':1925},eb=t>=20190501?2018:t>=19890108?1988:t>=19261225?1925:1911;
+ let yt;if(f.era&&base[f.era]&&y-base[f.era]>=1)yt=String(y-base[f.era]);else if(f.era||ffDf==='w')yt=String(y-eb);else yt=String(y);
+ [['y',yt],['m',String(mo)],['d',String(d)]].forEach(([k,tx])=>{const g=f.dgp[k],s=mk(pi,'text',{x:g[0],y:f.b,tx,fs:12,sc:'#000000',bd:0,fn:'',it:0,fk:key,dg:k,raw:tx,di:iso});ffStyle(s,P,f);
+  let fs=Math.max(7,Math.min(f.hh*.95,20));s.fs=fs;fit(s);while(s.w>g[1]-g[0]-1&&fs>6){fs-=.5;s.fs=fs;fit(s)}s.x=(g[0]+g[1])/2-s.w/2;s.y=f.b-fs*.95});
+ drawAll();syncP()}
+/* --- 入力中のミニツールバー（日付ボタン・フォント表示） --- */
+function fbarShow(i,f,s){const b=$('#fbar'),P=E.pages[i],r=P.svg.getBoundingClientRect(),k=r.width/P.w;b.style.display='flex';const w=b.offsetWidth||200;let L=Math.max(4,Math.min(r.left+f.x*k,innerWidth-w-4)),T=r.top+f.y*k-b.offsetHeight-6;if(T<4)T=r.top+(f.y+f.h)*k+6;b.style.left=L+'px';b.style.top=T+'px';$('#fbf').textContent='フォント：'+(FONTS[s.fn]?FONTS[s.fn][0]:'標準')}
+function fbarHide(){const b=document.getElementById('fbar');if(b)b.style.display='none'}
+$('#fbar').onpointerdown=e=>e.preventDefault();$('#fbar').onmousedown=e=>e.preventDefault();
+$('#fbd').onclick=()=>{const a=ffAct;if(a)showDate(a.pi,a.f)};
+/* --- 範囲指定入力：PDF上をドラッグした範囲が入力欄になり、そのまま文字入力できる --- */
+function ffGC(i,f){if(!f||f.k!=='m')return;const P=E.pages[i];if(!P||shapes.some(s=>s.pg===i&&s.fk===ffKey(f)))return;P.mf=(P.mf||[]).filter(g=>g!==f);P.fl=(P.fl||[]).filter(g=>g!==f);if(ffAct&&ffAct.f===f)ffAct=null;if(ffOpen)ffBuild();drawAll()}
+function ffOpenIE(s,a){if(lastPT==='mouse'){setTimeout(()=>openIE(s,a,true),0);return}const pr=[s,a];pendIE=pr;setTimeout(()=>{if(pendIE===pr){pendIE=null;openIE(s,a,true)}},350)}
+function openField(i,f,direct){const P=E.pages[i];if(!P)return;ffAct={pi:i,f};curPg=i;
+ if(ffIsDate(P,f)){showDate(i,f);drawAll();return}
+ const key=ffKey(f);let s=shapes.find(x=>x.pg===i&&x.fk===key),fresh=false;
+ if(!s){snap();s=mk(i,'text',{x:f.x+3,y:f.y,tx:' ',fs:12,sc:'#000000',bd:0,fn:'',it:0,fk:key,raw:''});ffStyle(s,P,f);ffLayout(s,f);fresh=true}
+ sel=s.id;drawAll();syncP();fbarShow(i,f,s);
+ if(direct)openIE(s,!fresh,fresh);else ffOpenIE(s,!fresh)}
+async function frEnter(){if(!E.pages.length)return msg('先にPDFを開いてください');msg('入力したい範囲をPDF上でドラッグしてください（青枠は自動検出した記入欄。クリックでも入力できます。終了は「選択」またはEsc）');
+ for(const P of E.pages){try{await findFields(P)}catch(e){}if(tool!=='frange')return;drawAll()}}
+function frDown(e,i,p,t){const P=E.pages[i];hideMenu();const tx=t.id&&shapes.find(s=>s.id===+t.id&&s.ty==='text');mq={pi:i,s:p,cur:p,moved:false,fr:1,tid:tx?tx.id:0,pt:e.pointerType};P.svg.setPointerCapture(e.pointerId);sel=null;msel=new Set();findFields(P).catch(()=>{});drawAll()}
+async function frEnd(m){const i=m.pi,P=E.pages[i];if(!P)return;
+ if(!m.moved){const tx=m.tid&&shapes.find(s=>s.id===m.tid&&s.ty==='text');if(tx&&tx.dg){const f0=ffFieldOf(tx);if(f0){sel=tx.id;drawAll();showDate(i,f0);return}}
+  if(tx){sel=tx.id;drawAll();syncP();openIE(tx,false);return}
+  try{await findFields(P)}catch(e){}const f=(P.fl||[]).find(g=>m.s[0]>=g.x&&m.s[0]<=g.x+g.w&&m.s[1]>=g.y&&m.s[1]<=g.y+g.h);if(f)return openField(i,f);return msg('入力したい範囲を、ドラッグして指定してください')}
+ const x=Math.min(m.s[0],m.cur[0]),y=Math.min(m.s[1],m.cur[1]),w=Math.abs(m.cur[0]-m.s[0]),h=Math.abs(m.cur[1]-m.s[1]);
+ if(w<8||h<6)return msg('範囲が小さすぎます。もう少し大きくドラッグしてください');
+ try{await findFields(P)}catch(e){}
+ const f={x,y,w,h,k:'m'};(P.mf=P.mf||[]).push(f);P.fl=(P.fl||[]).concat(f).sort((a,b)=>a.y-b.y||a.x-b.x);
+ if(ffOpen)ffBuild();openField(i,f);msg('範囲を入力欄にしました。そのまま文字を入力してください（日付は上の「📅日付」。Enterで確定。続けて別の範囲も指定できます）')}
+
 /* ===== スタンプ ===== */
 let ST=[];try{ST=JSON.parse(localStorage.getItem('pdftool_stamps')||'[]')}catch(e){}
 const stSave=()=>{try{localStorage.setItem('pdftool_stamps',JSON.stringify(ST))}catch(e){msg('スタンプの保存領域が足りません（今回のみ有効）')}};
@@ -809,12 +976,12 @@ $('#stf').onchange=async e=>{const fs=[...e.target.files];e.target.value='';for(
 function delS(){if(ot)lift();const s=cur();if(!s)return;snap();
  if(s.ty==='orig'){const i=shapes.indexOf(s);shapes[i]={id:uid++,pg:s.pg,ty:'rect',x:s.ox,y:s.oy,w:s.ow,h:s.oh,sc:'#ffffff',fc:'#ffffff',fa:1,sw:0,tc:'#000000',fs:18,tx:''};sel=shapes[i].id;msg('元データを白塗りで隠しました（この白い矩形を削除すると元に戻ります）')}
  else{shapes=shapes.filter(x=>x!==s);sel=null}drawAll();syncP()}
-function unde(){if(undo.length){redo.push(JSON.stringify(shapes));shapes=JSON.parse(undo.pop());if(!cur())sel=null;ot=null;drawAll();syncP()}}
-function rede(){if(redo.length){undo.push(JSON.stringify(shapes));shapes=JSON.parse(redo.pop());if(!cur())sel=null;ot=null;drawAll();syncP()}}
+function unde(){if(undo.length){redo.push(JSON.stringify(shapes));shapes=JSON.parse(undo.pop());if(!cur())sel=null;ot=null;drawAll();syncP();ffVals()}}
+function rede(){if(redo.length){undo.push(JSON.stringify(shapes));shapes=JSON.parse(redo.pop());if(!cur())sel=null;ot=null;drawAll();syncP();ffVals()}}
 addEventListener('keydown',e=>{const g=e.target.tagName;if(g==='INPUT'||g==='TEXTAREA')return;if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();unde()}else if((e.ctrlKey||e.metaKey)&&(e.key==='y'||e.key==='Z')){e.preventDefault();rede()}else if(sec!=='ed')return;else if(e.key==='Delete'||e.key==='Backspace'){if(msel.size)delMulti();else delS()}else if(e.key==='Enter')finish();else if(e.key==='Escape'){mq=null;msel=new Set();hideMenu();lineCancel();draft=null;ot=null;$('#cal').style.display='none';tool='select';syncRib();drawAll()}});
 
 /* ===== プロパティ ===== */
-const PM={sc:v=>({sc:v}),fc:v=>({fc:v}),fa:v=>({fa:v/100}),sw:v=>({sw:Math.max(0,+v)}),fs:v=>({fs:Math.max(4,+v||4)}),tx:v=>({tx:v}),tc:v=>({tc:v}),url:v=>({url:v.trim()}),fnt:v=>({fn:v})};
+const PM={sc:v=>({sc:v}),fc:v=>({fc:v}),fa:v=>({fa:v/100}),sw:v=>({sw:Math.max(0,+v)}),fs:v=>({fs:Math.max(4,+v||4)}),lh:v=>({lh:Math.max(.5,Math.min(5,+v||1.2))}),tx:v=>({tx:v}),tc:v=>({tc:v}),url:v=>({url:v.trim()}),fnt:v=>({fn:v})};
 $('#props').addEventListener('focusin',()=>{if(ot)lift();cur()&&snap()});
 $('#props').addEventListener('input',e=>{const f=PM[e.target.id];if(!f)return;const o=f(e.target.value),s=cur();if(!['tx','url'].includes(e.target.id))Object.assign(D,o);if(s){Object.assign(s,o);if(s.ty==='pline'&&e.target.id==='fa')s.ao=o.fa;fitBox(s);draw(s.pg)}});
 const tgl=k=>{const s=cur();if(!s)return;s[k]=!s[k];D[k]=s[k]?1:0;fitBox(s);draw(s.pg);syncP()};$('#bdb').onclick=()=>tgl('bd');$('#itb').onclick=()=>tgl('it');
@@ -826,20 +993,20 @@ function placeImgs(i,p){const P=E.pages[i];snap();const w=Math.min(160,P.w*.3);l
 
 /* ===== PDF読込・回転 ===== */
 async function paintBase(P){if(P.tc){P.tc.remove();P.tc=null;P.tr=null}const v1=vp(P,1),v=vp(P,1.6),c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);P.w=v1.width;P.h=v1.height;P.svg.setAttribute('viewBox',`0 0 ${P.w} ${P.h}`);
- if(P.dc&&P.dc.parentNode===P.wrap)P.wrap.replaceChild(c,P.dc);else P.wrap.insertBefore(c,P.svg);P.cv=c;P.dc=c;P.rs=1.6;P.mk=null;P.lum=null;P.ti=null;await P.pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise}
+ if(P.dc&&P.dc.parentNode===P.wrap)P.wrap.replaceChild(c,P.dc);else P.wrap.insertBefore(c,P.svg);P.cv=c;P.dc=c;P.rs=1.6;P.mk=null;P.lum=null;P.ti=null;P.fnd=undefined;P.fl=null;P.flp=null;await P.pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise}
 function rotS(s,W,H,d){const m=(x,y)=>d>0?[H-y,x]:[y,W-x];if(s.p)s.p=s.p.map(q=>m(q[0],q[1]));if(s.tip)s.tip=m(s.tip[0],s.tip[1]);if(s.off)s.off=d>0?[-s.off[1],s.off[0]]:[s.off[1],-s.off[0]];
- if(s.x!==undefined){const c=m(s.x+s.w/2,s.y+s.h/2);if(['rect','cloud','linkarea'].includes(s.ty))[s.w,s.h]=[s.h,s.w];s.x=c[0]-s.w/2;s.y=c[1]-s.h/2}}
+ if(s.x!==undefined){const c=m(s.x+s.w/2,s.y+s.h/2);if(['rect','ellipse','cloud','linkarea'].includes(s.ty))[s.w,s.h]=[s.h,s.w];s.x=c[0]-s.w/2;s.y=c[1]-s.h/2}}
 async function rotPage(i,d){const P=E.pages[i];if(!P)throw Error('PDFを開いてください');if(shapes.some(s=>s.pg===i&&s.ty==='orig'))throw Error('元データを移動した図形があるページは回転できません（先に回転してから編集してください）');
- const W=P.w,H=P.h;closeIE();ot=null;shapes.filter(s=>s.pg===i).forEach(s=>rotS(s,W,H,d));P.rot=(P.rot+d*90+360)%360;undo=[];redo=[];await paintBase(P);setZ();updPg();thSoon();msg(`ページ${i+1}を${d>0?'右':'左'}に90°回転しました（保存すると表示のとおりに保存されます）`)}
+ const W=P.w,H=P.h;closeIE();ot=null;shapes.filter(s=>s.pg===i).forEach(s=>rotS(s,W,H,d));P.rot=(P.rot+d*90+360)%360;P.mf=null;undo=[];redo=[];await paintBase(P);setZ();updPg();thSoon();if(tool==='ffill')ffEnter();msg(`ページ${i+1}を${d>0?'右':'左'}に90°回転しました（保存すると表示のとおりに保存されます）`)}
 $('#edf').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)run(()=>loadEd(f)).then(()=>msg(''))};
 async function loadEd(f,pre){let bytes=pre?new Uint8Array(pre.bytes):new Uint8Array(await f.arrayBuffer()),pdf=await openPdf(bytes),data=pre?pre.data:null;const encd=pdf.__enc||looksEnc(bytes);
  if(!pre)try{const at=await pdf.getAttachments();if(at&&at['pdftool_edit.json']&&at['pdftool_base.pdf']&&confirm('このPDFには編集用データ（図形・テキスト等）が含まれています。\n編集可能な状態で復元しますか？\n\nOK＝復元／キャンセル＝そのまま開く')){data=JSON.parse(new TextDecoder().decode(at['pdftool_edit.json'].content));bytes=new Uint8Array(at['pdftool_base.pdf'].content);pdf=await pdfjsLib.getDocument({data:bytes.slice()}).promise}}catch(er){data=null}
  if(!data&&encd)throw Error('パスワード保護されたPDFは、このアプリでは編集できません（「編集データを埋め込む」で保存したPDFは、パスワード入力後に復元して編集できます）');
  E.bytes=bytes;E.name=f.name.replace(/\.pdf$/i,'').replace(/_PW$/,'').replace(/_編集$/,'');E.pages=[];E.mm=data&&data.mm||0;shapes=data?data.shapes||[]:[];imgs=data?data.imgs||{}:{};sel=null;ot=null;undo=[];redo=[];draft=null;pl=[];curPg=0;bmSel=-1;uid=Math.max(1,...shapes.map(s=>s.id+1),...Object.keys(imgs).map(k=>(+k.slice(1)||0)+1),data&&data.uid||1);
  E.bm=data&&data.bm?data.bm:await readOutline(pdf);$('#pages').innerHTML='';
- for(let n=1;n<=pdf.numPages;n++){const pg=await pdf.getPage(n),w=document.createElement('div'),svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),P={w:0,h:0,svg,wrap:w,pg,rot:data&&data.rots?data.rots[n-1]||0:0,dc:null,ops:null,mm:data&&data.mms?data.mms[n-1]||0:0};
+ for(let n=1;n<=pdf.numPages;n++){const pg=await pdf.getPage(n),w=document.createElement('div'),svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),P={w:0,h:0,svg,wrap:w,pg,rot:data&&data.rots?data.rots[n-1]||0:0,dc:null,ops:null,mm:data&&data.mms?data.mms[n-1]||0:0,mf:(data&&data.mfs&&data.mfs[n-1]&&data.mfs[n-1].length)?data.mfs[n-1]:null};
   w.className='pg';w.append(svg);$('#pages').append(w);E.pages.push(P);bind(svg,n-1);await paintBase(P);setZ();msg(`読込中 ${n}/${pdf.numPages}`)}
- updPg();syncP();rbm();if(E.bm.length&&!bmOpen&&!thOpen)bmToggle(true);thSel=new Set([0]);thAnchor=0;thAuto=true;if(thOpen)thBuild();else if(!bmOpen&&innerWidth>=700)thToggle(true);if(data)msg('編集データを復元しました');(async()=>{for(const P of E.pages){try{await loadOps(P)}catch(er){}}})()}
+ updPg();syncP();rbm();if(E.bm.length&&!bmOpen&&!thOpen)bmToggle(true);thSel=new Set([0]);thAnchor=0;thAuto=true;if(thOpen)thBuild();else if(!bmOpen&&innerWidth>=700)thToggle(true);if(data)msg('編集データを復元しました');(async()=>{for(const P of E.pages){try{await loadOps(P)}catch(er){}}if(E.pages.length<=40){let n=0;for(const P of E.pages){try{n+=(await findFields(P)).length}catch(er){}}const fi=await ffAutoFont();if(n){if(sec==='ed')ffToggle(true);msg(`記入欄を${n}か所検出しました。${fi}左の「記入項目」に入力するとPDFに反映されます。一覧にない欄は「範囲指定入力」でPDF上をドラッグして直接入力できます`)}else if(fi)msg(fi)}})()}
 
 /* ===== PDF保存 ===== */
 const hex=h=>rgb(parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255),b64=u=>Uint8Array.from(atob(u.split(',')[1]),c=>c.charCodeAt(0));
@@ -848,7 +1015,7 @@ async function drawPrim(doc,pg,H,q){
  if(q.k==='path'){const o={x:0,y:H,borderOpacity:q.so!==undefined?q.so:1,borderLineCap:q.mj?LineCapStyle.Butt:LineCapStyle.Round};if(q.sw>0&&q.col){o.borderColor=hex(q.col);o.borderWidth=q.sw}if(q.fill&&q.fa>0){o.color=hex(q.fill);o.opacity=q.fa}if(q.dash)o.borderDashArray=q.dash.split(' ').map(Number);if(q.bm)o.blendMode=PDFLib.BlendMode.Multiply;if(!o.borderColor&&!o.color)return;return pg.drawSvgPath(q.d,o)}
  if(q.k==='img'){const u=q.u,im=/image\/png/.test(u.slice(0,20))?await doc.embedPng(b64(u)):await doc.embedJpg(b64(u));return pg.drawImage(im,{x:q.x,y:H-q.y-q.h,width:q.w,height:q.h})}
  if(q.k==='text'){const k=4,c=document.createElement('canvas');c.width=Math.ceil(q.w*k)+8;c.height=Math.ceil(q.h*k)+8;const x=c.getContext('2d');x.font=`${q.it?'italic ':''}${q.bd?'bold ':''}${q.fs*k}px ${q.ff||FF}`;x.fillStyle=q.col;x.lineJoin='round';x.lineWidth=q.fs*k*.25;x.strokeStyle='#fff';
-  q.tx.split('\n').forEach((l,i)=>{const yy=q.fs*(1.2*i+.95)*k;if(q.halo)x.strokeText(l,0,yy);x.fillText(l,0,yy)});
+  q.tx.split('\n').forEach((l,i)=>{const yy=q.fs*((q.lh||1.2)*i+.95)*k;if(q.halo)x.strokeText(l,0,yy);x.fillText(l,0,yy)});
   const im=await doc.embedPng(b64(c.toDataURL('image/png')));return pg.drawImage(im,{x:q.x,y:H-q.y-c.height/k,width:c.width/k,height:c.height/k})}}
 async function doExport(){if(!E.bytes)throw Error('PDFを開いてください');const pwOn=$('#pwon').checked,pwd=$('#pwv').value;if(pwOn&&!pwd)throw Error('パスワードを入力してください（右上のツールバー「🔒保存時にパスワード」の欄）');closeIE();ot=null;await Promise.all(pl);pl=[];
  const doc=await PDFDocument.load(E.bytes.slice(),{ignoreEncryption:true}),pgs=doc.getPages(),ctx=doc.context;
@@ -859,7 +1026,7 @@ async function doExport(){if(!E.bytes)throw Error('PDFを開いてください')
    pg.node.addAnnot(ctx.register(ctx.obj({Type:'Annot',Subtype:'Link',Rect:[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)],Border:[0,0,0],F:4,A:{Type:'Action',S:'URI',URI:PDFString.of(encodeURI(s.url))}})))}}
  writeOutline(doc,E.bm);
  if($('#emb').checked&&(shapes.length||E.pages.some(P=>P.rot))){const used={};shapes.forEach(s=>{if(s.k&&imgs[s.k])used[s.k]=imgs[s.k]});
-  const data={v:1,shapes,imgs:used,rots:E.pages.map(P=>P.rot),mms:E.pages.map(P=>P.mm||0),mm:E.mm,uid,bm:E.bm};
+  const data={v:1,shapes,imgs:used,rots:E.pages.map(P=>P.rot),mms:E.pages.map(P=>P.mm||0),mm:E.mm,uid,bm:E.bm,mfs:E.pages.map(P=>P.mf||[])};
   await doc.attach(E.bytes,'pdftool_base.pdf',{mimeType:'application/pdf',description:'PDFツール：編集用の元PDF'});
   await doc.attach(new TextEncoder().encode(JSON.stringify(data)),'pdftool_edit.json',{mimeType:'application/json',description:'PDFツール：編集データ'})}
  if(pwOn){await encryptDoc(doc,{user:pwd});await save(E.name+'_編集_PW.pdf',await doc.save({useObjectStreams:false,updateFieldAppearances:false}));msg('パスワード付きで保存しました。パスワードは別の連絡手段で相手にお伝えください');return}
@@ -867,7 +1034,7 @@ async function doExport(){if(!E.bytes)throw Error('PDFを開いてください')
 
 /* ===== 右クリックメニュー ===== */
 const cm=$('#cm'),hideMenu=()=>cm.style.display='none';
-function showMenu(x,y){const s=cur();if(!s)return;const img=s.ty==='image'||s.ty==='orig',tx=s.ty==='text',fl=['rect','cloud','poly','callout'].includes(s.ty),sw={rect:'雲形に切替',cloud:'矩形に切替',line:'矢印に切替',arrow:'直線に切替'}[s.ty];cmS=false;cmId=s.id;cmPick=false;
+function showMenu(x,y){const s=cur();if(!s)return;const img=s.ty==='image'||s.ty==='orig',tx=s.ty==='text',fl=['rect','ellipse','cloud','poly','callout'].includes(s.ty),sw={rect:'雲形に切替',cloud:'矩形に切替',line:'矢印に切替',arrow:'直線に切替'}[s.ty];cmS=false;cmId=s.id;cmPick=false;
  cm.innerHTML=(img?'':`<label>${tx?'文字色':'線色'}<input type='color' id='m_sc' value='${s.sc}'></label>`)+(fl?`<label>塗り色<input type='color' id='m_fc' value='${s.fc}'></label><label>透過<input type='range' id='m_fa' min='0' max='100' value='${Math.round(s.fa*100)}'></label>`:'')+(img||tx?'':`<label>線幅<input type='number' id='m_sw' min='0' step='0.5' value='${s.sw}' style='width:56px'></label>`)+(sw?`<button data-c='sw'>${sw}</button>`:'')+`<button data-c='dup'>複製</button><button data-c='top'>最前面へ</button><button data-c='up'>前面へ</button><button data-c='down'>背面へ</button><button data-c='bot'>最背面へ</button><button data-c='del'>削除</button>`;
  cm.style.maxHeight=(innerHeight-8)+'px';cm.style.overflowY='auto';cm.style.display='flex';
  /* 選択中の図形（と選択ハンドル）に重ならない位置へ表示する */
@@ -884,7 +1051,7 @@ var cmId=null,cmPick=false;
 const cmApply=e=>{const s=shapes.find(x=>x.id===cmId),f=s&&{m_sc:v=>s.sc=v,m_fc:v=>s.fc=v,m_fa:v=>s.fa=v/100,m_sw:v=>s.sw=Math.max(0,+v)}[e.target.id];if(!s||!f)return;if(!cmS){snap();cmS=true}f(e.target.value);draw(s.pg);syncP();if(e.type==='change'&&e.target.type==='color')cmPick=false};
 cm.addEventListener('input',cmApply);cm.addEventListener('change',cmApply);
 cm.addEventListener('click',e=>{if(e.target.type==='color')cmPick=true});
-cm.addEventListener('input',e=>{const id=e.target.id;if(id!=='mm_sc'&&id!=='mm_fc')return;if(!cmS){snap();cmS=true}const v=e.target.value;shapes.forEach(s=>{if(!msel.has(s.id))return;if(id==='mm_sc'&&s.ty!=='image'&&s.ty!=='orig')s.sc=v;else if(id==='mm_fc'&&['rect','cloud','poly','callout'].includes(s.ty))s.fc=v});drawAll()});
+cm.addEventListener('input',e=>{const id=e.target.id;if(id!=='mm_sc'&&id!=='mm_fc')return;if(!cmS){snap();cmS=true}const v=e.target.value;shapes.forEach(s=>{if(!msel.has(s.id))return;if(id==='mm_sc'&&s.ty!=='image'&&s.ty!=='orig')s.sc=v;else if(id==='mm_fc'&&['rect','ellipse','cloud','poly','callout'].includes(s.ty))s.fc=v});drawAll()});
 cm.onclick=e=>{const c=e.target.dataset.c;if(c==='mdel'||c==='mx'){hideMenu();if(c==='mdel')delMulti();else{msel=new Set();drawAll()}return}const s=cur();if(!c||!s)return;hideMenu();if(c==='del')return delS();if(['top','up','down','bot'].includes(c))return zorder(c);snap();
  if(c==='dup'){const n=clone(s);n.id=uid++;if(n.p)n.p=n.p.map(q=>[q[0]+12,q[1]+12]);else{n.x+=12;n.y+=12;if(n.ox!==undefined){n.ty='image'}}if(n.tip)n.tip=[n.tip[0]+12,n.tip[1]+12];shapes.push(n);sel=n.id}
  else s.ty={rect:'cloud',cloud:'rect',line:'arrow',arrow:'line'}[s.ty];
@@ -922,7 +1089,7 @@ const THR=300;
 $('#rail').innerHTML=`<button data-p="th" title="サムネイル">${ic('thumb')}</button><button data-p="bm" title="しおり">${ic('bm')}</button>`;
 $('#rail').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.p==='th')thToggle();else bmToggle()};
 $('#tht').innerHTML=`<button id="thzi" title="サムネイルを拡大">${ic('zin')}</button><button id="thzo" title="サムネイルを縮小">${ic('zout')}</button><i></i><button id="thrl" title="選択ページを左90°回転">${ic('rotL')}</button><button id="thrr" title="選択ページを右90°回転">${ic('rotR')}</button><i></i><button id="thad" title="PDFを追加（選択ページの後ろ／未選択なら末尾）">${ic('plus')}</button><button id="thdl" title="選択ページを削除">${ic('del')}</button>`;
-function thToggle(f){thOpen=f===undefined?!thOpen:f;if(thOpen&&bmOpen){bmOpen=false;$('#bmw').classList.add('hide')}showSec('ed');$('#thw').classList.toggle('hide',!thOpen);if(thOpen)thBuild();syncRib();fitH();if(E.pages.length)schedRR()}
+function thToggle(f){thOpen=f===undefined?!thOpen:f;if(thOpen&&bmOpen){bmOpen=false;$('#bmw').classList.add('hide')}if(thOpen&&ffOpen){ffOpen=false;$('#ffw').classList.add('hide');drawAll()}showSec('ed');$('#thw').classList.toggle('hide',!thOpen);if(thOpen)thBuild();syncRib();fitH();if(E.pages.length)schedRR()}
 function thZoom(f){thW=Math.max(70,Math.min(260,Math.round(thW*f)));$('#thl').style.setProperty('--thw',thW+'px');$('#thw').style.width=(thW+80)+'px'}
 function thBuild(){const L=$('#thl');if(!thOpen||!L)return;const st=L.scrollTop;if(thIO)thIO.disconnect();L.textContent='';L.style.setProperty('--thw',thW+'px');
  if(!E.pages.length){L.innerHTML='<div class="empty">PDFを開くと<br>ここにページが表示されます</div>';return}
@@ -968,7 +1135,7 @@ async function pgEdit(plan){closeIE();ot=null;draft=null;await Promise.all(pl);p
  E.bytes=nb;E.pages=np;const R=$('#pages'),sy=R.scrollTop;R.innerHTML='';
  for(let i=0;i<np.length;i++){const P=np[i],w=document.createElement('div'),svg=document.createElementNS('http://www.w3.org/2000/svg','svg');w.className='pg';w.append(svg);if(P.tc){P.tc.remove();P.tc=null;P.tr=null}P.wrap=w;P.svg=svg;R.append(w);bind(svg,i);
   if(P.dc&&P.w){w.insertBefore(P.dc,svg);svg.setAttribute('viewBox',`0 0 ${P.w} ${P.h}`)}else{P.dc=null;await paintBase(P)}}
- undo=[];redo=[];curPg=Math.min(curPg,np.length-1);setZ();R.scrollTop=sy;drawAll();updPg();syncP();rbm();thBuild()}
+ undo=[];redo=[];curPg=Math.min(curPg,np.length-1);setZ();R.scrollTop=sy;drawAll();updPg();syncP();rbm();thBuild();if(ffOpen)ffBuild()}
 async function thInsert(files,at){const docs=[];for(const f of files){const b=new Uint8Array(await f.arrayBuffer());if(looksEnc(b))throw Error(`「${f.name}」はパスワード保護されているため追加できません`);docs.push(await PDFDocument.load(b,{ignoreEncryption:true}))}
  const add=[];docs.forEach(d=>{for(let k=0;k<d.getPageCount();k++)add.push({d,k})});if(!add.length)throw Error('追加できるページがありません');
  const plan=E.pages.map((_,i)=>({o:i}));plan.splice(at,0,...add);await pgEdit(plan);
@@ -1018,11 +1185,11 @@ let asSig='',asBase=null,asBusy=false,asTimer=0;
 const asInd=(()=>{const d=document.createElement('div');d.style.cssText='position:fixed;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:40;font-size:11px;color:var(--mu);background:var(--cd);border:1px solid var(--bd);border-radius:999px;padding:3px 10px;opacity:0;transition:opacity .4s;pointer-events:none';document.body.appendChild(d);return d})();
 function asShow(t){asInd.textContent=t;asInd.style.opacity=1;clearTimeout(asTimer);asTimer=setTimeout(()=>asInd.style.opacity=0,2500)}
 async function autoSave(force){if(asBusy||!E.bytes||!E.pages.length)return;if(!force&&(ed||drag||draft||lnd))return;
- const used={};shapes.forEach(s=>{if(s.k&&imgs[s.k])used[s.k]=imgs[s.k]});const rots=E.pages.map(P=>P.rot),mms=E.pages.map(P=>P.mm||0),
-  sig=JSON.stringify([shapes,rots,mms,E.mm,E.bm,Object.keys(used).join(),E.name]);
+ const used={};shapes.forEach(s=>{if(s.k&&imgs[s.k])used[s.k]=imgs[s.k]});const rots=E.pages.map(P=>P.rot),mms=E.pages.map(P=>P.mm||0),mfs=E.pages.map(P=>P.mf||[]),
+  sig=JSON.stringify([shapes,rots,mms,mfs,E.mm,E.bm,Object.keys(used).join(),E.name]);
  if(sig===asSig&&asBase===E.bytes)return;asBusy=true;
  try{if(asBase!==E.bytes){const b=E.bytes;await DB.set('base',{name:E.name,bytes:b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength)});asBase=b}
-  await DB.set('edit',{name:E.name,ts:Date.now(),data:{v:1,shapes,imgs:used,rots,mms,mm:E.mm,uid,bm:E.bm}});asSig=sig;
+  await DB.set('edit',{name:E.name,ts:Date.now(),data:{v:1,shapes,imgs:used,rots,mms,mfs,mm:E.mm,uid,bm:E.bm}});asSig=sig;
   const d=new Date();asShow('💾 自動保存 '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0'));
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}
  catch(e){console.warn('自動保存に失敗',e);asShow('⚠ 自動保存できませんでした（容量不足の可能性）')}finally{asBusy=false}}
@@ -1043,7 +1210,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)autoSave(tr
  R.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;tp.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(tp.size>=2){clearLp();cancelOp();pan=null;if(!g){const c=cdist(),rc=R.getBoundingClientRect();g={d0:c.d,z0:z,px:(R.scrollLeft+c.cx-rc.left)/z,py:(R.scrollTop+c.cy-rc.top)/z}}e.stopPropagation();e.preventDefault();return}
   const t=e.target.dataset||{},onObj=t.id||t.h||t.v!==undefined||t.m!==undefined||t.lb!==undefined||t.tp!==undefined||t.dv!==undefined;
-  if((tool==='select'&&!onObj)||tool==='bucket')pan={id:e.pointerId,x:e.clientX,y:e.clientY,sl:R.scrollLeft,st:R.scrollTop,on:false};
+  if((tool==='select'&&!onObj)||tool==='bucket'||tool==='ffill')pan={id:e.pointerId,x:e.clientX,y:e.clientY,sl:R.scrollLeft,st:R.scrollTop,on:false};
   if(onObj){clearLp();lp={id:e.pointerId,x:e.clientX,y:e.clientY,t:setTimeout(()=>{if(!lp)return;const x=lp.x,y=lp.y;lp=null;if(draft&&!draft.k)draft.pend=0;if(drag&&(drag.k==='dp'||drag.k==='m'))drag=null;if(lnd)lineCancel();const el=document.elementFromPoint(x,y);if(el)el.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:x,clientY:y,button:2}))},550)}}
  },true);
  R.addEventListener('pointermove',e=>{if(e.pointerType!=='touch'||!tp.has(e.pointerId))return;const q=tp.get(e.pointerId);q.x=e.clientX;q.y=e.clientY;
