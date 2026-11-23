@@ -467,6 +467,9 @@ const ellD=(x,y,w,h)=>{const rx=Math.max(w,.1)/2,ry=Math.max(h,.1)/2,cx=x+rx,cy=
 function pathD(s){if(s.ty==='ellipse')return ellD(s.x,s.y,s.w,s.h);if(s.ty==='rect'||s.ty==='linkarea')return rectD(s.x,s.y,s.w,s.h);if(s.ty==='cloud')return cloudD(s.x,s.y,s.w,s.h);if(s.ty==='poly')return polyD(s.p,1);if(s.ty==='line')return polyD(s.p);return polyD(s.p)+headD(s.p[0],s.p[1],s.sw)}
 function leadPts(s){const tp=s.tip,left=tp[0]<s.x+s.w/2,sx=left?s.x:s.x+s.w,sy=s.ty==='callout'?s.y+s.h/2:s.y+s.h;return[[sx,sy],[sx+(left?-24:24),sy],tp]}
 const leadD=(p,sw)=>polyD(p)+headD(p[1],p[2],sw);
+function leadO(s,sk){const p=leadPts(s),a=p[1],b=p[2],an=Math.atan2(b[1]-a[1],b[0]-a[0]),hl=Math.max(12,(s.sw||1)*5),h=d=>[b[0]-hl*Math.cos(an+d),b[1]-hl*Math.sin(an+d)],bl=hl*.8,dist=Math.hypot(b[0]-a[0],b[1]-a[1]);
+ const shaft=dist>bl?polyD([p[0],a,[b[0]-bl*Math.cos(an),b[1]-bl*Math.sin(an)]]):polyD([p[0],a]);
+ return[{k:'path',d:shaft,...sk},{k:'path',d:`M${h(.5).join(' ')}L${b.join(' ')}L${h(-.5).join(' ')}Z`,col:s.sc,sw:0,fill:s.sc,fa:1}]}
 const mmOf=pg=>E.pages[pg].mm||E.mm||0,dimTxt=s=>{const m=mmOf(s.pg);return m?Math.round(len(s.p[0],s.p[1])*m).toLocaleString('en-US'):'?'},lab=s=>{const a=s.p[0],b=s.p[1],d=s.d||0,l0=len(a,b)||1;return[(a[0]+b[0])/2+(b[1]-a[1])/l0*d+s.off[0],(a[1]+b[1])/2-(b[0]-a[0])/l0*d+s.off[1]]};
 const fmtL=mm=>Math.round(mm).toLocaleString('en-US')+' mm'+(mm>=1000?` (${(mm/1000).toFixed(2)} m)`:'');
 function measVals(s){const m=mmOf(s.pg),p=s.p,cl=s.mk!=='dist',seg=[];let L=0,A=0;for(let i=0;i<p.length-(cl?0:1);i++){const d=len(p[i],p[(i+1)%p.length])*m;seg.push(d);L+=d}
@@ -484,8 +487,8 @@ function prims(s,ex){const o=[],tcl=s.ty==='text'?s.sc:(s.tc||'#000000'),F=s.fa>
  case'ellipse':o.push({k:'path',d:ellD(s.x,s.y,s.w,s.h),...sk,fill:F,fa:s.fa});break;
   case'rect':case'cloud':o.push({k:'path',d:pathD(s),...sk,fill:F,fa:s.fa,hf:!!s.tx,bm:s.hl});txt(s.x+PAD,s.y+PAD);break;
  case'linkarea':o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),col:s.sc,sw:s.sw,fill:s.fc,fa:s.fa,dash:'5 3',ui:1});break;
- case'callout':o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),...sk,fill:F,fa:s.fa,hf:1});o.push({k:'path',d:leadD(leadPts(s),s.sw),...sk});txt(s.x+PAD,s.y+PAD);break;
- case'leader':o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),sw:0,fill:'#000',fa:0,hf:1,ui:1});o.push({k:'path',d:polyD([[s.x,s.y+s.h],[s.x+s.w,s.y+s.h]]),...sk});o.push({k:'path',d:leadD(leadPts(s),s.sw),...sk});txt(s.x+2,s.y+1);break;
+ case'callout':o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),...sk,fill:F,fa:s.fa,hf:1});o.push(...leadO(s,sk));txt(s.x+PAD,s.y+PAD);break;
+ case'leader':o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),sw:0,fill:'#000',fa:0,hf:1,ui:1});o.push({k:'path',d:polyD([[s.x,s.y+s.h],[s.x+s.w,s.y+s.h]]),...sk});o.push(...leadO(s,sk));txt(s.x+2,s.y+1);break;
  case'line':case'arrow':o.push({k:'path',d:pathD(s),...sk});break;
  case'pline':o.push({k:'path',d:polyD(s.p),...sk,mj:1,so:s.ao===undefined?1:s.ao});break;
  case'poly':o.push({k:'path',d:pathD(s),...sk,fill:F,fa:s.fa,bm:s.hl&&(!CO||ex)});break;
@@ -1080,7 +1083,7 @@ addEventListener('dragleave',e=>{if(!e.relatedTarget)hl(0)});
 addEventListener('drop',e=>{e.preventDefault();hl(0);const all=dtFiles(e),id=document.querySelector('section.on').id,pdfs=all.filter(f=>f.type==='application/pdf'||/\.pdf$/i.test(f.name));
  const set=(s,fl)=>fileSet(s,fl);
  if(!SEC[id])return msg('この画面ではドロップできません');
- if(id==='ed'){const im=all.filter(f=>f.type.startsWith('image/'));if(pdfs.length)set('#edf',[pdfs[0]]);else if(im.length){if(!E.pages.length)return msg('先にPDFを開いてください');const el=document.elementFromPoint(e.clientX,e.clientY),pe=el&&el.closest&&el.closest('.pg');let i=E.pages.findIndex(P=>P.wrap===pe);if(i<0)i=0;dropPt={i,p:pt(e,i)};set('#imgf',im)}else msg('PDFまたは画像をドロップしてください');return}
+ if(id==='ed'){const im=all.filter(f=>f.type.startsWith('image/'));if(pdfs.length>1){run(async()=>{if(!E.pages.length){await loadEd(pdfs[0]);await thInsert(pdfs.slice(1),E.pages.length)}else await thInsert(pdfs,E.pages.length)})}else if(pdfs.length)set('#edf',[pdfs[0]]);else if(im.length){if(!E.pages.length)return msg('先にPDFを開いてください');const el=document.elementFromPoint(e.clientX,e.clientY),pe=el&&el.closest&&el.closest('.pg');let i=E.pages.findIndex(P=>P.wrap===pe);if(i<0)i=0;dropPt={i,p:pt(e,i)};set('#imgf',im)}else msg('PDFまたは画像をドロップしてください');return}
  if(!pdfs.length)return msg('PDFファイルをドロップしてください');
  set(SEC[id],id==='mg'||id==='a3'?pdfs:[pdfs[0]])});
 
