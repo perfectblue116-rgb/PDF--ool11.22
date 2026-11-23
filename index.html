@@ -162,7 +162,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 <section id="ed" class="ed on">
 <div class="tb" id="props">
 <span>線色<input type="color" id="sc" value="#ff0000"></span><span>塗り<input type="color" id="fc" value="#ffff00"></span>
-<span title="塗りの濃さ。左端で塗りなし（完全に透明）、右端で不透明。左側ほど細かく調整できます">透過<input type="range" id="fa" min="0" max="100" step="1" value="71" style="width:110px"><b id="fav" style="display:inline-block;min-width:34px;text-align:right">50%</b></span><span>線幅<input type="number" id="sw" min="0" value="2" step="0.5"></span>
+<span title="塗りの濃さ。左端で塗りなし（完全に透明）、右端で不透明。左側ほど細かく調整できます">透過<input type="range" id="fa" min="0" max="100" step="1" value="71" style="width:110px"><b id="fav" style="display:inline-block;min-width:34px;text-align:right">50%</b></span><span title="線の濃さ。左端で線が見えなくなり、右端で不透明">線透過<input type="range" id="la" min="0" max="100" step="1" value="100" style="width:90px"><b id="lav" style="display:inline-block;min-width:34px;text-align:right">100%</b></span><span>線幅<input type="number" id="sw" min="0" value="2" step="0.5"></span>
 <span id="tcw" style="display:none">文字色<input type="color" id="tc" value="#000000"></span>
 <span id="txw" style="display:none">文字サイズ<input type="number" id="fs" min="4" value="18"> 行間<input type="number" id="lh" min="0.5" max="5" step="0.1" value="1.2" title="行間（文字サイズの倍率。1.2が標準）" style="width:56px"><span id="fnw" style="display:none"><select id="fnt" title="フォント"><option value="">自動（元のフォント／標準）</option><option value="msg">ＭＳ ゴシック</option><option value="msp">ＭＳ Ｐゴシック</option><option value="msm">ＭＳ 明朝</option><option value="mspm">ＭＳ Ｐ明朝</option><option value="maru">丸ゴシック</option><option value="meiryo">メイリオ</option><option value="yug">游ゴシック</option><option value="yum">游明朝</option><option value="arial">Arial</option><option value="times">Times New Roman</option></select><button id="bdb" title="太字"><b>B</b></button><button id="itb" title="斜体"><i>I</i></button></span><span id="txa"><textarea id="tx" placeholder="テキスト（改行可）"></textarea></span></span>
 <span id="sgw" style="display:none"><label><input type="checkbox" id="sg">各辺の寸法を表示</label></span>
@@ -261,7 +261,7 @@ IC.ellipse='<ellipse cx="12" cy="12" rx="9" ry="6"/>';
 const ic=n=>{const v=IC[n]||'';return'<svg viewBox="0 0 24 24">'+(v[0]==='<'?v:`<path d="${v}"/>`)+'</svg>'};
 
 /* ===== 状態 ===== */
-let E={bytes:null,name:'',pages:[],bm:[],mm:0},z=1.25,shapes=[],sel=null,tool='select',D={sc:'#ff0000',fc:'#ffff00',fa:.5,sw:2,fs:18,tc:'#000000',fn:'',bd:0,it:0},imgs={},draft=null,drag=null,undo=[],redo=[],uid=1,pend=null,ot=null,ed=null,pl=[],pickOrig=true,curPg=0,tab='home',bmSel=-1,sec='ed',dropPt=null,rrT=0,rrTok=0,cmS=false,bmOpen=false,thOpen=innerWidth>=700,thSel=new Set([0]),thAuto=true,thW=130,thAnchor=0,thIO=null,thT=0,thQ=Promise.resolve(),lnd=null,thDr=null,thMoved=0,thMq=null;
+let E={bytes:null,name:'',pages:[],bm:[],mm:0},z=1.25,shapes=[],sel=null,tool='select',D={sc:'#ff0000',fc:'#ffff00',fa:.5,lo:1,sw:2,fs:18,tc:'#000000',fn:'',bd:0,it:0},imgs={},draft=null,drag=null,undo=[],redo=[],uid=1,pend=null,ot=null,ed=null,pl=[],pickOrig=true,curPg=0,tab='home',bmSel=-1,sec='ed',dropPt=null,rrT=0,rrTok=0,cmS=false,bmOpen=false,thOpen=innerWidth>=700,thSel=new Set([0]),thAuto=true,thW=130,thAnchor=0,thIO=null,thT=0,thQ=Promise.resolve(),lnd=null,thDr=null,thMoved=0,thMq=null;
 const FF="'Hiragino Sans','Yu Gothic',Meiryo,sans-serif",PAD=4,
  POLYT=['poly','pline','mdist','mperi','marea'],DRAGT=['rect','ellipse','cloud','line','arrow','callout','leader','linkarea','tbox'],TXT=['text','rect','cloud','callout','leader'],
  isB=s=>['rect','ellipse','cloud','image','text','callout','leader','orig','linkarea'].includes(s.ty),closedS=s=>s.ty==='poly'||(s.ty==='meas'&&s.mk!=='dist'),stS=s=>s.ty==='pline'||s.ty==='poly',plPad=s=>8/z+(s.sw||0)/2,
@@ -480,7 +480,7 @@ function lbl(tx,fs,col,c,id,bd){const t={k:'text',tx,fs,col,halo:1,lb:id,bd};fit
 function bbox(s){let xs,ys;if(s.p){xs=s.p.map(q=>q[0]);ys=s.p.map(q=>q[1])}else{xs=[s.x,s.x+s.w];ys=[s.y,s.y+s.h]}if(s.tip){xs.push(s.tip[0]);ys.push(s.tip[1])}return[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)]}
 
 /* 図形→描画プリミティブ（画面とPDF出力で共通） */
-function prims(s,ex){const o=[],tcl=s.ty==='text'?s.sc:(s.tc||'#000000'),F=s.fa>0?s.fc:null,sk={col:s.sc,sw:s.sw},hide=!ex&&s.id===ed;
+function prims(s,ex){const o=[],tcl=s.ty==='text'?s.sc:(s.tc||'#000000'),F=s.fa>0?s.fc:null,sk={col:s.sc,sw:s.sw,so:s.lo},hide=!ex&&s.id===ed;
  const txt=(x,y)=>{if(s.tx&&!hide){const t={k:'text',x,y,tx:s.tx,fs:s.fs,lh:s.lh,col:tcl,ff:fam(s),it:s.it,bd:s.bd};fit(t);o.push(t)}};
  switch(s.ty){
  case'text':if(!hide){const t={k:'text',x:s.x,y:s.y,tx:s.tx,fs:s.fs,lh:s.lh,col:s.sc,hb:1,ff:fam(s),it:s.it,bd:s.bd};fit(t);o.push(t)}else o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),sw:0,fill:'#000',fa:0,hf:1,ui:1});break;
@@ -571,10 +571,11 @@ const mag=(a,p,e)=>{if(!a||e.altKey)return p;if(e.shiftKey)return ortho(a,p);con
 const pt=(e,i)=>{const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(E.pages[i].svg.getScreenCTM().inverse());return[q.x,q.y]},
  ortho=(a,p)=>Math.abs(p[0]-a[0])>Math.abs(p[1]-a[1])?[p[0],a[1]]:[a[0],p[1]];
 const sqP=(a,p)=>{const dx=p[0]-a[0],dy=p[1]-a[1],d=Math.max(Math.abs(dx),Math.abs(dy));return[a[0]+(dx<0?-d:d),a[1]+(dy<0?-d:d)]};
-const mk=(i,ty,o)=>{const s={id:uid++,pg:i,ty,sc:D.sc,fc:D.fc,fa:D.fa,sw:D.sw,tc:D.tc,fs:D.fs,tx:'',fn:D.fn,bd:D.bd,it:D.it,...o};shapes.push(s);return s},
+const mk=(i,ty,o)=>{const s={id:uid++,pg:i,ty,sc:D.sc,fc:D.fc,fa:D.fa,lo:D.lo,sw:D.sw,tc:D.tc,fs:D.fs,tx:'',fn:D.fn,bd:D.bd,it:D.it,...o};shapes.push(s);return s},
  done=s=>{sel=s.id;ot=null;tool='select';syncRib();drawAll();syncP()};
+function lavUp(){const v=+$('#la').value;$('#lav').textContent=Math.round(v)+'%'}
 function favUp(){const v=+$('#fa').value,a=v*v/100;$('#fav').textContent=v<=0?'なし':(a<10?(Math.round(a*10)/10):Math.round(a))+'%'}
-function syncP(){const sh=cur(),s=sh||D,ty=s.ty;$('#sc').value=s.sc;$('#fc').value=s.fc;$('#fa').value=Math.sqrt(s.ty==='pline'?(s.ao===undefined?1:s.ao):s.fa)*100;favUp();$('#sw').value=s.sw;$('#tc').value=s.tc||D.tc;
+function syncP(){const sh=cur(),s=sh||D,ty=s.ty;$('#sc').value=s.sc;$('#fc').value=s.fc;$('#fa').value=Math.sqrt(s.ty==='pline'?(s.ao===undefined?1:s.ao):s.fa)*100;favUp();$('#la').value=(s.lo===undefined?1:s.lo)*100;lavUp();$('#sw').value=s.sw;$('#tc').value=s.tc||D.tc;
  const tx=TXT.includes(ty),dm=ty==='dim'||ty==='meas';$('#tcw').style.display=tx&&ty!=='text'?'':'none';$('#txw').style.display=tx||dm?'':'none';$('#txa').style.display=tx?'':'none';
  if(tx||dm)$('#fs').value=Math.round(s.fs);if(tx)$('#lh').value=s.lh||1.2;if(tx)$('#tx').value=s.tx||'';$('#fnw').style.display=tx?'':'none';if(tx){$('#fnt').value=s.fn||'';$('#bdb').classList.toggle('on',!!s.bd);$('#itb').classList.toggle('on',!!s.it)}$('#sgw').style.display=ty==='meas'?'':'none';if(ty==='meas')$('#sg').checked=s.seg!==false;
  $('#urw').style.display=sh?'':'none';$('#url').value=sh?(s.url||''):'';fitH()}
@@ -1007,9 +1008,9 @@ function rede(){if(redo.length){undo.push(JSON.stringify(shapes));shapes=JSON.pa
 addEventListener('keydown',e=>{const g=e.target.tagName;if(g==='INPUT'||g==='TEXTAREA')return;if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();unde()}else if((e.ctrlKey||e.metaKey)&&(e.key==='y'||e.key==='Z')){e.preventDefault();rede()}else if(sec!=='ed')return;else if(e.key==='Delete'||e.key==='Backspace'){if(msel.size)delMulti();else delS()}else if(e.key==='Enter')finish();else if(e.key==='Escape'){mq=null;msel=new Set();hideMenu();lineCancel();draft=null;ot=null;$('#cal').style.display='none';tool='select';syncRib();drawAll()}});
 
 /* ===== プロパティ ===== */
-const PM={sc:v=>({sc:v}),fc:v=>({fc:v}),fa:v=>({fa:Math.pow(v/100,2)}),sw:v=>({sw:Math.max(0,+v)}),fs:v=>({fs:Math.max(4,+v||4)}),lh:v=>({lh:Math.max(.5,Math.min(5,+v||1.2))}),tx:v=>({tx:v}),tc:v=>({tc:v}),url:v=>({url:v.trim()}),fnt:v=>({fn:v})};
+const PM={sc:v=>({sc:v}),fc:v=>({fc:v}),fa:v=>({fa:Math.pow(v/100,2)}),sw:v=>({sw:Math.max(0,+v)}),la:v=>({lo:Math.max(0,Math.min(1,v/100))}),fs:v=>({fs:Math.max(4,+v||4)}),lh:v=>({lh:Math.max(.5,Math.min(5,+v||1.2))}),tx:v=>({tx:v}),tc:v=>({tc:v}),url:v=>({url:v.trim()}),fnt:v=>({fn:v})};
 $('#props').addEventListener('focusin',()=>{if(ot)lift();cur()&&snap()});
-$('#props').addEventListener('input',e=>{if(e.target.id==='fa'){if(+e.target.value<=3)e.target.value=0;favUp()}const f=PM[e.target.id];if(!f)return;const o=f(e.target.value),s=cur()||shapes.find(x=>x.id===sel);if(!['tx','url'].includes(e.target.id))Object.assign(D,o);if(s){Object.assign(s,o);if(s.ty==='pline'&&e.target.id==='fa')s.ao=o.fa;fitBox(s);drawAll()}});
+$('#props').addEventListener('input',e=>{if(e.target.id==='fa'){if(+e.target.value<=3)e.target.value=0;favUp()}if(e.target.id==='la'){if(+e.target.value<=3)e.target.value=0;lavUp()}const f=PM[e.target.id];if(!f)return;const o=f(e.target.value),s=cur()||shapes.find(x=>x.id===sel);if(!['tx','url'].includes(e.target.id))Object.assign(D,o);if(s){Object.assign(s,o);if(s.ty==='pline'&&e.target.id==='fa')s.ao=o.fa;fitBox(s);drawAll()}});
 const tgl=k=>{const s=cur();if(!s)return;s[k]=!s[k];D[k]=s[k]?1:0;fitBox(s);draw(s.pg);syncP()};$('#bdb').onclick=()=>tgl('bd');$('#itb').onclick=()=>tgl('it');
 $('#sg').onchange=e=>{const s=cur();if(s){snap();s.seg=e.target.checked;draw(s.pg)}};
 
@@ -1061,7 +1062,7 @@ async function doExport(){if(!E.bytes)throw Error('PDFを開いてください')
 /* ===== 右クリックメニュー ===== */
 const cm=$('#cm'),hideMenu=()=>cm.style.display='none';
 function showMenu(x,y){const s=cur();if(!s)return;const img=s.ty==='image'||s.ty==='orig',tx=s.ty==='text',fl=['rect','ellipse','cloud','poly','callout'].includes(s.ty),sw={rect:'雲形に切替',cloud:'矩形に切替',line:'矢印に切替',arrow:'直線に切替'}[s.ty];cmS=false;cmId=s.id;cmPick=false;
- cm.innerHTML=(img?'':`<label>${tx?'文字色':'線色'}<input type='color' id='m_sc' value='${s.sc}'></label>`)+(fl?`<label>塗り色<input type='color' id='m_fc' value='${s.fc}'></label><label>透過<input type='range' id='m_fa' min='0' max='100' value='${Math.round(Math.sqrt(s.fa)*100)}'></label>`:'')+(img||tx?'':`<label>線幅<input type='number' id='m_sw' min='0' step='0.5' value='${s.sw}' style='width:56px'></label>`)+(sw?`<button data-c='sw'>${sw}</button>`:'')+`<button data-c='dup'>複製</button><button data-c='top'>最前面へ</button><button data-c='up'>前面へ</button><button data-c='down'>背面へ</button><button data-c='bot'>最背面へ</button><button data-c='del'>削除</button>`;
+ cm.innerHTML=(img?'':`<label>${tx?'文字色':'線色'}<input type='color' id='m_sc' value='${s.sc}'></label>`)+(fl?`<label>塗り色<input type='color' id='m_fc' value='${s.fc}'></label><label>透過<input type='range' id='m_fa' min='0' max='100' value='${Math.round(Math.sqrt(s.fa)*100)}'></label>`:'')+(img||tx?'':`<label>線透過<input type='range' id='m_la' min='0' max='100' value='${Math.round((s.lo===undefined?1:s.lo)*100)}'></label>`)+(img||tx?'':`<label>線幅<input type='number' id='m_sw' min='0' step='0.5' value='${s.sw}' style='width:56px'></label>`)+(sw?`<button data-c='sw'>${sw}</button>`:'')+`<button data-c='dup'>複製</button><button data-c='top'>最前面へ</button><button data-c='up'>前面へ</button><button data-c='down'>背面へ</button><button data-c='bot'>最背面へ</button><button data-c='del'>削除</button>`;
  cm.style.maxHeight=(innerHeight-8)+'px';cm.style.overflowY='auto';cm.style.display='flex';
  /* 選択中の図形（と選択ハンドル）に重ならない位置へ表示する */
  const W=cm.offsetWidth||200,H=cm.offsetHeight||340,vw=innerWidth,vh=innerHeight,cl=(v,a,b)=>Math.max(a,Math.min(v,b));let L=cl(x,0,vw-W),T=cl(y,0,vh-H),r=null;
@@ -1074,7 +1075,7 @@ function showMenu(x,y){const s=cur();if(!s)return;const img=s.ty==='image'||s.ty
  cm.style.left=L+'px';cm.style.top=T+'px'}
 var cmId=null,cmPick=false;
 /* メニュー表示中の図形をIDで保持する（スポイトで画面をクリックして選択が外れても、その図形に色を反映する） */
-const cmApply=e=>{if(e.target.id==='m_fa'&&+e.target.value<=3)e.target.value=0;const s=shapes.find(x=>x.id===cmId),f=s&&{m_sc:v=>s.sc=v,m_fc:v=>s.fc=v,m_fa:v=>s.fa=Math.pow(v/100,2),m_sw:v=>s.sw=Math.max(0,+v)}[e.target.id];if(!s||!f)return;if(!cmS){snap();cmS=true}f(e.target.value);draw(s.pg);syncP();if(e.type==='change'&&e.target.type==='color')cmPick=false};
+const cmApply=e=>{if((e.target.id==='m_fa'||e.target.id==='m_la')&&+e.target.value<=3)e.target.value=0;const s=shapes.find(x=>x.id===cmId),f=s&&{m_sc:v=>s.sc=v,m_fc:v=>s.fc=v,m_fa:v=>s.fa=Math.pow(v/100,2),m_la:v=>s.lo=Math.max(0,Math.min(1,v/100)),m_sw:v=>s.sw=Math.max(0,+v)}[e.target.id];if(!s||!f)return;if(!cmS){snap();cmS=true}f(e.target.value);draw(s.pg);syncP();if(e.type==='change'&&e.target.type==='color')cmPick=false};
 cm.addEventListener('input',cmApply);cm.addEventListener('change',cmApply);
 cm.addEventListener('click',e=>{if(e.target.type==='color')cmPick=true});
 cm.addEventListener('input',e=>{const id=e.target.id;if(id!=='mm_sc'&&id!=='mm_fc')return;if(!cmS){snap();cmS=true}const v=e.target.value;shapes.forEach(s=>{if(!msel.has(s.id))return;if(id==='mm_sc'&&s.ty!=='image'&&s.ty!=='orig')s.sc=v;else if(id==='mm_fc'&&['rect','ellipse','cloud','poly','callout'].includes(s.ty))s.fc=v});drawAll()});
