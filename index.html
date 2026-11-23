@@ -176,7 +176,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 <div class="tb hide" id="stw"><b>スタンプ</b><span id="stl"></span><button id="stadd2" class="pri">＋登録</button><span style="color:var(--mu)">画像をクリック→ページ上で貼り付け位置をクリック（JPG/PNG）</span><input type="file" id="stf" accept="image/*" multiple hidden></div>
 <div class="hint hide" id="hint">
 <b>基本</b>：「ホーム→開く」でPDFを読込（ドラッグ&amp;ドロップも可）。図形は右クリックで色・透過・線幅・種類切替・複製・重ね順・削除。Ctrl+Z で元に戻す。Shift+ホイールで作業画面のみ拡大縮小。<br>
-<b>テキスト</b>：「枠付テキスト」は枠の中に文字入力、「吹き出し」は枠＋引き出し線(矢印)、「引き出し線」は枠なしで水平線の上に文字入力。図形をダブルクリックで文字編集（Enterで改行）。吹き出し／引き出し線の先端は橙色の●ドラッグで移動。<br>
+<b>テキスト</b>：「枠付テキスト」は枠の中に文字入力、「吹き出し」は枠＋引き出し線(矢印)、「引き出し線」は枠なしで水平線の上に文字入力。図形をダブルクリックで文字編集（Enterで改行）。吹き出し／引き出し線は、最初にクリックした点が矢印の先端になり、次にクリック（またはドラッグ）した位置にボックスが置かれます。先端は橙色の●ドラッグで移動。<br>
 <b>元データの選択</b>：何も図形が無い所をクリックすると、PDFに元から入っている画像・図形を選択できます（「元データも選択」で切替）。ドラッグで移動、Deleteで白塗り削除、右クリックで重ね順など。選択した範囲は画像として切り出して編集可能にします。<br>
 <b>サムネイル</b>：左端のアイコンまたは「ホーム／表示→サムネイル」で開閉。クリックでそのページへ移動（青枠は現在の表示範囲）、Ctrl／Shiftで複数選択し、🗑またはDeleteで削除。サムネイルをドラッグで並べ替え（複数選択して移動も可）、空白部分からドラッグで範囲選択。別のPDFをサムネイル欄へドロップすると、青線の位置にページを追加します（保存でPDFに反映）。<br>
 <b>しおり</b>：「ホーム／表示→しおり」で左にしおり欄を開閉。大項目・細目を追加し、行クリックでそのページへ移動。保存したPDFは他のPDFビューアで開いてもしおり欄が開いた状態で表示されます（結合・分割・圧縮でも引き継ぎ）。<br>
@@ -603,7 +603,7 @@ function down(e,i){if(e.button||tool==='bucket'||tool==='ffill')return;closeIE()
  if(tool==='line'||tool==='arrow'){lineCancel();snap();const s=mk(i,tool,{p:[p,p]});lnd={id:s.id,pi:i,s:p,moved:false};sel=s.id;ot=null;draw(i);syncP();P.svg.setPointerCapture(e.pointerId);return}
  if(DRAGT.includes(tool)){lineCancel();snap();const ty=tool==='tbox'?'rect':tool,o=(ty==='line'||ty==='arrow')?{p:[p,p]}:{x:p[0],y:p[1],w:0,h:0};
   if(ty==='linkarea')Object.assign(o,{sc:'#2563eb',fc:'#2563eb',fa:.12,sw:1});if(tool==='tbox'||tool==='callout'||tool==='cloud')Object.assign(o,{fc:'#ffffff',fa:1});if(tool==='ellipse')Object.assign(o,{fa:0,sw:Math.max(2,D.sw||2)});
-  const s=mk(i,ty,o);lnd={id:s.id,pi:i,s:p,cur:p,moved:false,box:1,tb:tool==='tbox'};sel=s.id;ot=null;boxPrev(s);draw(i);syncP();P.svg.setPointerCapture(e.pointerId);return}
+  if(ty==='callout'||ty==='leader')o.tip=[p[0],p[1]];const s=mk(i,ty,o);lnd={id:s.id,pi:i,s:p,cur:p,moved:false,box:1,tb:tool==='tbox'};sel=s.id;ot=null;boxPrev(s);draw(i);syncP();P.svg.setPointerCapture(e.pointerId);return}
  if(t.lb!==undefined){sel=+t.lb;ot=null;snap();const s=cur();if(!s.off)s.off=[0,0];drag={k:'l',s:p,o:clone(s),pi:i};drawAll();syncP()}
  else if(t.tp!==undefined){snap();drag={k:'tp',pi:i}}
  else if(t.h||t.v!==undefined||t.m!==undefined){snap();const s=cur();if(t.m!==undefined){s.p.splice(+t.m+1,0,p);drag={k:'v',i:+t.m+1,pi:i};selV={id:s.id,i:+t.m+1}}else if(t.v!==undefined){drag={k:'v',i:+t.v,pi:i};selV={id:s.id,i:+t.v}}else drag={k:'h',h:t.h,o:clone(s),pi:i}}
@@ -634,17 +634,21 @@ function move(e,i){if(mq&&mq.pi===i){mq.cur=pt(e,i);if(len(mq.s,mq.cur)*z>6)mq.m
  if(draft&&draft.pi===i&&!draft.wait){const p=pt(e,i),l=draft.p[draft.p.length-1];draft.cur=draft.t==='pline'?snapPl(i,p,e,l):(e.shiftKey&&l?ortho(l,p):p);if(draft.t&&draft.t!=='poly'&&draft.t!=='pline')lenMsg(draft);draw(i);return}
  if(drag&&drag.k==='hl'&&drag.pi===i){const p=pt(e,i);hlr={pi:i,x:Math.min(drag.s[0],p[0]),y:Math.min(drag.s[1],p[1]),w:Math.abs(p[0]-drag.s[0]),h:Math.abs(p[1]-drag.s[1]),a:drag.s,b:p};draw(i);return}
  if(!drag||drag.pi!==i)return;const p=pt(e,i),s=cur();if(!s)return;
- if(drag.k==='c'){if(s.p)s.p=[drag.s,e.shiftKey?ortho(drag.s,p):p];else{s.x=Math.min(drag.s[0],p[0]);s.y=Math.min(drag.s[1],p[1]);s.w=Math.abs(p[0]-drag.s[0]);s.h=Math.abs(p[1]-drag.s[1])}}
+ if(drag.k==='c'){if(s.p)s.p=[drag.s,e.shiftKey?ortho(drag.s,p):p];else if(s.ty==='callout'||s.ty==='leader')leadPlace(s,drag.s,p);else{s.x=Math.min(drag.s[0],p[0]);s.y=Math.min(drag.s[1],p[1]);s.w=Math.abs(p[0]-drag.s[0]);s.h=Math.abs(p[1]-drag.s[1])}}
  else if(drag.k==='m'){let dx=p[0]-drag.s[0],dy=p[1]-drag.s[1];const o=drag.o;if(Math.hypot(dx,dy)*z>3)drag.mv=1;if(s.ty==='dim'&&!e.altKey){if(drag.ax===undefined&&Math.hypot(dx,dy)*z>6)drag.ax=Math.abs(dx)>=Math.abs(dy)?0:1;if(drag.ax===0)dy=0;else if(drag.ax===1)dx=0;else{dx=0;dy=0}}if(s.p)s.p=o.p.map(q=>[q[0]+dx,q[1]+dy]);else{s.x=o.x+dx;s.y=o.y+dy}if(o.tip)s.tip=[o.tip[0]+dx,o.tip[1]+dy]}
  else if(drag.k==='l'){s.off=[drag.o.off[0]+p[0]-drag.s[0],drag.o.off[1]+p[1]-drag.s[1]]}
  else if(drag.k==='dl'){const o=drag.o,a=o.p[0],b=o.p[1],l0=len(a,b)||1;s.d=(o.d||0)+(p[0]-drag.s[0])*(b[1]-a[1])/l0-(p[1]-drag.s[1])*(b[0]-a[0])/l0}
  else if(drag.k==='tp'){s.tip=p}
  else if(drag.k==='v'){let q=p;if(s.ty==='pline'){q=snapPl(i,p,e,s.p[drag.i>0?drag.i-1:1],{sh:s,vi:drag.i})}else if(e.shiftKey){const n=s.p.length;q=ortho(s.p[(drag.i+n-1)%n],p)}s.p[drag.i]=q}
  else resize(s,drag.o,drag.h,p);draw(i)}
-function setBox(s,a,p){s.x=Math.min(a[0],p[0]);s.y=Math.min(a[1],p[1]);s.w=Math.abs(p[0]-a[0]);s.h=Math.abs(p[1]-a[1]);boxPrev(s)}
-function boxPrev(s){if(s.ty==='callout'){s.w=Math.max(s.w,120);s.h=Math.max(s.h,40);s.tip=[s.x-60,s.y+s.h+70];fitBox(s)}else if(s.ty==='leader'){s.w=Math.max(s.w,120);s.tip=[s.x-50,s.y+s.h+70];fitBox(s)}}
+function leadPlace(s,tip,p){s.w=Math.max(s.w||0,120);if(s.ty==='callout')s.h=Math.max(s.h||0,40);fitBox(s);
+ if(!p||Math.hypot(p[0]-tip[0],p[1]-tip[1])*z<8)p=[tip[0]+60,tip[1]-45];
+ const r=p[0]>=tip[0];s.tip=[tip[0],tip[1]];s.x=r?p[0]:p[0]-s.w;s.y=s.ty==='callout'?p[1]-s.h/2:p[1]-s.h}
+function setBox(s,a,p){if(s.ty==='callout'||s.ty==='leader'){leadPlace(s,a,p);return}s.x=Math.min(a[0],p[0]);s.y=Math.min(a[1],p[1]);s.w=Math.abs(p[0]-a[0]);s.h=Math.abs(p[1]-a[1]);boxPrev(s)}
+function boxPrev(s){if(s.ty==='callout'||s.ty==='leader')leadPlace(s,s.tip||[s.x,s.y],null)}
 function lineEnd(p){const s=shapes.find(x=>x.id===lnd.id),L=lnd;lnd=null;
- if(s&&L.box){s.x=Math.min(L.s[0],p[0]);s.y=Math.min(L.s[1],p[1]);s.w=Math.abs(p[0]-L.s[0]);s.h=Math.abs(p[1]-L.s[1]);if((s.ty==='callout'||s.ty==='leader')&&(s.w<3||s.h<3)){s.w=Math.max(s.w,120);s.h=Math.max(s.h,40)}drag={k:'c',s:L.s,pi:L.pi,tb:L.tb};up();return}
+ if(s&&L.box&&(s.ty==='callout'||s.ty==='leader')){leadPlace(s,L.s,p);drag={k:'c',s:L.s,pi:L.pi,tb:L.tb};up();return}
+  if(s&&L.box){s.x=Math.min(L.s[0],p[0]);s.y=Math.min(L.s[1],p[1]);s.w=Math.abs(p[0]-L.s[0]);s.h=Math.abs(p[1]-L.s[1]);if((s.ty==='callout'||s.ty==='leader')&&(s.w<3||s.h<3)){s.w=Math.max(s.w,120);s.h=Math.max(s.h,40)}drag={k:'c',s:L.s,pi:L.pi,tb:L.tb};up();return}
  if(s){s.p=[s.p[0],p];if(len(s.p[0],s.p[1])<3){shapes=shapes.filter(x=>x!==s);sel=null}else tool='select'}drawAll();syncRib();syncP()}
 function lineCancel(){if(!lnd)return;const id=lnd.id;lnd=null;shapes=shapes.filter(x=>x.id!==id);if(sel===id)sel=null;drawAll();syncP()}
 function up(){snapMk=null;if(mq&&mq.fr){const m=mq;mq=null;drawAll();frEnd(m);return}if(mq&&!mq.wait){if(mq.moved)mqEnd(mq.cur);else if(mq.pt==='mouse'){mq.wait=true;msg('範囲の反対側でもう一度クリックすると範囲が確定します（Escで取消）')}else{mq=null;drawAll()}return}if(lnd){if(lnd.moved){const s=shapes.find(x=>x.id===lnd.id);lineEnd(lnd.box?(lnd.cur||lnd.s):(s&&s.p?s.p[1]:lnd.s))}return}if(drag&&drag.k==='dp'){const q=draft&&draft.cur;drag=null;if(draft&&draft.pend&&q){draft.pend=0;polyAdd(draft.pi,q)}return}
@@ -652,8 +656,7 @@ if(!drag)return;if(drag.k==='m'&&drag.was&&!drag.mv&&lastPT!=='mouse'){const s1=
 if(drag.k==='hl'){const r=hlr;hlr=null;drag=null;drawAll();if(r)finishHl(r);return}const s=cur();let after=null;
  if(drag.k==='m'&&drag.addv&&!drag.mv&&s&&s.p){s.p=clone(drag.o.p);if(addVtx(s,drag.addv)){drag=null;drawAll();syncP();msg('折れ点を追加しました（点をクリックすると×で削除できます）');return}}
  if(drag.k==='c'&&s){const tiny=s.p?len(s.p[0],s.p[1])<3:(s.w<3||s.h<3);if(tiny){shapes=shapes.filter(x=>x!==s);sel=null}
-  else{if(s.ty==='callout'){s.w=Math.max(s.w,120);s.h=Math.max(s.h,40);s.tip=[s.x-60,s.y+s.h+70];fitBox(s);after=s}
-   else if(s.ty==='leader'){s.w=Math.max(s.w,120);fitBox(s);s.tip=[s.x-50,s.y+s.h+70];after=s}
+  else{if(s.ty==='callout'||s.ty==='leader'){fitBox(s);after=s}
    else if(drag.tb){s.sc=D.sc;fitBox(s);after=s}else if(s.ty==='linkarea')setTimeout(()=>{$('#url').focus();msg('リンク先URLを入力してください')},0)}
   syncRib()}
  const wasC=drag.k==='c';drag=null;if(wasC&&cur()){tool='select';syncRib()}drawAll();syncP();if(after)setTimeout(()=>openIE(after,true),0)}
