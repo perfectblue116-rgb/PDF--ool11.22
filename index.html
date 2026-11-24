@@ -1324,11 +1324,40 @@ const CAD=(()=>{
    else if(both.has(f))emit('stroke',col(sc));
    else if(pureF.has(f)){const c=col(fc);if(c[0]>=240&&c[1]>=240&&c[2]>=240){subs=[];cu=null}else emit('fill',c)}
    else if(f===O.endPath){subs=[];cu=null}}
+  res.raw=items||[];
   if(opt.text&&items)for(const it of items){const s=it.s.replace(/[\u0000-\u001f]/g,'').replace(/\s+$/,'');if(!s.trim())continue;res.texts.push({x:it.x,b:it.b,h:it.h,w:it.w,s})}
   return res}
 
+
+ /* ---- 縮尺の自動判定：寸法値(数値文字)と、その寸法線の区間長(pt)の比を集計 ---- */
+ const PK=25.4/72,STD=[1,2,5,10,20,25,30,40,50,60,75,80,100,120,150,200,250,300,400,500,600,1000],
+  snapStd=d=>{let b=d,bd=.02;for(const s of STD){const e=Math.abs(d-s)/s;if(e<bd){bd=e;b=s}}return b};
+ function detect(res){const T=res.raw||[];let hint=0;
+  for(const t of T){const s=t.s.replace(/\s+/g,' '),m=/(?:S|縮尺|SCALE)\s*[=＝:：]?\s*1\s*[\/／:：]\s*(\d{1,4})/i.exec(s)||/^\s*1\s*[\/／:：]\s*(\d{2,4})\s*$/.exec(s);if(m){hint=+m[1];break}}
+  const Hs=[],Vs=[];
+  for(const p of res.paths){if(p.k!=='line')continue;const q=p.p;for(let i=0;i<q.length-1;i++){const a=q[i],b=q[i+1],dx=b[0]-a[0],dy=b[1]-a[1];
+   if(Math.abs(dy)<.3){if(Math.abs(dx)>=6)Hs.push({y:(a[1]+b[1])/2,x1:Math.min(a[0],b[0]),x2:Math.max(a[0],b[0])})}
+   else Vs.push({x1:a[0],y1:a[1],x2:b[0],y2:b[1],len:Math.hypot(dx,dy)})}}
+  const by=new Map();Hs.forEach(s=>{const k=Math.round(s.y*2);if(!by.has(k))by.set(k,[]);by.get(k).push(s)});
+  const Hm=[];by.forEach(a=>{a.sort((p,q)=>p.x1-q.x1);let c=null;for(const s of a){if(c&&s.x1<=c.x2+1.2)c.x2=Math.max(c.x2,s.x2);else{c={y:s.y,x1:s.x1,x2:s.x2};Hm.push(c)}}});
+  const rs=[];
+  for(const t of T){const s=t.s.replace(/\s/g,'');if(!/^(\d{1,3}(,\d{3})+|\d+)$/.test(s))continue;const v=+s.replace(/,/g,'');if(v<100||v>30000||t.h<1.5||!(t.w>0))continue;
+   const h=t.h,cx=t.x+t.w/2,cyT=t.b-.35*h;let best=null,bd=1e9;
+   for(const l of Hm){if(cx<l.x1-1||cx>l.x2+1)continue;const d=Math.abs(l.y-cyT);if(d<.25*h||d>2.4*h)continue;if(d<bd){bd=d;best=l}}
+   if(!best)continue;const xs=[best.x1,best.x2];
+   for(const g of Vs){const y0=Math.min(g.y1,g.y2),y1=Math.max(g.y1,g.y2);if(best.y<y0-.8||best.y>y1+.8)continue;const dy=g.y2-g.y1,x=Math.abs(dy)<1e-9?g.x1:g.x1+(g.x2-g.x1)*(best.y-g.y1)/dy;
+    if(x<best.x1-1||x>best.x2+1)continue;if(g.len<=22||Math.min(Math.abs(g.y1-best.y),Math.abs(g.y2-best.y))<=14)xs.push(x)}
+   let xl=-1e18,xr=1e18;for(const x of xs){if(x<=t.x+1&&x>xl)xl=x;if(x>=t.x+t.w-1&&x<xr)xr=x}
+   if(xl<-1e17||xr>1e17)continue;const L=xr-xl;if(L<Math.max(6,t.w))continue;rs.push(v/L)}
+  const out={ok:false,total:rs.length,count:0,hint,denom:0};if(rs.length<3)return out;
+  const bins=new Map();rs.forEach(r=>{const k=Math.round(Math.log(r)/Math.log(1.01));bins.set(k,(bins.get(k)||0)+1)});
+  let bk=0,bv=-1;bins.forEach((n,k)=>{const v=n+(bins.get(k-1)||0)+(bins.get(k+1)||0);if(v>bv){bv=v;bk=k}});
+  const pk=Math.exp(bk*Math.log(1.01)),mem=rs.filter(r=>Math.abs(Math.log(r/pk))<.03).sort((a,b)=>a-b);
+  if(mem.length<3||mem.length/rs.length<.3)return out;
+  out.ok=true;out.count=mem.length;out.k=mem[mem.length>>1];out.denom=out.k/PK;return out}
+
  /* ---- ページ結果を mm 座標のモデルへ ---- */
- function model(pages,opt){const M={items:[],texts:[],pages:pages.length};
+ function model(pages,opt){const M={items:[],texts:[],pages:pages.length,scales:pages.map(r=>r.den||1),real:pages.some(r=>r.real),paperMM:Math.max(...pages.map(r=>Math.max(r.W||0,r.H)*(r.pk||r.k)))};
   pages.forEach((r,pi)=>{const k=r.k,H=r.H,X=x=>+(x*k).toFixed(3),Y=y=>+((H-y)*k).toFixed(3),seen=new Set();
    r.paths.forEach(p=>{const pts=[];for(const q of p.p){const a=[X(q[0]),Y(q[1])],l=pts[pts.length-1];if(!l||Math.abs(l[0]-a[0])>1e-6||Math.abs(l[1]-a[1])>1e-6)pts.push(a)}
     if(pts.length<2)return;
@@ -1367,7 +1396,9 @@ const CAD=(()=>{
    else{const p=this.pid++;this.cls.set(name,p);this.u16(0xffff);this.u16(schema);this.u16(name.length);this.bytes([...name].map(c=>c.charCodeAt(0)))}this.pid++}
   base(layer,grp,color){this.u32(0);this.u8(1);this.u16(color);this.u16(0);this.u16(layer);this.u16(grp);this.u16(0)}}
  function jww(M,opt){if(M.pages>16)throw Error('JWWはレイヤグループが16個までのため、17ページ以上は変換できません（ページ範囲を減らすかDXFをお使いください）');
-  const w=new BW();w.bytes(hdr());let n=0;const body=new BW();body.cls=w.cls;
+  const w=new BW(),h0=hdr().slice(),dv=new DataView(h0.buffer);const mo=16+2*h0[15],g0=mo+8;M.scales.forEach((sc,i)=>dv.setFloat64(g0+i*148+8,Math.max(.001,+(+sc).toFixed(3)),true));
+  {let ps=0;if(!M.real){const SZ=[[4,297],[3,420],[2,594],[1,841],[0,1189]];ps=(SZ.find(z=>M.paperMM<=z[1]*1.01)||[0])[0]}dv.setUint32(mo,ps,true)}
+  w.bytes(h0);let n=0;const body=new BW();body.cls=w.cls;
   const ents=[];
   M.items.forEach(it=>{const L=it.k==='fill'?1:0,c=jpc(it.col),p=it.pts,m=it.c?p.length:p.length-1;for(let i=0;i<m;i++){const a=p[i],b=p[(i+1)%p.length];if(a[0]===b[0]&&a[1]===b[1])continue;ents.push(['L',it.pg,L,c,a,b])}});
   M.texts.forEach(t=>ents.push(['T',t.pg,2,1,t]));
@@ -1376,30 +1407,47 @@ const CAD=(()=>{
    if(e[0]==='L'){w.obj('CDataSen',700);w.base(e[2],e[1],e[3]);w.f64(e[4][0]);w.f64(e[4][1]);w.f64(e[5][0]);w.f64(e[5][1])}
    else{const t=e[4],u=units(t.s),sx=Math.max(.2,t.w/u);w.obj('CDataMoji',700);w.base(2,e[1],1);w.f64(t.x);w.f64(t.y);w.f64(t.x+t.w);w.f64(t.y);w.u32(0);w.f64(sx);w.f64(Math.max(.2,t.h));w.f64(0);w.f64(0);w.cstr('ＭＳ ゴシック');w.cstr(t.s)}}
   w.count(0);w.u32(0);return w.b.slice(0,w.n)}
- return{extract,model,dxf,jww,sjEnc}})();
+ return{extract,model,dxf,jww,sjEnc,detect,snapStd,PK}})();
 
 /* ===== CAD変換：ダイアログと実行 ===== */
-function cadOpts(){let o={};try{o=JSON.parse(localStorage.getItem('pdftool_cad')||'{}')}catch(e){}return Object.assign({fmt:'jww',all:false,real:true,fill:true,text:true},o)}
+function cadOpts(){let o={};try{o=JSON.parse(localStorage.getItem('pdftool_cad')||'{}')}catch(e){}return Object.assign({fmt:'jww',all:false,sm:'auto',n:100,out:'scaled',fill:true,text:true},o)}
+const cadDen=d=>Math.abs(d-Math.round(d))<.05?String(Math.round(d)):d.toFixed(1);
+async function cadGet(i,needText){const P=E.pages[i];let items=[];try{items=await textItems(P)}catch(e){}
+ const r=await CAD.extract(P.pg,vp(P,1).transform,P.w,P.h,items,{thin:1.2,fill:needText.fill,text:needText.text});r.W=P.w;r.H=P.h;r.pk=CAD.PK;return r}
+/* 縮尺（用紙に対する分母）を決める。戻り値 {den, note} */
+function cadScale(i,o,r){const PK=CAD.PK;
+ if(o.sm==='none')return{den:null,note:'用紙寸法'};
+ if(o.sm==='man')return o.n>0?{den:+o.n,note:'1/'+cadDen(+o.n)+'（手入力）'}:{den:null,note:'縮尺未入力→用紙寸法'};
+ if(o.sm==='cal'){const m=mmOf(i);return m?{den:m/PK,note:'1/'+cadDen(m/PK)+'（寸法設定）'}:{den:null,note:'寸法設定なし→用紙寸法'}}
+ const d=CAD.detect(r);
+ if(d.ok){const s=CAD.snapStd(d.denom);return{den:s,note:'1/'+cadDen(s)+`（寸法${d.total}件中${d.count}件が一致`+(d.hint?(Math.abs(d.hint-s)/s<.03?'・図面内表記と一致':'・図面内表記は1/'+d.hint+'。PDFが縮小されている可能性'):'')+'）',d}}
+ if(d.hint)return{den:d.hint,note:'1/'+d.hint+'（図面内の縮尺表記。寸法値から確認できず）',d};
+ return{den:null,note:'自動判定できず→用紙寸法（寸法'+d.total+'件）',d}}
 function cadDlg(){if(!E.pages.length)return msg('先にPDFを開いてください');
  const o=cadOpts(),cal=!!mmOf(curPg);let d=document.getElementById('cadpop');if(!d){d=document.createElement('div');d.id='cadpop';d.style.cssText='position:fixed;inset:0;z-index:80;background:#0006;display:flex;align-items:center;justify-content:center';document.body.appendChild(d)}
- d.innerHTML=`<div style="background:var(--cd);color:var(--fg);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;width:min(460px,92vw);box-shadow:0 8px 30px #0006;font-size:14px">
+ d.innerHTML=`<div style="background:var(--cd);color:var(--fg);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;width:min(520px,94vw);max-height:94vh;overflow:auto;box-shadow:0 8px 30px #0006;font-size:14px">
  <b style="font-size:15px">CAD変換（PDF → JWW / DXF）</b>
  <div class="hint" style="padding:6px 0;background:none;border:0">PDF内のベクター線・図形・文字データを取り出してCADファイルにします。CADから出力したPDFが対象で、スキャン画像のPDFは変換できません。</div>
  <div class="row"><b>形式</b><label><input type="radio" name="cadf" value="jww" ${o.fmt==='jww'?'checked':''}> JWW（Jw_cad）</label><label><input type="radio" name="cadf" value="dxf" ${o.fmt==='dxf'?'checked':''}> DXF</label></div>
  <div class="row"><b>範囲</b><label><input type="radio" name="cadp" value="0" ${!o.all?'checked':''}> 表示中のページ（${curPg+1}）</label><label><input type="radio" name="cadp" value="1" ${o.all?'checked':''}> 全ページ（${E.pages.length}）</label></div>
- <div class="row"><label title="「測定→寸法設定」で実寸を設定済みの場合、その実寸(mm)で出力します"><input type="checkbox" id="cadr" ${cal&&o.real?'checked':''} ${cal?'':'disabled'}> 寸法設定の実寸(mm)で出力${cal?'':'（未設定：用紙寸法で出力）'}</label></div>
+ <div class="row"><b>縮尺</b><select id="cads"><option value="auto">自動判定（寸法値・縮尺表記から）</option><option value="cal"${cal?'':' disabled'}>寸法設定の値${cal?'':'（未設定）'}</option><option value="man">手入力</option><option value="none">使わない（用紙寸法）</option></select><span id="cadnw">1/<input type="number" id="cadn" min="1" step="any" value="${o.n}" style="width:80px"></span><button id="cadd">判定</button></div>
+ <div id="cadi" class="hint" style="padding:2px 0 6px;background:none;border:0;max-height:none"></div>
+ <div class="row"><b>出力</b><label title="JWW：用紙のmm座標で書き、レイヤグループの縮尺を設定します（Jw_cadの通常の使い方）。DXFには縮尺の項目がないため実寸mmになります"><input type="radio" name="cado" value="scaled" ${o.out==='scaled'?'checked':''}> 縮尺付き（JWW：用紙mm＋縮尺／DXF：実寸mm）</label><label><input type="radio" name="cado" value="real" ${o.out==='real'?'checked':''}> 実寸1/1（縮尺1/1で実寸mm）</label></div>
  <div class="row"><label><input type="checkbox" id="cadt" ${o.text?'checked':''}> 文字を出力</label><label title="塗りつぶしの外形線も出力します（細い塗り長方形は線として出力）"><input type="checkbox" id="cadfl" ${o.fill?'checked':''}> 塗りつぶし図形の外形</label></div>
- <div class="hint" style="padding:4px 0;background:none;border:0">JWW：線=レイヤ0／塗り外形=レイヤ1／文字=レイヤ2（ページごとにレイヤグループ、最大16ページ）。DXF：色・種別ごとにレイヤ分け（Shift_JIS）。曲線は折れ線に分割されます。</div>
+ <div class="hint" style="padding:4px 0;background:none;border:0;max-height:none">自動判定は、寸法値の数字（mm表記）とその寸法線の区間長の比から求めます。水平の寸法が対象で、判定結果は標準縮尺（1/50・1/100など）に±2%以内なら丸めます。<br>JWW：線=レイヤ0／塗り外形=レイヤ1／文字=レイヤ2（ページごとにレイヤグループ、最大16ページ）。DXF：色・種別ごとにレイヤ分け（Shift_JIS）。曲線は折れ線に分割されます。</div>
  <div class="row" style="justify-content:flex-end"><button id="cadc">キャンセル</button><button class="pri" id="cado">変換して保存</button></div></div>`;
- d.querySelector('#cadc').onclick=()=>d.remove();
- d.querySelector('#cado').onclick=()=>{const v={fmt:d.querySelector('input[name=cadf]:checked').value,all:d.querySelector('input[name=cadp]:checked').value==='1',real:d.querySelector('#cadr').checked,text:d.querySelector('#cadt').checked,fill:d.querySelector('#cadfl').checked};try{localStorage.setItem('pdftool_cad',JSON.stringify(v))}catch(e){}d.remove();run(()=>cadRun(v))}}
+ const q=s=>d.querySelector(s),read=()=>({fmt:q('input[name=cadf]:checked').value,all:q('input[name=cadp]:checked').value==='1',sm:q('#cads').value,n:+q('#cadn').value||0,out:q('input[name=cado]:checked').value,text:q('#cadt').checked,fill:q('#cadfl').checked});
+ q('#cads').value=(o.sm==='cal'&&!cal)?'auto':o.sm;const nw=()=>q('#cadnw').style.display=q('#cads').value==='man'?'':'none';nw();q('#cads').onchange=()=>{nw();q('#cadi').textContent=''};
+ q('#cadd').onclick=async()=>{const v=read(),i=curPg,inf=q('#cadi');inf.textContent='判定中…';try{const r=await cadGet(i,{text:false,fill:false}),s=cadScale(i,v,r);inf.textContent=`ページ${i+1}の縮尺：${s.note}`+(s.den?`（用紙寸法で出力すると実寸は ×${cadDen(s.den)}）`:'')}catch(e){inf.textContent='判定エラー: '+(e.message||e)}};
+ q('#cadc').onclick=()=>d.remove();
+ q('#cado').onclick=()=>{const v=read();try{localStorage.setItem('pdftool_cad',JSON.stringify(v))}catch(e){}d.remove();run(()=>cadRun(v))}}
 async function cadRun(o){const idx=o.all?E.pages.map((_,i)=>i):[curPg];if(o.fmt==='jww'&&idx.length>16)throw Error('JWWはレイヤグループが16個までのため、17ページ以上は変換できません（「表示中のページ」で個別に変換するか、DXFをお使いください）');
- const out=[];
- for(const i of idx){const P=E.pages[i];msg(`CAD変換中 ${i+1}ページ（${out.length+1}/${idx.length}）…`);let items=[];if(o.text){try{items=await textItems(P)}catch(e){}}
-  const r=await CAD.extract(P.pg,vp(P,1).transform,P.w,P.h,items,{thin:1.2,fill:o.fill,text:o.text});r.k=(o.real&&mmOf(i))?mmOf(i):25.4/72;r.H=P.h;out.push(r)}
+ const out=[],notes=[];
+ for(const i of idx){msg(`CAD変換中 ${i+1}ページ（${out.length+1}/${idx.length}）…`);const r=await cadGet(i,{text:o.text,fill:o.fill}),s=cadScale(i,o,r),PK=CAD.PK;
+  const real=!!s.den&&(o.out==='real'||o.fmt==='dxf');r.k=real?PK*s.den:PK;r.den=real?1:(s.den||1);r.real=real;out.push(r);notes.push((idx.length>1?`p${i+1}: `:'')+s.note)}
  const M=CAD.model(out,o);if(!M.items.length&&!M.texts.length)throw Error('変換できる線・文字データが見つかりません（スキャン画像のPDFの可能性があります）');
  const data=o.fmt==='jww'?CAD.jww(M,o):CAD.dxf(M,o),nm=E.name+(o.all?'':'_p'+(idx[0]+1))+'.'+o.fmt;
- await save(nm,data);msg(`CAD変換しました：${nm}（線分・図形 ${M.items.length}／文字 ${M.texts.length}）`)}
+ await save(nm,data);msg(`CAD変換しました：${nm}（線分・図形 ${M.items.length}／文字 ${M.texts.length}）　縮尺：${notes.join(' / ')}`)}
 ACT.cad=cadDlg;
 
 </script>
