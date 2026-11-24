@@ -1356,15 +1356,89 @@ const CAD=(()=>{
   if(mem.length<3||mem.length/rs.length<.3)return out;
   out.ok=true;out.count=mem.length;out.k=mem[mem.length>>1];out.denom=out.k/PK;return out}
 
+ /* 等間隔の整列：PDFの出力解像度（例：1200dpi=約0.021mm）で丸められた座標を、等間隔の並びとして検出して平均化・丸める */
+ function regularize(items,texts,pg,pf,sd,mode){
+  /* pf: 出力単位/用紙mm、sd: 縮尺の分母（実寸/用紙。不明なら0）、mode: 'r'=等間隔化+丸め、'e'=等間隔化のみ */
+  const EPS=.006,MINLEN=4,MINSTEP=.8,stats={runs:0,rounded:0,q:0};
+  const its=items.filter(it=>it.pg===pg);
+  for(let ax=0;ax<2;ax++){
+   /* 1) この軸に直交する線分（x軸なら縦線、y軸なら横線）の座標を集める */
+   const raw=[];
+   for(const it of its){const p=it.pts,n=it.c?p.length:p.length-1;
+    for(let i=0;i<n;i++){const a=p[i],b=p[(i+1)%p.length];
+     const along=Math.abs(a[1-ax]-b[1-ax])/pf,cross=Math.abs(a[ax]-b[ax])/pf;
+     if(cross<.002&&along>=2)raw.push([(a[ax]+b[ax])/2/pf,along])}}
+   if(raw.length<4)continue;
+   raw.sort((p,q)=>p[0]-q[0]);
+   const cl=[];for(const r of raw){const l=cl[cl.length-1];
+    if(l&&r[0]-l.v<=EPS){l.v=(l.v*l.w+r[0]*r[1])/(l.w+r[1]);l.w+=r[1]}else cl.push({v:r[0],w:r[1]})}
+   const C=cl.filter(c=>c.w>=MINLEN);if(C.length<8)continue;
+   /* 出力解像度の格子（300/600/1200/2400dpi）に座標が乗っているか＝丸め誤差があるPDFか */
+   let Q=0;for(const dpi of [300,600,1200,2400]){const u=25.4/dpi;let cs=0,sn=0;for(const c of C){const p=2*Math.PI*c.v/u;cs+=Math.cos(p);sn+=Math.sin(p)}if(Math.hypot(cs,sn)/C.length>=.6){Q=u;break}}
+   if(!Q)continue;stats.q=Q;const TOLP=2.4*Q,RMSMAX=.6*Q;
+   /* 2) 等間隔の並び（等差数列）を探す */
+   const used=new Array(C.length).fill(false),anchors=[];
+   const nearest=(x,from)=>{let lo=from,hi=C.length-1;while(lo<hi){const m=(lo+hi)>>1;if(C[m].v<x)lo=m+1;else hi=m}
+    let b=-1,bd=1e9;for(let j=Math.max(from,lo-1);j<=Math.min(C.length-1,lo+1);j++){const d=Math.abs(C[j].v-x);if(d<bd){bd=d;b=j}}return bd<=TOLP?b:-1};
+   const fit=idx=>{const n=idx.length,xs=idx.map(j=>C[j].v);let mi=0,mx=0;for(let i=0;i<n;i++){mi+=i;mx+=xs[i]}mi/=n;mx/=n;
+    let sxy=0,sxx=0;for(let i=0;i<n;i++){sxy+=(i-mi)*(xs[i]-mx);sxx+=(i-mi)*(i-mi)}const st=sxy/sxx,a=mx-st*mi;
+    let ss=0;for(let i=0;i<n;i++){const e=xs[i]-(a+st*i);ss+=e*e}return{st,a,rms:Math.sqrt(ss/n),sxx}};
+   const chainAt=i=>{let best=null;
+    for(let j0=i+1;j0<Math.min(C.length,i+8);j0++){if(used[j0])continue;const g=C[j0].v-C[i].v;if(g<MINSTEP)continue;
+     let idx=[i,j0],st=g;
+     for(;;){const last=idx[idx.length-1],exp=C[last].v+st,k=nearest(exp,last+1);
+      if(k<0||used[k])break;
+      const t=idx.concat([k]);
+      if(t.length>=4){const f=fit(t);if(f.rms>RMSMAX)break;st=f.st}else st=(C[k].v-C[i].v)/(t.length-1);
+      idx=t}
+     if(idx.length>=5&&(!best||idx.length>best.length))best=idx}
+    return best};
+   if(C.length>6000)continue;
+   const cache=new Array(C.length).fill(undefined);
+   for(let iter=0;iter<3000;iter++){
+    let best=null,bf=null;
+    for(let i=0;i<C.length;i++){if(used[i])continue;
+     let e=cache[i];
+     if(e===undefined||(e&&e.ch.some(j=>used[j]))){const ch=chainAt(i),ff=ch?fit(ch):null;e=ch&&ff.rms<=RMSMAX?{ch,f:ff}:null;cache[i]=e}
+     if(!e)continue;
+     if(!best||e.ch.length>best.length||(e.ch.length===best.length&&e.f.rms<bf.rms)){best=e.ch;bf=e.f}}
+    if(!best)break;
+    const f=bf;
+    best.forEach(j=>used[j]=true);stats.runs++;
+    let step=f.st;const nGap=best.length-1,n=best.length;
+    if(mode==='r'&&sd>0&&nGap>=4){
+     const real=step*sd,R=Math.round(real/10)*10,sigS=.6*Q*sd/Math.sqrt(f.sxx);
+     if(R>0&&Math.abs(real-R)<=Math.max(3*sigS,.3)){step=R/sd;stats.rounded++}}
+    let mi=(n-1)/2,mx=0;for(const j of best)mx+=C[j].v;mx/=n;const a=mx-step*mi;
+    best.forEach((j,k)=>anchors.push({o:C[j].v,n:a+step*k,st:step}))}
+   if(!anchors.length)continue;
+   anchors.sort((p,q)=>p.o-q.o);
+   /* 3) 全頂点・文字へ連続的に適用 */
+   const F=3,dl=anchors.map(p=>p.n-p.o),A=anchors;
+   const delta=v=>{let lo=0,hi=A.length-1;
+    if(v<=A[0].o)return dl[0]*Math.max(0,1-(A[0].o-v)/F);
+    if(v>=A[hi].o)return dl[hi]*Math.max(0,1-(v-A[hi].o)/F);
+    while(hi-lo>1){const m=(lo+hi)>>1;if(A[m].o<=v)lo=m;else hi=m}
+    const span=A[hi].o-A[lo].o;
+    if(span<=3*Math.max(A[lo].st,A[hi].st)||span<=.5)return dl[lo]+(dl[hi]-dl[lo])*(v-A[lo].o)/span;
+    return dl[lo]*Math.max(0,1-(v-A[lo].o)/F)+dl[hi]*Math.max(0,1-(A[hi].o-v)/F)};
+   for(const it of its)for(const q of it.pts)q[ax]+=delta(q[ax]/pf)*pf;
+   for(const t of texts)if(t.pg===pg){const key=ax?'y':'x';t[key]+=delta(t[key]/pf)*pf}
+  }
+  return stats}
+
  /* ---- ページ結果を mm 座標のモデルへ ---- */
  function model(pages,opt){const M={items:[],texts:[],pages:pages.length,scales:pages.map(r=>r.den||1),real:pages.some(r=>r.real),paperMM:Math.max(...pages.map(r=>Math.max(r.W||0,r.H)*(r.pk||r.k)))};
-  pages.forEach((r,pi)=>{const k=r.k,H=r.H,X=x=>+(x*k).toFixed(3),Y=y=>+((H-y)*k).toFixed(3),seen=new Set();
+  pages.forEach((r,pi)=>{const k=r.k,H=r.H,X=x=>+(x*k).toFixed(5),Y=y=>+((H-y)*k).toFixed(5),seen=new Set();
    r.paths.forEach(p=>{const pts=[];for(const q of p.p){const a=[X(q[0]),Y(q[1])],l=pts[pts.length-1];if(!l||Math.abs(l[0]-a[0])>1e-6||Math.abs(l[1]-a[1])>1e-6)pts.push(a)}
     if(pts.length<2)return;
     /* 同一線分の重複を除去 */
     if(pts.length===2){const a=pts[0],b=pts[1],key=(a[0]<b[0]||(a[0]===b[0]&&a[1]<b[1])?[a,b]:[b,a]).join('|');if(seen.has(key))return;seen.add(key)}
     M.items.push({pg:pi,k:p.k,col:p.col,pts,c:p.c})});
    r.texts.forEach(t=>{const hh=Math.max(.3,t.h*k),ww=Math.max(.3,t.w*k);M.texts.push({pg:pi,x:X(t.x),y:Y(t.b),h:+hh.toFixed(3),w:+ww.toFixed(3),s:t.s})})});
+  /* PDFの出力解像度で丸められた座標を、等間隔の並びとして補正（寸法値のズレ対策） */
+  M.reg={runs:0,rounded:0,q:0};
+  if(opt&&opt.reg&&opt.reg!=='off')pages.forEach((r,pi)=>{const st=regularize(M.items,M.texts,pi,r.k/PK,r.sd||0,opt.reg==='eq'?'e':'r');M.reg.runs+=st.runs;M.reg.rounded+=st.rounded;M.reg.q=M.reg.q||st.q});
   return M}
 
  /* ---- DXF（R12 / Shift_JIS）出力 ---- */
@@ -1410,7 +1484,7 @@ const CAD=(()=>{
  return{extract,model,dxf,jww,sjEnc,detect,snapStd,PK}})();
 
 /* ===== CAD変換：ダイアログと実行 ===== */
-function cadOpts(){let o={};try{o=JSON.parse(localStorage.getItem('pdftool_cad')||'{}')}catch(e){}return Object.assign({fmt:'jww',all:false,sm:'auto',n:100,out:'scaled',fill:true,text:true},o)}
+function cadOpts(){let o={};try{o=JSON.parse(localStorage.getItem('pdftool_cad')||'{}')}catch(e){}return Object.assign({fmt:'jww',all:false,sm:'auto',n:100,out:'scaled',fill:true,text:true,reg:'r10'},o)}
 const cadDen=d=>Math.abs(d-Math.round(d))<.05?String(Math.round(d)):d.toFixed(1);
 async function cadGet(i,needText){const P=E.pages[i];let items=[];try{items=await textItems(P)}catch(e){}
  const r=await CAD.extract(P.pg,vp(P,1).transform,P.w,P.h,items,{thin:1.2,fill:needText.fill,text:needText.text});r.W=P.w;r.H=P.h;r.pk=CAD.PK;return r}
@@ -1433,10 +1507,12 @@ function cadDlg(){if(!E.pages.length)return msg('先にPDFを開いてくださ�
  <div class="row"><b>縮尺</b><select id="cads"><option value="auto">自動判定（寸法値・縮尺表記から）</option><option value="cal"${cal?'':' disabled'}>寸法設定の値${cal?'':'（未設定）'}</option><option value="man">手入力</option><option value="none">使わない（用紙寸法）</option></select><span id="cadnw">1/<input type="number" id="cadn" min="1" step="any" value="${o.n}" style="width:80px"></span><button id="cadd">判定</button></div>
  <div id="cadi" class="hint" style="padding:2px 0 6px;background:none;border:0;max-height:none"></div>
  <div class="row"><b>出力</b><label title="JWW：用紙のmm座標で書き、レイヤグループの縮尺を設定します（Jw_cadの通常の使い方）。DXFには縮尺の項目がないため実寸mmになります"><input type="radio" name="cado" value="scaled" ${o.out==='scaled'?'checked':''}> 縮尺付き（JWW：用紙mm＋縮尺／DXF：実寸mm）</label><label><input type="radio" name="cado" value="real" ${o.out==='real'?'checked':''}> 実寸1/1（縮尺1/1で実寸mm）</label></div>
+ <div class="row"><b>寸法補正</b><select id="cadreg"><option value="r10"${o.reg==='r10'?' selected':''}>等間隔を検出して10mm単位に丸める（推奨）</option><option value="eq"${o.reg==='eq'?' selected':''}>等間隔を検出して平均化のみ（丸めなし）</option><option value="off"${o.reg==='off'?' selected':''}>補正しない</option></select></div>
+ <div class="hint" style="padding:2px 0 6px;background:none;border:0;max-height:none">PDFは座標が約0.02mm単位（1200dpi）に丸められているため、そのまま変換すると縮尺1/400で±約8mmの誤差が出ます（2,500mmが2,497.6mmなど）。等間隔に並ぶ線（駐車枠・区画・通り芯など）を検出して誤差を平均化し、10mm単位の実寸に揃えます。丸め誤差のないPDF（CADから直接出力したもの）は自動判定で補正しません。</div>
  <div class="row"><label><input type="checkbox" id="cadt" ${o.text?'checked':''}> 文字を出力</label><label title="塗りつぶしの外形線も出力します（細い塗り長方形は線として出力）"><input type="checkbox" id="cadfl" ${o.fill?'checked':''}> 塗りつぶし図形の外形</label></div>
  <div class="hint" style="padding:4px 0;background:none;border:0;max-height:none">自動判定は、寸法値の数字（mm表記）とその寸法線の区間長の比から求めます。水平の寸法が対象で、判定結果は標準縮尺（1/50・1/100など）に±2%以内なら丸めます。<br>JWW：線=レイヤ0／塗り外形=レイヤ1／文字=レイヤ2（ページごとにレイヤグループ、最大16ページ）。DXF：色・種別ごとにレイヤ分け（Shift_JIS）。曲線は折れ線に分割されます。</div>
  <div class="row" style="justify-content:flex-end"><button id="cadc">キャンセル</button><button class="pri" id="cado">変換して保存</button></div></div>`;
- const q=s=>d.querySelector(s),read=()=>({fmt:q('input[name=cadf]:checked').value,all:q('input[name=cadp]:checked').value==='1',sm:q('#cads').value,n:+q('#cadn').value||0,out:q('input[name=cado]:checked').value,text:q('#cadt').checked,fill:q('#cadfl').checked});
+ const q=s=>d.querySelector(s),read=()=>({fmt:q('input[name=cadf]:checked').value,all:q('input[name=cadp]:checked').value==='1',sm:q('#cads').value,n:+q('#cadn').value||0,out:q('input[name=cado]:checked').value,text:q('#cadt').checked,fill:q('#cadfl').checked,reg:q('#cadreg').value});
  q('#cads').value=(o.sm==='cal'&&!cal)?'auto':o.sm;const nw=()=>q('#cadnw').style.display=q('#cads').value==='man'?'':'none';nw();q('#cads').onchange=()=>{nw();q('#cadi').textContent=''};
  q('#cadd').onclick=async()=>{const v=read(),i=curPg,inf=q('#cadi');inf.textContent='判定中…';try{const r=await cadGet(i,{text:false,fill:false}),s=cadScale(i,v,r);inf.textContent=`ページ${i+1}の縮尺：${s.note}`+(s.den?`（用紙寸法で出力すると実寸は ×${cadDen(s.den)}）`:'')}catch(e){inf.textContent='判定エラー: '+(e.message||e)}};
  q('#cadc').onclick=()=>d.remove();
@@ -1444,10 +1520,10 @@ function cadDlg(){if(!E.pages.length)return msg('先にPDFを開いてくださ�
 async function cadRun(o){const idx=o.all?E.pages.map((_,i)=>i):[curPg];if(o.fmt==='jww'&&idx.length>16)throw Error('JWWはレイヤグループが16個までのため、17ページ以上は変換できません（「表示中のページ」で個別に変換するか、DXFをお使いください）');
  const out=[],notes=[];
  for(const i of idx){msg(`CAD変換中 ${i+1}ページ（${out.length+1}/${idx.length}）…`);const r=await cadGet(i,{text:o.text,fill:o.fill}),s=cadScale(i,o,r),PK=CAD.PK;
-  const real=!!s.den&&(o.out==='real'||o.fmt==='dxf');r.k=real?PK*s.den:PK;r.den=real?1:(s.den||1);r.real=real;out.push(r);notes.push((idx.length>1?`p${i+1}: `:'')+s.note)}
+  const real=!!s.den&&(o.out==='real'||o.fmt==='dxf');r.k=real?PK*s.den:PK;r.den=real?1:(s.den||1);r.real=real;r.sd=s.den||0;out.push(r);notes.push((idx.length>1?`p${i+1}: `:'')+s.note)}
  const M=CAD.model(out,o);if(!M.items.length&&!M.texts.length)throw Error('変換できる線・文字データが見つかりません（スキャン画像のPDFの可能性があります）');
  const data=o.fmt==='jww'?CAD.jww(M,o):CAD.dxf(M,o),nm=E.name+(o.all?'':'_p'+(idx[0]+1))+'.'+o.fmt;
- await save(nm,data);msg(`CAD変換しました：${nm}（線分・図形 ${M.items.length}／文字 ${M.texts.length}）　縮尺：${notes.join(' / ')}`)}
+ await save(nm,data);msg(`CAD変換しました：${nm}（線分・図形 ${M.items.length}／文字 ${M.texts.length}）　縮尺：${notes.join(' / ')}`+(M.reg&&M.reg.runs?`　寸法補正：等間隔${M.reg.runs}列を補正（うち${M.reg.rounded}列は10mm単位に丸め）`:(o.reg!=='off'&&!M.reg.q?'　寸法補正：座標の丸め誤差なし（補正不要）':'')))}
 ACT.cad=cadDlg;
 
 </script>
