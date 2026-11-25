@@ -1469,7 +1469,9 @@ const CAD=(()=>{
   const Hm=[];by.forEach(a=>{a.sort((p,q)=>p.x1-q.x1);let c=null;for(const s of a){if(c&&s.x1<=c.x2+mgp)c.x2=Math.max(c.x2,s.x2);else{c={y:s.y,x1:s.x1,x2:s.x2};Hm.push(c)}}});
   const out=[];
   for(const t of T){const h=t.h,cx=(t.u0+t.u1)/2,w=t.u1-t.u0;let best=null,bd=1e9;
-   for(const l of Hm){if(cx<l.x1-g1||cx>l.x2+g1)continue;const d=Math.abs(l.y-t.vc);if(d<.25*h||d>2.4*h)continue;if(d<bd){bd=d;best=l}}
+   for(const l of Hm){if(cx<l.x1-g1||cx>l.x2+g1)continue;const dv=l.y-t.vc,d=Math.abs(dv);if(d<.25*h||d>2.4*h)continue;
+    /* 寸法値は寸法線の上（縦書きは左）に書かれるので、文字のすぐ下（縦書きは右）の線を優先し、無ければ最寄りの線 */
+    const sc=(t.side&&Math.sign(dv)===t.side&&d<=1.6*h?0:1e3)+d;if(sc<bd){bd=sc;best=l}}
    if(!best)continue;const xs=[best.x1,best.x2];
    for(const g of Vs){const y0=Math.min(g.y1,g.y2),y1=Math.max(g.y1,g.y2);if(best.y<y0-.8*PK||best.y>y1+.8*PK)continue;
     const dy=g.y2-g.y1,x=Math.abs(dy)<1e-9?g.x1:g.x1+(g.x2-g.x1)*(best.y-g.y1)/dy;
@@ -1505,16 +1507,16 @@ const CAD=(()=>{
   for(const t of M.texts)if(t.pg===pg){const k=ax?'y':'x';t[k]+=delta(t[k]/pf)*pf}}
  /* 拘束 {a,b,d}（a,bは座標、dは目標距離・用紙mm）から節点を作って解き、補正量を適用 */
  function fixAxis(M,pg,ax,pf,sd,cons,maxres,st,pre,forest){
-  const all=(pre||[]).concat(cons);if(!cons.length)return 0;const vals=[];
+  const all=(pre||[]).concat(cons);if(!all.length)return 0;const vals=[];
   all.forEach(c=>{vals.push(c.a,c.b)});vals.sort((p,q)=>p-q);
   const nodes=[];for(const v of vals){const l=nodes[nodes.length-1];if(l&&v-l.last<=GT){l.s+=v;l.n++;l.last=v}else nodes.push({s:v,n:1,last:v})}
   const nd=nodes.map(l=>l.s/l.n),at=v=>{let lo=0,hi=nd.length-1;while(lo<hi){const m=(lo+hi)>>1;if(nd[m]<v-GT)lo=m+1;else hi=m}return lo};
   const par=nd.map((_,i)=>i),fd=x=>par[x]===x?x:(par[x]=fd(par[x])),seen=new Set(),edges=[];
   const push=(c,isPre)=>{const i=at(c.a),j=at(c.b);if(i===j)return false;const k=i+'_'+j+'_'+c.d.toFixed(5);if(seen.has(k))return false;seen.add(k);
    if(forest){if(isPre)par[fd(i)]=fd(j);else{if(fd(i)===fd(j))return false;par[fd(i)]=fd(j)}}edges.push({i,j,d:c.d});return true};
-  (pre||[]).forEach(c=>push(c,true));
+  let pu=0;(pre||[]).forEach(c=>{if(push(c,true))pu++});st.dim+=pu;
   /* forest：長い辺から採用し、すでに他の拘束で相対位置が決まっている節点間は採用しない（丸めの食い違いを防ぐ） */
-  let used=0;(forest?cons.slice().sort((p,q)=>q.d-p.d):cons).forEach(c=>{if(push(c,false))used++});
+  let used=0;(forest?cons.slice().sort((p,q)=>q.d-p.d):cons).forEach(c=>{if(push(c,false))used++});st.rect+=used;
   const r=solveNodes(nd,edges,sd,maxres);st.conf+=r.conf;
   const anch=[],stv=new Array(nd.length).fill(0);edges.forEach(e=>{stv[e.i]=Math.max(stv[e.i],e.d);stv[e.j]=Math.max(stv[e.j],e.d)});
   nd.forEach((o,i)=>{if(Math.abs(r.out[i]-o)>1e-7)anch.push({o,n:r.out[i],st:stv[i]})});
@@ -1549,18 +1551,43 @@ const CAD=(()=>{
      if(Math.abs(dy)<.3*PK){if(Math.abs(dx)>=6*PK)Hs.push({y:(ay+by)/2,x1:Math.min(ax,bx),x2:Math.max(ax,bx)})}else Vs.push({x1:ax,y1:ay,x2:bx,y2:by,len:Math.hypot(dx,dy)});
      if(Math.abs(dx)<.3*PK){if(Math.abs(dy)>=6*PK)Hv.push({y:(ax+bx)/2,x1:Math.min(ay,by),x2:Math.max(ay,by)})}else Vv.push({x1:ay,y1:ax,x2:by,y2:bx,len:Math.hypot(dx,dy)})}}
    const val=s=>{s=s.replace(/\s/g,'');if(!/^(\d{1,3}(,\d{3})+|\d+)$/.test(s))return 0;const v=+s.replace(/,/g,'');return v>=100&&v<=30000?v:0};
+   /* 「1 , 7 0 0 8 0 0」のように複数の寸法値が1つの文字列になっている場合は、数値ごとに分けて位置を按分する */
+   const toks=(s,u0,u1)=>{const c=s.replace(/\s/g,'');if(/^(\d{1,3}(,\d{3})+|\d+)$/.test(c)){const v=val(c);return v?[{v,u0,u1}]:[]}
+    const re=/\d(?:\s*\d){0,2}\s*,\s*\d\s*\d\s*\d|\d\s*\d\s*\d/g,out=[],L=s.length;let m;
+    while((m=re.exec(s))){const v=val(m[0]);if(v)out.push({v,u0:u0+(u1-u0)*m.index/L,u1:u0+(u1-u0)*(m.index+m[0].length)/L})}return out};
    const Th=[],Tv=[];
-   for(const t of M.dt||[]){if(t.pg!==pg)continue;const v=val(t.s);if(!v||t.h/pf<1.5*PK)continue;Th.push({u0:t.x/pf,u1:(t.x+t.w)/pf,vc:(t.y+.35*t.h)/pf,h:t.h/pf,val:v})}
-   for(const t of M.vt||[]){if(t.pg!==pg)continue;const v=val(t.s);if(!v||t.h/pf<1.5*PK)continue;Tv.push({u0:(t.y-t.w/2)/pf,u1:(t.y+t.w/2)/pf,vc:t.x/pf,h:t.h/pf,val:v})}
+   for(const t of M.dt||[]){if(t.pg!==pg||t.h/pf<1.5*PK)continue;for(const k of toks(t.s,t.x/pf,(t.x+t.w)/pf))Th.push({u0:k.u0,u1:k.u1,vc:(t.y+.35*t.h)/pf,h:t.h/pf,val:k.v,side:-1})}
+   for(const t of M.vt||[]){if(t.pg!==pg||t.h/pf<1.5*PK)continue;for(const k of toks(t.s,(t.y-t.w/2)/pf,(t.y+t.w/2)/pf))Tv.push({u0:k.u0,u1:k.u1,vc:t.x/pf,h:t.h/pf,val:k.v,side:t.up===false?-1:1})}
    const tol=2.4*Q,mk=a=>a.filter(d=>Math.abs((d.b-d.a)-d.v/sd)<=tol).map(d=>({a:d.a,b:d.b,d:d.v/sd}));
    const cx=mk(dimScan(Hs,Vs,Th)),cy=mk(dimScan(Hv,Vv,Tv));
-   st.dim+=fixAxis(M,pg,0,pf,sd,cx,.6,st,null,false)+fixAxis(M,pg,1,pf,sd,cy,.6,st,null,false);TX=cx;TY=cy}
-  /* ② 閉じた矩形の辺長を丸める */
-  if(o.u>0){const L=lgLines(its,pg,pf,3.2),T=GT,cx=[],cy=[];
+   TX=cx;TY=cy}
+  /* ② 閉じた矩形の辺長を丸める。座標の丸め誤差（実寸）がunitを超えるPDFでは丸めても復元できないので行わない。
+     ①②は1回でまとめて解く（別々に補間すると、補正されない中間の線がずれるため） */
+  const RX=[],RY=[];
+  if(o.u>0&&Q*sd<=o.u){const L=lgLines(its,pg,pf,3.2),T=GT;
    cornerRects(L,T,minD).forEach(r=>{const w=(r.x2-r.x1)*sd,h=(r.y2-r.y1)*sd;if(w<3000||h<3000)return;
-    cx.push({a:r.x1,b:r.x2,d:snapUnit(w,o.u)/sd});cy.push({a:r.y1,b:r.y2,d:snapUnit(h,o.u)/sd})});
-   st.rect+=fixAxis(M,pg,0,pf,sd,cx,o.u,st,TX,true)+fixAxis(M,pg,1,pf,sd,cy,o.u,st,TY,true)}}
+    RX.push({a:r.x1,b:r.x2,d:snapUnit(w,o.u)/sd});RY.push({a:r.y1,b:r.y2,d:snapUnit(h,o.u)/sd})})}
+  fixAxis(M,pg,0,pf,sd,RX,.6,st,TX,true);fixAxis(M,pg,1,pf,sd,RY,.6,st,TY,true)}
 
+ /* 重複の整理：PDFの「太字」「太線」は同じ文字・線を少しずつずらして何度も描いている（7重など）。
+    同じ文字列で位置がほぼ同じ文字、端点がほぼ同じ線は1つにまとめる */
+ function dedupAll(M,pages){
+  const tx=(arr)=>{const by=new Map(),out=[];
+   for(const t of arr){const key=t.pg+'|'+t.s+'|'+(t.ang||0),L=by.get(key)||by.set(key,[]).get(key);let r=null;
+    for(const q of L)if(Math.abs(q.x-t.x)<.35*q.h&&Math.abs(q.y-t.y)<.35*q.h){r=q;break}
+    if(r){r.n++;r.sx+=t.x;r.sy+=t.y;M.dup.texts++}else{const q={...t,n:1,sx:t.x,sy:t.y,o:t};L.push(q);out.push(q)}}
+   return out.map(q=>{const t=q.o;if(q.n>1){t.x=+(q.sx/q.n).toFixed(5);t.y=+(q.sy/q.n).toFixed(5)}return t})};
+  M.texts=tx(M.texts);
+  const cell=.3,grid=new Map(),keep=[];
+  for(const it of M.items){const pf=pages[it.pg].k/PK,tol=.15*pf,p=it.pts,n=p.length,a=p[0],b=p[n-1];
+   const rev=a[0]>b[0]+1e-9||(Math.abs(a[0]-b[0])<=1e-9&&a[1]>b[1]),q=rev?p.slice().reverse():p,cs=cell*pf,cx=Math.round(q[0][0]/cs),cy=Math.round(q[0][1]/cs);
+   let dup=false;
+   for(let dx=-1;dx<=1&&!dup;dx++)for(let dy=-1;dy<=1&&!dup;dy++){const L=grid.get(it.pg+'|'+(cx+dx)+'|'+(cy+dy));if(!L)continue;
+    for(const o of L){if(o.it.k!==it.k||o.q.length!==n)continue;let ok=true;for(let i=0;i<n;i++)if(Math.abs(o.q[i][0]-q[i][0])>tol||Math.abs(o.q[i][1]-q[i][1])>tol){ok=false;break}if(ok){dup=true;break}}}
+   if(dup){M.dup.lines++;continue}
+   const key=it.pg+'|'+cx+'|'+cy;if(!grid.has(key))grid.set(key,[]);grid.get(key).push({it,q});keep.push(it)}
+  M.items=keep;
+  M.dt=tx(M.dt);M.vt=tx(M.vt)}
  /* ---- ページ結果を mm 座標のモデルへ ---- */
  function model(pages,opt){const M={items:[],texts:[],dt:[],vt:[],pages:pages.length,scales:pages.map(r=>r.den||1),real:pages.some(r=>r.real),paperMM:Math.max(...pages.map(r=>Math.max(r.W||0,r.H)*(r.pk||r.k)))};
   pages.forEach((r,pi)=>{const k=r.k,H=r.H,X=x=>+(x*k).toFixed(5),Y=y=>+((H-y)*k).toFixed(5),seen=new Set();
@@ -1570,9 +1597,13 @@ const CAD=(()=>{
     if(pts.length===2){const a=pts[0],b=pts[1],key=(a[0]<b[0]||(a[0]===b[0]&&a[1]<b[1])?[a,b]:[b,a]).join('|');if(seen.has(key))return;seen.add(key)}
     M.items.push({pg:pi,k:p.k,col:p.col,pts,c:p.c})});
    r.texts.forEach(t=>{const hh=Math.max(.3,t.h*k),ww=Math.max(.3,t.w*k);M.texts.push({pg:pi,x:X(t.x),y:Y(t.b),h:+hh.toFixed(3),w:+ww.toFixed(3),s:t.s})});
+   /* 縦書き（90°回転）の文字：寸法値など。回転した文字として出力する */
+   if(opt&&opt.text)(r.vraw||[]).forEach(t=>{const sx=t.s.replace(/[\u0000-\u001f]/g,'').replace(/\s+$/,'');if(!sx.trim()||t.x0===undefined)return;const hh=Math.max(.3,t.h*k),ww=Math.max(.3,t.w*k);
+    M.texts.push({pg:pi,x:X(t.x0),y:Y(t.y0),h:+hh.toFixed(3),w:+ww.toFixed(3),s:sx,ang:t.up?90:270})});
    /* 寸法値の補正用に、文字出力の有無にかかわらず横書き・縦書きの文字位置を保持 */
    (r.raw||[]).forEach(t=>M.dt.push({pg:pi,x:X(t.x),y:Y(t.b),h:t.h*k,w:t.w*k,s:t.s}));
-   (r.vraw||[]).forEach(t=>M.vt.push({pg:pi,x:X(t.cx),y:Y(t.cy),h:t.h*k,w:t.w*k,s:t.s}))});
+   (r.vraw||[]).forEach(t=>M.vt.push({pg:pi,x:X(t.cx),y:Y(t.cy),h:t.h*k,w:t.w*k,s:t.s,up:t.up}))});
+  M.dup={lines:0,texts:0};dedupAll(M,pages);
   /* PDFの出力解像度で丸められた座標を、等間隔の並びとして補正（寸法値のズレ対策） */
   M.reg={runs:0,rounded:0,q:0};M.fix={dim:0,rect:0,moved:0,conf:0,lat:0};
   const lat=pages.map((r,pi)=>latQ(M.items,pi,r.k/PK));
@@ -1589,14 +1620,14 @@ const CAD=(()=>{
   M.items.forEach(it=>{const ln=lay(it.pg,it.k==='fill'?'FILL':'LINE',aci(it.col)),pts=it.c&&it.pts.length>2&&(it.pts[0][0]!==it.pts[it.pts.length-1][0]||it.pts[0][1]!==it.pts[it.pts.length-1][1])?it.pts.concat([it.pts[0]]):it.pts;
    if(pts.length===2){E(0,'LINE');E(8,ln);E(10,f(pts[0][0]));E(20,f(pts[0][1]));E(30,'0.0');E(11,f(pts[1][0]));E(21,f(pts[1][1]));E(31,'0.0')}
    else{E(0,'POLYLINE');E(8,ln);E(66,1);E(10,'0.0');E(20,'0.0');E(30,'0.0');E(70,0);pts.forEach(q=>{E(0,'VERTEX');E(8,ln);E(10,f(q[0]));E(20,f(q[1]));E(30,'0.0')});E(0,'SEQEND');E(8,ln)}});
-  M.texts.forEach(t=>{const ln=lay(t.pg,'TEXT',0),wf=Math.min(3,Math.max(.3,t.w/(units(t.s)*t.h)));E(0,'TEXT');E(8,ln);E(10,f(t.x));E(20,f(t.y));E(30,'0.0');E(40,f(t.h));E(1,t.s);E(41,f(wf));E(7,'STANDARD')});
+  M.texts.forEach(t=>{const ln=lay(t.pg,'TEXT',0),wf=Math.min(3,Math.max(.3,t.w/(units(t.s)*t.h)));E(0,'TEXT');E(8,ln);E(10,f(t.x));E(20,f(t.y));E(30,'0.0');E(40,f(t.h));E(1,t.s);E(41,f(wf));if(t.ang)E(50,f(t.ang));E(7,'STANDARD')});
   g(0,'SECTION');g(2,'HEADER');g(9,'$ACADVER');g(1,'AC1009');g(9,'$DWGCODEPAGE');g(3,'ANSI_932');g(0,'ENDSEC');
   g(0,'SECTION');g(2,'TABLES');
   g(0,'TABLE');g(2,'LTYPE');g(70,1);g(0,'LTYPE');g(2,'CONTINUOUS');g(70,0);g(3,'Solid line');g(72,65);g(73,0);g(40,'0.0');g(0,'ENDTAB');
   g(0,'TABLE');g(2,'LAYER');g(70,layers.size+1);g(0,'LAYER');g(2,'0');g(70,0);g(62,7);g(6,'CONTINUOUS');
   layers.forEach((c,n)=>{g(0,'LAYER');g(2,n);g(70,0);g(62,c);g(6,'CONTINUOUS')});g(0,'ENDTAB');
   g(0,'TABLE');g(2,'STYLE');g(70,1);g(0,'STYLE');g(2,'STANDARD');g(70,0);g(40,'0.0');g(41,'1.0');g(50,'0.0');g(71,0);g(42,'2.5');g(3,'txt');g(4,'');g(0,'ENDTAB');
-  g(0,'ENDSEC');g(0,'SECTION');g(2,'ENTITIES');o.push(...ent);g(0,'ENDSEC');g(0,'EOF');
+  g(0,'ENDSEC');g(0,'SECTION');g(2,'ENTITIES');for(const e of ent)o.push(e);g(0,'ENDSEC');g(0,'EOF');
   return new Uint8Array(sjEnc(o.join('\r\n')+'\r\n'))}
 
  /* ---- JWW（Jw_cad ver.7.00 / MFC CArchive）出力 ---- */
@@ -1620,7 +1651,7 @@ const CAD=(()=>{
   w.count(ents.length);
   for(const e of ents){
    if(e[0]==='L'){w.obj('CDataSen',700);w.base(e[2],e[1],e[3]);w.f64(e[4][0]);w.f64(e[4][1]);w.f64(e[5][0]);w.f64(e[5][1])}
-   else{const t=e[4],u=units(t.s),sx=Math.max(.2,t.w/u);w.obj('CDataMoji',700);w.base(2,e[1],1);w.f64(t.x);w.f64(t.y);w.f64(t.x+t.w);w.f64(t.y);w.u32(0);w.f64(sx);w.f64(Math.max(.2,t.h));w.f64(0);w.f64(0);w.cstr('ＭＳ ゴシック');w.cstr(t.s)}}
+   else{const t=e[4],u=units(t.s),sx=Math.max(.2,t.w/u);w.obj('CDataMoji',700);w.base(2,e[1],1);const an=(t.ang||0)*Math.PI/180;w.f64(t.x);w.f64(t.y);w.f64(t.x+t.w*Math.cos(an));w.f64(t.y+t.w*Math.sin(an));w.u32(0);w.f64(sx);w.f64(Math.max(.2,t.h));w.f64(0);w.f64(t.ang||0);w.cstr('ＭＳ ゴシック');w.cstr(t.s)}}
   w.count(0);w.u32(0);return w.b.slice(0,w.n)}
  return{extract,model,dxf,jww,sjEnc,detect,snapStd,PK}})();
 
@@ -1656,7 +1687,7 @@ function cadDlg(){if(!E.pages.length)return msg('先にPDFを開いてくださ�
  <div class="row"><b>出力</b><label title="JWW：用紙のmm座標で書き、レイヤグループの縮尺を設定します（Jw_cadの通常の使い方）。DXFには縮尺の項目がないため実寸mmになります"><input type="radio" name="cado" value="scaled" ${o.out==='scaled'?'checked':''}> 縮尺付き（JWW：用紙mm＋縮尺／DXF：実寸mm）</label><label><input type="radio" name="cado" value="real" ${o.out==='real'?'checked':''}> 実寸1/1（縮尺1/1で実寸mm）</label></div>
  <div class="row"><b>寸法補正</b><select id="cadreg"><option value="r10"${o.reg==='r10'?' selected':''}>等間隔を検出して10mm単位に丸める（推奨）</option><option value="eq"${o.reg==='eq'?' selected':''}>等間隔を検出して平均化のみ（丸めなし）</option><option value="off"${o.reg==='off'?' selected':''}>補正しない</option></select></div>
  <div class="row"><b>実寸補正</b><select id="cadunit"><option value="dm5"${o.unit==='dm5'?' selected':''}>寸法値＋3m以上の矩形・通り芯を5mm単位に（推奨）</option><option value="dm10"${o.unit==='dm10'?' selected':''}>寸法値＋3m以上の矩形・通り芯を10mm単位に</option><option value="dm0"${o.unit==='dm0'?' selected':''}>寸法値（図面内の数字）のみ</option><option value="off"${o.unit==='off'?' selected':''}>補正しない</option></select></div>
- <div class="hint" style="padding:2px 0 6px;background:none;border:0;max-height:none">等間隔でない部分（建物の通り芯外周など）は、図面内の寸法値（横・縦）に合わせ、寸法値がない3m以上の閉じた矩形は辺長を5mm単位の実寸に揃えます（例：9,152→9,150／26,853→26,855）。元図の寸法が5mm単位でない場合は±2.5mm以内の差が残ります。</div>
+ <div class="hint" style="padding:2px 0 6px;background:none;border:0;max-height:none">図面内の寸法値（横書き・縦書き）に合わせて通り芯などの位置を実寸に揃えます。寸法値がない3m以上の閉じた矩形は辺長を5mm/10mm単位に丸めます（座標の丸め誤差が小さいPDFのみ。誤差が大きいPDFでは寸法値だけで補正）。元図の寸法が丸め単位でない場合は±2.5mm以内の差が残ります。あわせて、太字・太線のために何重にも重ねて描かれた文字・線は1つにまとめ、縦書きの寸法値は回転文字として出力します。</div>
  <div class="hint" style="padding:2px 0 6px;background:none;border:0;max-height:none">PDFは座標が約0.02mm単位（1200dpi）に丸められているため、そのまま変換すると縮尺1/400で±約8mmの誤差が出ます（2,500mmが2,497.6mmなど）。等間隔に並ぶ線（駐車枠・区画・通り芯など）を検出して誤差を平均化し、10mm単位の実寸に揃えます。丸め誤差のないPDF（CADから直接出力したもの）は自動判定で補正しません。</div>
  <div class="row"><label><input type="checkbox" id="cadt" ${o.text?'checked':''}> 文字を出力</label><label title="塗りつぶしの外形線も出力します（細い塗り長方形は線として出力）"><input type="checkbox" id="cadfl" ${o.fill?'checked':''}> 塗りつぶし図形の外形</label></div>
  <div class="hint" style="padding:4px 0;background:none;border:0;max-height:none">自動判定は、寸法値の数字（mm表記）とその寸法線の区間長の比から求めます。水平の寸法が対象で、判定結果は標準縮尺（1/50・1/100など）に±2%以内なら丸めます。<br>JWW：線=レイヤ0／塗り外形=レイヤ1／文字=レイヤ2（ページごとにレイヤグループ、最大16ページ）。DXF：色・種別ごとにレイヤ分け（Shift_JIS）。曲線は折れ線に分割されます。</div>
@@ -1672,7 +1703,7 @@ async function cadRun(o){const idx=o.all?E.pages.map((_,i)=>i):[curPg];if(o.fmt=
   const real=!!s.den&&(o.out==='real'||o.fmt==='dxf');r.k=real?PK*s.den:PK;r.den=real?1:(s.den||1);r.real=real;r.sd=s.den||0;out.push(r);notes.push((idx.length>1?`p${i+1}: `:'')+s.note)}
  const M=CAD.model(out,o);if(!M.items.length&&!M.texts.length)throw Error('変換できる線・文字データが見つかりません（スキャン画像のPDFの可能性があります）');
  const data=o.fmt==='jww'?CAD.jww(M,o):CAD.dxf(M,o),nm=E.name+(o.all?'':'_p'+(idx[0]+1))+'.'+o.fmt;
- await save(nm,data);msg(`CAD変換しました：${nm}（線分・図形 ${M.items.length}／文字 ${M.texts.length}）　縮尺：${notes.join(' / ')}`+(M.fix&&(M.fix.dim||M.fix.rect)?`　実寸補正：寸法値${M.fix.dim}件・矩形${M.fix.rect}件`+(M.fix.conf?`（矛盾${M.fix.conf}件は未補正）`:''):'')+(M.reg&&M.reg.runs?`　寸法補正：等間隔${M.reg.runs}列を補正（うち${M.reg.rounded}列は10mm単位に丸め）`:(o.reg!=='off'&&!M.reg.q?'　寸法補正：座標の丸め誤差なし（補正不要）':'')))}
+ await save(nm,data);msg(`CAD変換しました：${nm}（線分・図形 ${M.items.length}／文字 ${M.texts.length}）　縮尺：${notes.join(' / ')}`+(M.dup&&(M.dup.texts||M.dup.lines)?`　重複整理：文字${M.dup.texts}・線${M.dup.lines}`:'')+(M.fix&&(M.fix.dim||M.fix.rect)?`　実寸補正：寸法値${M.fix.dim}件・矩形${M.fix.rect}件`+(M.fix.conf?`（矛盾${M.fix.conf}件は未補正）`:''):'')+(M.reg&&M.reg.runs?`　寸法補正：等間隔${M.reg.runs}列を補正（うち${M.reg.rounded}列は10mm単位に丸め）`:(o.reg!=='off'&&!M.reg.q?'　寸法補正：座標の丸め誤差なし（補正不要）':'')))}
 ACT.cad=cadDlg;
 
 </script>
