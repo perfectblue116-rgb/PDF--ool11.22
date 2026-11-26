@@ -2155,6 +2155,7 @@ return{parse,BR,toModel}})();
   for(const f of files){
    if(!/\.dwg$/i.test(f.name)){msg('DWGファイルを選んでください');continue}
    msg('DWG読み込み中… '+f.name);
+   await new Promise(r=>setTimeout(r,30));
    const buf=new Uint8Array(await f.arrayBuffer());
    const D=DWG.parse(buf);
    msg('JWWへ変換中… '+f.name);
