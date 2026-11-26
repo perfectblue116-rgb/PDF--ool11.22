@@ -1747,6 +1747,50 @@ ACT.cad=cadDlg;
 <script>
 /* ===== DWG → JWW 変換（DWG直接読み込み：文字・寸法値は文字。JWWは図寸mm＋縮尺で書き、測定値＝寸法値） ===== */
 /* DWG(AC1015 / AutoCAD 2000形式) 読み取り */
+/* R2004+ コンテナ展開 */
+function dwgContainer(u8){
+ const dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);
+ const h=new Uint8Array(0x6C);let sd=1;
+ for(let i=0;i<0x6C;i++){sd=(Math.imul(sd,0x343fd)+0x269ec3)>>>0;h[i]=u8[0x80+i]^((sd>>>16)&255)}
+ const hv=new DataView(h.buffer);
+ if(String.fromCharCode(...h.slice(0,11))!=='AcFssFcAJMB')throw Error('DWGヘッダを解読できません');
+ const u64=(d,o)=>d.getUint32(o,true)+d.getUint32(o+4,true)*4294967296;
+ const pmAddr=u64(hv,0x54),infoId=hv.getInt32(0x5C,true);
+ function lz(src,off,n,outN){const o=new Uint8Array(outN);let s=off,d=0,end=off+n,op=0;
+  const lit=()=>{let b=src[s++];op=0;if(b>=1&&b<=15)return b+3;if(b===0){let t=15;while((b=src[s++])===0)t+=255;return t+b+3}if(b&0xF0)op=b;return 0};
+  const lng=()=>{let t=0,b=src[s++];while(b===0){t+=255;b=src[s++]}return t+b};
+  const two=()=>{const a=src[s++],b=src[s++];return{o:(a>>2)|(b<<6),l:a&3}};
+  let ll=lit();for(let i=0;i<ll;i++)o[d++]=src[s++];ll=0;
+  while(s<end&&d<outN){if(op===0)op=src[s++];const c=op;op=0;let cb=0,co=0;
+   if(c>=0x40){cb=((c&0xF0)>>4)-1;const b2=src[s++];co=(b2<<2)|((c&0x0C)>>2);if(c&3)ll=c&3;else ll=lit()}
+   else if(c===0x10){cb=lng()+9;const t=two();co=t.o+0x3FFF;ll=t.l;if(!ll)ll=lit()}
+   else if(c===0x11)break;
+   else if(c>0x11&&c<0x20){cb=(c&15)+2;const t=two();co=t.o+0x3FFF;ll=t.l;if(!ll)ll=lit()}
+   else if(c===0x20){cb=lng()+0x21;const t=two();co=t.o;ll=t.l;if(!ll)ll=lit()}
+   else if(c>0x20&&c<0x40){cb=(c&0x1F)+2;const t=two();co=t.o;ll=t.l;if(!ll)ll=lit()}
+   else throw Error('LZ opcode '+c);
+   for(let i=0;i<cb;i++){o[d]=o[d-co-1];d++}
+   for(let i=0;i<ll;i++)o[d++]=src[s++];
+   ll=0}
+  return o}
+ const sys=a=>{const q=new DataView(u8.buffer,u8.byteOffset+a,20),ds=q.getUint32(4,true),cs=q.getUint32(8,true);return lz(u8,a+20,cs,ds)};
+ /* ページマップ */
+ const pm=sys(pmAddr+0x100),pv=new DataView(pm.buffer);const pages=new Map();
+ {let p=0,ad=0x100;while(p+8<=pm.length){const id=pv.getInt32(p,true),sz=pv.getInt32(p+4,true);p+=8;if(id>=0)pages.set(id,{ad,sz});else p+=16;ad+=sz}}
+ /* セクション情報 */
+ const ip=pages.get(infoId);if(!ip)throw Error('セクション情報なし');
+ const info=sys(ip.ad),iv=new DataView(info.buffer);const nd=iv.getInt32(0,true);let p=20;const S={};
+ for(let i=0;i<nd;i++){const size=u64(iv,p),pc=iv.getInt32(p+8,true),mx=iv.getInt32(p+12,true);
+  let nm='';for(let k=0;k<64&&info[p+32+k];k++)nm+=String.fromCharCode(info[p+32+k]);p+=96;
+  const pl=[];for(let k=0;k<pc;k++){pl.push({id:iv.getInt32(p,true),sz:iv.getInt32(p+4,true),off:u64(iv,p+8)});p+=16}
+  S[nm]={size,mx,pl}}
+ const get=nm=>{const s=S[nm];if(!s)return null;const tot=s.pl.reduce((a,q)=>Math.max(a,q.off+s.mx),0);const out=new Uint8Array(tot);
+  for(const q of s.pl){const pg=pages.get(q.id);if(!pg)continue;const hd=new Uint32Array(8),m=(0x4164536b^pg.ad)>>>0,d=new DataView(u8.buffer,u8.byteOffset+pg.ad,32);
+   for(let k=0;k<8;k++)hd[k]=(d.getUint32(k*4,true)^m)>>>0;
+   const cs=hd[2],ps=hd[3],data=lz(u8,pg.ad+32,cs,s.mx);out.set(data.subarray(0,Math.min(s.mx,out.length-q.off)),q.off)}
+  return out};
+ return{names:Object.keys(S),get,S}}
+
 const DWG=(()=>{
 class BR{constructor(u8,pos){this.d=u8;this.p=pos*8}
  bit(){const v=(this.d[this.p>>3]>>(7-(this.p&7)))&1;this.p++;return v}
@@ -1763,35 +1807,51 @@ class BR{constructor(u8,pos){this.d=u8;this.p=pos*8}
  BT(){return this.B()?0:this.BD()}
  BE(){return this.B()?[0,0,1]:[this.BD(),this.BD(),this.BD()]}
  H(){const c=this.RC(),code=c>>4,n=c&15;let v=0;for(let i=0;i<n;i++)v=v*256+this.RC();return{code,v}}
- TV(dec){const n=this.BS();if(n<0||n>100000)throw Error('TV');const b=new Uint8Array(n);for(let i=0;i<n;i++)b[i]=this.RC();let e=n;while(e>0&&b[e-1]===0)e--;return dec(b.subarray(0,e))}
+ TU(){const n=this.BS();if(n<0||n>100000)throw Error('TU');let t='';for(let i=0;i<n;i++)t+=String.fromCharCode(this.RS());return t.replace(/\0+$/,'')}
+ TV(dec){if(this.S)return this.S.TU();const n=this.BS();if(n<0||n>100000)throw Error('TV');const b=new Uint8Array(n);for(let i=0;i<n;i++)b[i]=this.RC();let e=n;while(e>0&&b[e-1]===0)e--;return dec(b.subarray(0,e))}
 }
 const TYPE={0x01:'TEXT',2:'ATTRIB',3:'ATTDEF',4:'BLOCK',5:'ENDBLK',6:'SEQEND',7:'INSERT',8:'MINSERT',0x0A:'VERTEX2D',0x0B:'VERTEX3D',0x0F:'POLYLINE2D',0x10:'POLYLINE3D',0x11:'ARC',0x12:'CIRCLE',0x13:'LINE',
  0x14:'DIM',0x15:'DIM',0x16:'DIM',0x17:'DIM',0x18:'DIM',0x19:'DIM',0x1A:'DIM',0x1B:'POINT',0x1F:'SOLID',0x20:'SOLID',0x23:'ELLIPSE',0x24:'SPLINE',0x2C:'MTEXT',0x4D:'LWPOLYLINE',0x4E:'HATCH',0x31:'BLOCK_HEADER',0x33:'LAYER',6:'SEQEND',0x39:'LTYPE'};
 const SKIPN={0x1C:'3DFACE',0x21:'SHAPE',0x22:'VIEWPORT',0x25:'REGION',0x26:'3DSOLID',0x27:'BODY',0x28:'RAY',0x29:'XLINE',0x2D:'LEADER',0x2E:'TOLERANCE',0x2F:'MLINE',0x0C:'POLYLINE_MESH',0x1D:'POLYLINE_PFACE',0x1E:'POLYLINE_MESH'};
 function parse(buf){
- const u8=buf instanceof Uint8Array?buf:new Uint8Array(buf),dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);
+ const u0=buf instanceof Uint8Array?buf:new Uint8Array(buf);let u8=u0,dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);
  const ver=String.fromCharCode(...u8.slice(0,6));
  if(!/^AC10/.test(ver))throw Error('DWGファイルではないようです');
- if(ver!=='AC1015'){const nm={AC1012:'R13',AC1014:'R14',AC1018:'2004',AC1021:'2007',AC1024:'2010',AC1027:'2013',AC1032:'2018'}[ver]||ver;
-  throw Error('このDWGは AutoCAD '+nm+' 形式（'+ver+'）のため読み込めません。AutoCADで「AutoCAD 2000 / LT2000 図面(*.dwg)」形式で保存し直してください（DXFでも可）。');}
- const cp=dv.getUint16(0x13,true),ns=dv.getInt32(0x15,true),sec={};
- for(let i=0;i<ns;i++){const o=0x19+i*9;sec[dv.getUint8(o)]={off:dv.getInt32(o+1,true),size:dv.getInt32(o+5,true)}}
+ const NEW=/^AC10(18|24|27|32)$/.test(ver),v18=NEW,v10=ver>='AC1024'&&NEW,v13=ver>='AC1027'&&NEW,v07=v10;
+ if(ver!=='AC1015'&&!NEW){const nm={AC1012:'R13',AC1014:'R14',AC1021:'2007'}[ver]||ver;
+  throw Error('このDWGは AutoCAD '+nm+' 形式（'+ver+'）のため読み込めません。AutoCAD 2004以降（2010/2013/2018）または2000形式で保存し直してください（DXFでも可）。');}
+ let X=null,cp=0,sec={};
+ if(NEW){X=dwgContainer(u0);u8=X.get('AcDb:AcDbObjects');if(!u8)throw Error('DWGのオブジェクト領域を展開できません');dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);cp=30}
+ else{cp=dv.getUint16(0x13,true);const ns=dv.getInt32(0x15,true);for(let i=0;i<ns;i++){const o=0x19+i*9;sec[dv.getUint8(o)]={off:dv.getInt32(o+1,true),size:dv.getInt32(o+5,true)}}}
  const sj=new TextDecoder('shift_jis'),la=new TextDecoder('latin1'),dec=cp===38?(b=>sj.decode(b)):(b=>la.decode(b));
+ const bitAt=(buf,p)=>(buf[p>>3]>>(7-(p&7)))&1;
+ const strStart=(buf,hp)=>{let e=hp-1;if(!bitAt(buf,e))return -1;e-=16;let q=new BR(buf,0);q.p=e;let sz=q.RS();if(sz&0x8000){e-=16;q.p=e;sz=(sz&0x7fff)|(q.RS()<<15)}return e-sz};
  /* クラス */
  const cls=new Map();
- try{const s=sec[1];if(s){const sz=dv.getUint32(s.off+16,true),r=new BR(u8,s.off+20),end=(s.off+20+sz)*8;
+ if(NEW)try{const C=X.get('AcDb:Classes');if(C){const cv=new DataView(C.buffer);const base=v10?28:20,bsz=v10?cv.getUint32(24,true):cv.getUint32(16,true)*8;
+  const r=new BR(C,base),end=base*8+bsz;let mainEnd=end;
+  if(v07){const ss=strStart(C,end);if(ss>0){r.S=new BR(C,0);r.S.p=ss;mainEnd=ss}}
+  r.BS();r.B();
+  while(r.p<mainEnd-40){const n=r.BS();r.BS();r.TV(dec);r.TV(dec);const dx=r.TV(dec);r.B();r.BS();r.BL();r.BL();r.BL();r.BL();r.BL();if(n>=500&&n<10000&&/^[A-Za-z0-9_$]+$/.test(dx))cls.set(n,dx);if(n<500)break}}}catch(e){}
+ else try{const s=sec[1];if(s){const sz=dv.getUint32(s.off+16,true),r=new BR(u8,s.off+20),end=(s.off+20+sz)*8;
   while(r.p<end-80){const n=r.BS();r.BS();r.TV(dec);r.TV(dec);const dx=r.TV(dec);r.B();r.BS();if(n>=500&&n<2000)cls.set(n,dx);if(n<500)break}}}catch(e){}
  /* オブジェクトマップ */
  const map=new Map();
- {let p=sec[2].off;const end=p+sec[2].size;
-  while(p<end){const len=(u8[p]<<8)|u8[p+1];if(len<=2)break;let q=p+2,h=0,loc=0;const e=p+len;
-   const mc=sg=>{let v=0,sh=0;for(;;){const b=u8[q++];if(b&0x80){v+=(b&0x7f)*Math.pow(2,sh);sh+=7}else{if(sg&&(b&0x40))return-(v+(b&0x3f)*Math.pow(2,sh));return v+b*Math.pow(2,sh)}}};
+ {const HB=NEW?X.get('AcDb:Handles'):u8;let p=NEW?0:sec[2].off;const end=NEW?HB.length:p+sec[2].size;
+  while(p<end){const len=(HB[p]<<8)|HB[p+1];if(len<=2)break;let q=p+2,h=0,loc=0;const e=p+len;
+   const mc=sg=>{let v=0,sh=0;for(;;){const b=HB[q++];if(b&0x80){v+=(b&0x7f)*Math.pow(2,sh);sh+=7}else{if(sg&&(b&0x40))return-(v+(b&0x3f)*Math.pow(2,sh));return v+b*Math.pow(2,sh)}}};
    while(q<e){h+=mc(false);loc+=mc(true);map.set(h,loc)}
    p+=len+2}}
  const abs=(hd,own)=>{const c=hd.code;if(c<=5)return hd.v;if(c==6)return own+1;if(c==8)return own-1;if(c==0xA)return own+hd.v;if(c==0xC)return own-hd.v;return hd.v};
  const D={layers:new Map(),blocks:new Map(),ents:[],cls,stat:{},map};
  const st=D.stat;
  function readObj(h){const loc=map.get(h);if(loc===undefined)return null;
+  if(v10){let q=loc,ms=u8[q]|u8[q+1]<<8;q+=2;if(ms&0x8000){ms=(ms&0x7fff)|((u8[q]|u8[q+1]<<8)<<15);q+=2}
+   const q0=q;let hb=0,sh=0;for(;;){const b=u8[q++];hb+=(b&0x7f)*Math.pow(2,sh);sh+=7;if(!(b&0x80))break}
+   if(!ms||q+ms>u8.length)return null;
+   const r=new BR(u8,0);r.p=q*8;const tt=r.BB();const t=tt===0?r.RC():tt===1?r.RC()+0x1F0:r.RS();
+   const hpos=(q+ms)*8-hb;const ss=strStart(u8,hpos);if(ss>0){r.S=new BR(u8,0);r.S.p=ss}
+   return{h,t,kind:t<500?TYPE[t]:cls.get(t),r,bits:hpos-(loc+2)*8,hpos,loc,ss}}
   const r=new BR(u8,loc+2);const t=r.BS(),bits=r.RL(),hpos=(loc+2)*8+bits;
   let kind=t<500?TYPE[t]:cls.get(t);
   return{h,t,kind,r,bits,hpos,loc}}
@@ -1799,14 +1859,17 @@ function parse(buf){
   const own=r.H().v;if(own!==o.h)e.hmis=1;
   for(;;){const sz=r.BS();if(!sz)break;r.H();r.p+=sz*8}
   if(r.B()){const n=r.RL();r.p+=n*8}
-  e.emode=r.BB();e.nrc=r.BL();e.nolinks=r.B();e.color=r.BS();r.BD();e.ltf=r.BB();e.psf=r.BB();e.inv=r.BS();e.lw=r.RC();return e}
+  e.emode=r.BB();e.nrc=r.BL();
+  if(v18){e.xmiss=r.B();if(v13)r.B();e.nolinks=1;const c=r.BS();e.color=c&0x1FF;if(c&0x8000)r.BL();if(c&0x2000)r.BL()}
+  else{e.nolinks=r.B();e.color=r.BS()}
+  r.BD();e.ltf=r.BB();e.psf=r.BB();if(v07){e.mf=r.BB();r.RC()}if(v10){r.B();r.B();r.B()}e.inv=r.BS();e.lw=r.RC();return e}
  function chandles(o,e){const r=new BR(u8,0);r.p=o.hpos;
   if(e.emode===0)e.owner=abs(r.H(),o.h);
   for(let i=0;i<e.nrc;i++)r.H();
-  r.H();
-  if(!e.nolinks){r.H();r.H()}
+  if(v18){if(!e.xmiss)r.H()}else{r.H();if(!e.nolinks){r.H();r.H()}}
   e.layer=abs(r.H(),o.h);
   if(e.ltf===3)e.ltype=abs(r.H(),o.h);
+  if(v07&&e.mf===3)r.H();
   if(e.psf===3)r.H();
   return r}
  /* 先に: レイヤー表・ブロックヘッダ */
@@ -1814,14 +1877,15 @@ function parse(buf){
  for(const[h]of map){const o=readObj(h);if(o&&o.kind==='LAYER')layerCand.add(h)}
  /* LAYER */
  for(const h of layerCand){try{const o=readObj(h),r=o.r;r.H();for(;;){const sz=r.BS();if(!sz)break;r.H();r.p+=sz*8}
-  const nrc=r.BL();const name=r.TV(dec);r.B();r.BS();r.B();const vals=r.BS(),col=r.BS();
-  let lt=0;try{const q=new BR(u8,0);q.p=o.hpos;q.H();for(let i=0;i<nrc;i++)q.H();q.H();q.H();q.H();lt=abs(q.H(),h)}catch(_){}
+  const nrc=r.BL();let xm=0;if(v18){xm=r.B();if(v13)r.B()}const name=r.TV(dec);r.B();r.BS();r.B();const vals=r.BS();let col=r.BS();
+  if(v18){const rgb=r.BL(),fl=r.RC();if(fl&1)r.TV(dec);if(fl&2)r.TV(dec);if(!col)col=(rgb>>>24)===0xC3?rgb&255:7}
+  let lt=0;try{const q=new BR(u8,0);q.p=o.hpos;q.H();for(let i=0;i<nrc;i++)q.H();if(v18){if(!xm)q.H();q.H();q.H();if(v07)q.H()}else{q.H();q.H();q.H()}lt=abs(q.H(),h)}catch(_){}
   D.layers.set(h,{name,vals,col:col>255?7:Math.abs(col),lt})}catch(e){st.layerErr=(st.layerErr||0)+1}}
  D.ltypes=new Map();
- for(const[h]of map){const o=readObj(h);if(!o||o.kind!=='LTYPE')continue;try{const r=o.r;r.H();for(;;){const sz=r.BS();if(!sz)break;r.H();r.p+=sz*8}r.BL();D.ltypes.set(h,r.TV(dec))}catch(e){}}
+ for(const[h]of map){const o=readObj(h);if(!o||o.kind!=='LTYPE')continue;try{const r=o.r;r.H();for(;;){const sz=r.BS();if(!sz)break;r.H();r.p+=sz*8}r.BL();if(v18){r.B();if(v13)r.B()}D.ltypes.set(h,r.TV(dec))}catch(e){}}
  /* BLOCK_HEADER: 基点 */
  for(const[h]of map){const o=readObj(h);if(!o||o.kind!=='BLOCK_HEADER')continue;try{const r=o.r;r.H();for(;;){const sz=r.BS();if(!sz)break;r.H();r.p+=sz*8}
-  r.BL();const name=r.TV(dec);r.B();r.BS();r.B();const anon=r.B(),hasatt=r.B(),isx=r.B(),ovl=r.B();const bp=[r.BD(),r.BD(),r.BD()];
+  r.BL();if(v18){r.B();if(v13)r.B()}const name=r.TV(dec);r.B();r.BS();r.B();const anon=r.B(),hasatt=r.B(),isx=r.B(),ovl=r.B();if(v18){r.B();r.BL()}const bp=[r.BD(),r.BD(),r.BD()];
   D.blocks.set(h,{name,anon,isx,bp,ents:[]})}catch(e){st.blkErr=(st.blkErr||0)+1}}
  /* エンティティ */
  const raw=[];
@@ -1850,21 +1914,22 @@ function parse(buf){
    case'TEXT':case'ATTRIB':{const f=r.RC();let el=0;if(!(f&1))el=r.RD();const ip=[r.RD(),r.RD()];let ap=null;if(!(f&2))ap=[r.DD(ip[0]),r.DD(ip[1])];e.n=r.BE();r.BT();let ob=0,rot=0,wf=1,hal=0,val=0;
      if(!(f&4))ob=r.BD();if(!(f&8))rot=r.BD();e.h=r.RD();if(!(f&0x10))wf=r.RD();e.s=r.TV(dec);if(!(f&0x20))r.BS();if(!(f&0x40))hal=r.BS();if(!(f&0x80))val=r.BS();
      e.ip=ip;e.ap=ap;e.ob=ob;e.rot=rot;e.wf=wf;e.hal=hal;e.val=val;
-     if(k==='ATTRIB'){e.tag=r.TV(dec);r.BS();e.af=r.RC();e.hide=!!(e.af&1)}break}
-   case'MTEXT':{e.ip=[r.BD(),r.BD(),r.BD()];e.n=[r.BD(),r.BD(),r.BD()];e.xd=[r.BD(),r.BD(),r.BD()];e.rw=r.BD();e.h=r.BD();e.att=r.BS();e.dir=r.BS();e.eh=r.BD();e.ew=r.BD();e.s=r.TV(dec);break}
+     if(k==='ATTRIB'){if(v10)r.RC();e.tag=r.TV(dec);r.BS();e.af=r.RC();e.hide=!!(e.af&1)}break}
+   case'MTEXT':{e.ip=[r.BD(),r.BD(),r.BD()];e.n=[r.BD(),r.BD(),r.BD()];e.xd=[r.BD(),r.BD(),r.BD()];e.rw=r.BD();if(v07)r.BD();e.h=r.BD();e.att=r.BS();e.dir=r.BS();e.eh=r.BD();e.ew=r.BD();e.s=r.TV(dec);break}
    case'INSERT':{e.ip=[r.BD(),r.BD(),r.BD()];const f=r.BB();let sx=1,sy=1,sz=1;if(f==0){sx=r.RD();sy=r.DD(sx);sz=r.DD(sx)}else if(f==1){sy=r.DD(1);sz=r.DD(1)}else if(f==2){sx=r.RD();sy=sx;sz=sx}
      e.sc=[sx,sy,sz];e.rot=r.BD();e.n=[r.BD(),r.BD(),r.BD()];e.hasatt=r.B();if(e.hasatt)r.BL();break}
    case'SOLID':{r.BT();const el=r.BD();e.q=[[r.RD(),r.RD()],[r.RD(),r.RD()],[r.RD(),r.RD()],[r.RD(),r.RD()]];e.n=r.BE();break}
    case'ELLIPSE':{e.c=[r.BD(),r.BD(),r.BD()];e.sm=[r.BD(),r.BD(),r.BD()];e.n=[r.BD(),r.BD(),r.BD()];e.ratio=r.BD();e.a0=r.BD();e.a1=r.BD();break}
-   case'SPLINE':{const sc=r.BL(),deg=r.BL();e.deg=deg;if(sc==2){r.BD();r.BD();r.BD();r.BD();r.BD();r.BD();r.BD();const nf=r.BL();e.fit=[];for(let i=0;i<nf;i++)e.fit.push([r.BD(),r.BD(),r.BD()])}
+   case'SPLINE':{const sc=r.BL();if(v13){r.BL();r.BL()}const deg=r.BL();e.deg=deg;if(sc==2){r.BD();r.BD();r.BD();r.BD();r.BD();r.BD();r.BD();const nf=r.BL();e.fit=[];for(let i=0;i<nf;i++)e.fit.push([r.BD(),r.BD(),r.BD()])}
      else if(sc==1){const rat=r.B();e.closed=!!r.B();r.B();r.BD();r.BD();const nk=r.BL(),nc=r.BL(),wt=r.B();e.knots=[];e.ctrl=[];e.w=[];for(let i=0;i<nk;i++)e.knots.push(r.BD());for(let i=0;i<nc;i++){e.ctrl.push([r.BD(),r.BD(),r.BD()]);e.w.push(wt?r.BD():1)}}break}
-   case'DIM':{e.n=[r.BD(),r.BD(),r.BD()];e.tm=[r.RD(),r.RD()];r.BD();e.df=r.RC();e.ut=r.TV(dec);
+   case'DIM':{if(v10)r.RC();e.n=[r.BD(),r.BD(),r.BD()];e.tm=[r.RD(),r.RD()];r.BD();e.df=r.RC();e.ut=r.TV(dec);
      /* 寸法の定義点・実測値（文字回転,水平方向,挿入尺度3,挿入回転,配置,行間2,実測値,複製点 → 13/14/10点） */
-     try{for(let i=0;i<6;i++)r.BD();r.BS();r.BS();r.BD();e.act=r.BD();r.RD();r.RD();
+     try{for(let i=0;i<6;i++)r.BD();r.BS();r.BS();r.BD();e.act=r.BD();if(v07){r.B();r.B();r.B()}r.RD();r.RD();
       if(o.t===0x15||o.t===0x16){e.p13=[r.BD(),r.BD(),r.BD()];e.p14=[r.BD(),r.BD(),r.BD()];e.p10=[r.BD(),r.BD(),r.BD()];r.BD();if(o.t===0x15)e.drot=r.BD()}}catch(_){}
      break}
    case'SEQEND':break;
    case'HATCH':{/* 塗りつぶし（寸法の黒丸●など）：境界ループを読む */
+     if(v18){r.BL();r.BL();r.BD();r.BD();r.BL();r.BD();const ng=r.BL();if(ng>1000)throw Error('HATCH');for(let i=0;i<ng;i++){r.BD();r.BS();r.BL();const fl=r.RC();if(fl&1)r.TV(dec);if(fl&2)r.TV(dec)}r.TV(dec)}
      r.BD();e.n=[r.BD(),r.BD(),r.BD()];e.hname=r.TV(dec);e.solid=r.B();r.B();const np=r.BL();if(np>100000)throw Error('HATCH');e.paths=[];
      for(let i=0;i<np;i++){const fl=r.BL();
       if(!(fl&2)){const ns=r.BL(),segs=[];if(ns>100000)throw Error('HATCH');for(let j=0;j<ns;j++){const ty=r.RC();
