@@ -1745,7 +1745,7 @@ ACT.cad=cadDlg;
 </script>
 
 <script>
-/* ===== DWG → JWW 変換（DWG直接読み込み：文字・寸法値は文字、座標は実寸mm） ===== */
+/* ===== DWG → JWW 変換（DWG直接読み込み：文字・寸法値は文字。JWWは図寸mm＋縮尺で書き、測定値＝寸法値） ===== */
 /* DWG(AC1015 / AutoCAD 2000形式) 読み取り */
 const DWG=(()=>{
 class BR{constructor(u8,pos){this.d=u8;this.p=pos*8}
@@ -1841,11 +1841,11 @@ function parse(buf){
    case'LWPOLYLINE':{const f=r.BS();let cw=0,el=0;if(f&4)cw=r.BD();if(f&8)el=r.BD();if(f&2)r.BD();if(f&1)e.n=[r.BD(),r.BD(),r.BD()];
      const np=r.BL();let nb=0,nw=0;if(f&16)nb=r.BL();if(f&32)nw=r.BL();
      const pts=[];if(np>0){let x=r.RD(),y=r.RD();pts.push([x,y]);for(let i=1;i<np;i++){x=r.DD(x);y=r.DD(y);pts.push([x,y])}}
-     const bl=[];for(let i=0;i<nb;i++)bl.push(r.BD());for(let i=0;i<nw;i++){r.BD();r.BD()}
-     e.pts=pts;e.bul=bl;e.closed=!!(f&512);e.z=el;break}
-   case'POLYLINE2D':{const f=r.BS();e.pf=f;e.curve=r.BS();r.BD();r.BD();r.BT();e.z=r.BD();e.n=r.BE();e.closed=!!(f&1);break}
+     const bl=[];for(let i=0;i<nb;i++)bl.push(r.BD());const wd=[];for(let i=0;i<nw;i++)wd.push([r.BD(),r.BD()]);
+     e.pts=pts;e.bul=bl;e.closed=!!(f&512);e.z=el;e.cw=cw;e.wd=wd;break}
+   case'POLYLINE2D':{const f=r.BS();e.pf=f;e.curve=r.BS();e.sw0=r.BD();e.ew0=r.BD();r.BT();e.z=r.BD();e.n=r.BE();e.closed=!!(f&1);break}
    case'POLYLINE3D':{e.sf=r.RC();e.cf=r.RC();e.closed=!!(e.cf&1);break}
-   case'VERTEX2D':{const f=r.RC();e.p=[r.BD(),r.BD(),r.BD()];const sw=r.BD();if(sw>=0)r.BD();e.bul=r.BD();e.vf=f;break}
+   case'VERTEX2D':{const f=r.RC();e.p=[r.BD(),r.BD(),r.BD()];const sw=r.BD();e.sw=Math.abs(sw);e.ew=sw<0?-sw:r.BD();e.bul=r.BD();e.vf=f;break}
    case'VERTEX3D':{e.vf=r.RC();e.p=[r.BD(),r.BD(),r.BD()];break}
    case'TEXT':case'ATTRIB':{const f=r.RC();let el=0;if(!(f&1))el=r.RD();const ip=[r.RD(),r.RD()];let ap=null;if(!(f&2))ap=[r.DD(ip[0]),r.DD(ip[1])];e.n=r.BE();r.BT();let ob=0,rot=0,wf=1,hal=0,val=0;
      if(!(f&4))ob=r.BD();if(!(f&8))rot=r.BD();e.h=r.RD();if(!(f&0x10))wf=r.RD();e.s=r.TV(dec);if(!(f&0x20))r.BS();if(!(f&0x40))hal=r.BS();if(!(f&0x80))val=r.BS();
@@ -1858,12 +1858,16 @@ function parse(buf){
    case'ELLIPSE':{e.c=[r.BD(),r.BD(),r.BD()];e.sm=[r.BD(),r.BD(),r.BD()];e.n=[r.BD(),r.BD(),r.BD()];e.ratio=r.BD();e.a0=r.BD();e.a1=r.BD();break}
    case'SPLINE':{const sc=r.BL(),deg=r.BL();e.deg=deg;if(sc==2){r.BD();r.BD();r.BD();r.BD();r.BD();r.BD();r.BD();const nf=r.BL();e.fit=[];for(let i=0;i<nf;i++)e.fit.push([r.BD(),r.BD(),r.BD()])}
      else if(sc==1){const rat=r.B();e.closed=!!r.B();r.B();r.BD();r.BD();const nk=r.BL(),nc=r.BL(),wt=r.B();e.knots=[];e.ctrl=[];e.w=[];for(let i=0;i<nk;i++)e.knots.push(r.BD());for(let i=0;i<nc;i++){e.ctrl.push([r.BD(),r.BD(),r.BD()]);e.w.push(wt?r.BD():1)}}break}
-   case'DIM':{e.n=[r.BD(),r.BD(),r.BD()];e.tm=[r.RD(),r.RD()];r.BD();r.RC();r.TV(dec);break}
+   case'DIM':{e.n=[r.BD(),r.BD(),r.BD()];e.tm=[r.RD(),r.RD()];r.BD();e.df=r.RC();e.ut=r.TV(dec);
+     /* 寸法の定義点・実測値（文字回転,水平方向,挿入尺度3,挿入回転,配置,行間2,実測値,複製点 → 13/14/10点） */
+     try{for(let i=0;i<6;i++)r.BD();r.BS();r.BS();r.BD();e.act=r.BD();r.RD();r.RD();
+      if(o.t===0x15||o.t===0x16){e.p13=[r.BD(),r.BD(),r.BD()];e.p14=[r.BD(),r.BD(),r.BD()];e.p10=[r.BD(),r.BD(),r.BD()];r.BD();if(o.t===0x15)e.drot=r.BD()}}catch(_){}
+     break}
    case'SEQEND':break;
    }
    if(k==='INSERT'||k==='DIM'){const hr=chandles(o,e);
      if(k==='INSERT'){e.blk=abs(hr.H(),o.h)}
-     else{r.H();e.blk=abs(hr.H(),o.h)}
+     else{/* 寸法：寸法スタイル → 匿名ブロック(*D) の順 */const h1=abs(hr.H(),o.h);let h2;try{h2=abs(hr.H(),o.h)}catch(_){}e.blk=D.blocks.has(h2)?h2:h1}
    }else chandles(o,e);
    e.endp=r.p;e.loc=o.loc;e.bits=o.bits;raw.push(e);
   }catch(ex){st.err=(st.err||0)+1;(st.errk=st.errk||{})[k]=(st.errk[k]||0)+1}}
@@ -1882,7 +1886,9 @@ function cleanMText(t){
  return t}
 function toModel(D,opt){opt=opt||{};
  const TOL=opt.tol||0.05,info={lines:0,texts:0,skipped:Object.assign({},D.skipped||{}),layers:[],hidden:0};
- const items=[],texts=[],lset=new Map();
+ const items=[],texts=[],lset=new Map(),dimS=[];
+ /* 寸法値の数値化（φ・R・カンマ付きも可。数値でなければ0） */
+ const numOf=t=>{const m=/^(?:[φΦØR□C]|t=)?(\d+(?:\.\d+)?)$/.exec(String(t||'').replace(/[\s,，]/g,'').replace(/[０-９．]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)));return m?+m[1]:0};
  const crs=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],nrm=v=>{const l=Math.hypot(...v)||1;return v.map(x=>x/l)};
  const ocs=n=>{if(!n||(Math.abs(n[0])<1e-12&&Math.abs(n[1])<1e-12&&n[2]>0))return null;const N=nrm(n),ax=(Math.abs(N[0])<1/64&&Math.abs(N[1])<1/64)?nrm(crs([0,1,0],N)):nrm(crs([0,0,1],N)),ay=crs(N,ax);return[ax[0],ax[1],ay[0],ay[1]]};
  const I=[1,0,0,1,0,0],mul=(m,n)=>[m[0]*n[0]+m[2]*n[1],m[1]*n[0]+m[3]*n[1],m[0]*n[2]+m[2]*n[3],m[1]*n[2]+m[3]*n[3],m[0]*n[4]+m[2]*n[5]+m[4],m[1]*n[4]+m[3]*n[5]+m[5]];
@@ -1897,13 +1903,19 @@ function toModel(D,opt){opt=opt||{};
    for(let r=1;r<=deg;r++)for(let j=deg;j>=r;j--){const den=knots[j+1+k-r]-knots[j+k-deg];const al=den?(t-knots[j+k-deg])/den:0;for(let q=0;q<3;q++)d[j][q]=(1-al)*d[j-1][q]+al*d[j][q]}
    const W=d[deg][2]||1;out.push([d[deg][0]/W,d[deg][1]/W])}
   out.push([ctrl[n-1][0],ctrl[n-1][1]]);return out}
- function pushLine(pts,closed,ent,ctx,xf){if(pts.length<2)return;const L=ctx.layer!==null&&lay(ent.layer).name==='0'?lay(ctx.layer):lay(ent.layer);
+ function pushLine(pts,closed,ent,ctx,xf,ex){if(pts.length<2)return;const L=ctx.layer!==null&&lay(ent.layer).name==='0'?lay(ctx.layer):lay(ent.layer);
   if(hidden(L)||ent.inv===1){info.hidden++;return}
   let ci=ent.color;if(ci===256||ci>256)ci=L.col;else if(ci===0)ci=ctx.color!==null?ctx.color:L.col;
   let lt=L.lt?D.ltypes.get(L.lt):'';if(ent.ltf===3&&ent.ltype)lt=D.ltypes.get(ent.ltype);else if(ent.ltf===2)lt='Continuous';
   if(!lset.has(L.name))lset.set(L.name,lset.size);
   const p2=pts.map(p=>{const q=ap(xf,p);return[+q[0].toFixed(4),+q[1].toFixed(4)]});
-  items.push({pg:0,k:'line',col:ACI_RGB(ci||7),pts:p2,c:!!closed,lw:0,ds:LTD(lt),oc:null,lk:L.name});info.lines++}
+  const it={pg:0,k:'line',col:ACI_RGB(ci||7),pts:p2,c:!!closed,lw:0,ds:LTD(lt),oc:null,lk:L.name};
+  /* 太さ付きポリライン（寸法の黒丸●・矢印など）と SOLID は塗りつぶしとして保持 */
+  if(ex){const sc=Math.sqrt(Math.abs(xf[0]*xf[3]-xf[1]*xf[2]))||1;
+   if(ex.circ&&ex.circ.w>0)it.circ={c:ap(xf,ex.circ.c),R:ex.circ.R*sc,w:ex.circ.w*sc};
+   else if(ex.wv&&ex.wv.some(v=>v>0))it.wv=ex.wv.map(v=>v*sc);
+   if(ex.solid)it.solid=ex.solid.map(p=>ap(xf,p))}
+  items.push(it);info.lines++}
  function pushText(ent,s,x,y,h,wf,ang,ctx,xf,fx,fy){
   const L=ctx.layer!==null&&lay(ent.layer).name==='0'?lay(ctx.layer):lay(ent.layer);if(hidden(L)||ent.inv===1){info.hidden++;return}
   s=s.replace(/\r/g,'');const lines=s.split('\n').filter((v,i,a)=>!(i===a.length-1&&v===''&&a.length>1));
@@ -1926,26 +1938,40 @@ function toModel(D,opt){opt=opt||{};
   case'ELLIPSE':{const c=e.c,m=e.sm,n=e.n,mn=crs(n,m),r=e.ratio;let a0=e.a0,a1=e.a1;if(!isFinite(a0)||!isFinite(a1)){a0=0;a1=2*Math.PI}let sw=a1-a0;while(sw<=1e-9)sw+=2*Math.PI;const rad=Math.hypot(m[0],m[1],m[2]),cnt=segsFor(rad,sw),p=[];
     for(let i=0;i<=cnt;i++){const t=a0+sw*i/cnt;p.push([c[0]+m[0]*Math.cos(t)+mn[0]*r*Math.sin(t),c[1]+m[1]*Math.cos(t)+mn[1]*r*Math.sin(t)])}
     const full=Math.abs(sw-2*Math.PI)<1e-6;if(full)p.pop();pushLine(p,full,e,ctx,xf);break}
-  case'LWPOLYLINE':{const P=e.pts.map(to),pts=[];if(!P.length)break;pts.push(P[0]);const m=e.closed?P.length:P.length-1;
-    for(let i=0;i<m;i++){const b=e.bul&&e.bul[i]?e.bul[i]:0,q=P[(i+1)%P.length];if(b)bulgePts(P[i],q,b).forEach(v=>pts.push(v));else pts.push(q)}
-    if(e.closed)pts.pop();pushLine(pts,e.closed,e,ctx,xf);break}
-  case'POLYLINE2D':case'POLYLINE3D':{const V=e.verts||[];const P=V.filter(v=>!(v.vf&16)).map(v=>({p:e.kind==='POLYLINE2D'?to(v.p):[v.p[0],v.p[1]],b:v.bul||0}));if(P.length<2)break;const pts=[P[0].p],m=e.closed?P.length:P.length-1;
-    for(let i=0;i<m;i++){const q=P[(i+1)%P.length].p;if(P[i].b)bulgePts(P[i].p,q,P[i].b).forEach(v=>pts.push(v));else pts.push(q)}
-    if(e.closed)pts.pop();pushLine(pts,e.closed,e,ctx,xf);break}
+  case'LWPOLYLINE':{const P=e.pts.map(to);if(!P.length)break;const W=i=>e.wd&&e.wd.length?(e.wd[i]||[0,0]):[e.cw||0,e.cw||0];
+    pushPoly(P.map((p,i)=>({p,b:e.bul&&e.bul[i]?e.bul[i]:0,w:W(i)})),e.closed,e,ctx,xf);break}
+  case'POLYLINE2D':case'POLYLINE3D':{const V=e.verts||[],d2=e.kind==='POLYLINE2D';const P=V.filter(v=>!(v.vf&16)).map(v=>({p:d2?to(v.p):[v.p[0],v.p[1]],b:v.bul||0,w:d2?(v.sw||v.ew?[v.sw||0,v.ew||0]:[e.sw0||0,e.ew0||0]):[0,0]}));if(P.length<2)break;
+    pushPoly(P,e.closed,e,ctx,xf);break}
   case'SPLINE':{let p=null;if(e.ctrl&&e.ctrl.length&&e.knots&&e.knots.length)p=bspl(e.ctrl,e.knots,e.w,e.deg,e.closed);else if(e.fit&&e.fit.length)p=e.fit.map(v=>[v[0],v[1]]);if(p)pushLine(p,false,e,ctx,xf);break}
-  case'SOLID':{const q=e.q.map(to),o=[q[0],q[1],q[3],q[2]],u=[];o.forEach(p=>{const l=u[u.length-1];if(!l||Math.hypot(l[0]-p[0],l[1]-p[1])>1e-9)u.push(p)});if(u.length>1&&Math.hypot(u[0][0]-u[u.length-1][0],u[0][1]-u[u.length-1][1])<1e-9)u.pop();pushLine(u,u.length>2,e,ctx,xf);break}
+  case'SOLID':{const q=e.q.map(to),o=[q[0],q[1],q[3],q[2]],u=[];o.forEach(p=>{const l=u[u.length-1];if(!l||Math.hypot(l[0]-p[0],l[1]-p[1])>1e-9)u.push(p)});if(u.length>1&&Math.hypot(u[0][0]-u[u.length-1][0],u[0][1]-u[u.length-1][1])<1e-9)u.pop();pushLine(u,u.length>2,e,ctx,xf,{solid:o});break}
   case'TEXT':case'ATTRIB':{if(e.hide)break;let s=e.s.replace(/%%[cC]/g,'φ').replace(/%%[dD]/g,'°').replace(/%%[pP]/g,'±').replace(/%%[uUoO]/g,'');if(!s.trim())break;
     let pos=e.ip;const hal=e.hal,val=e.val;let fx=0,fy=0;if(e.ap&&(hal||val)){pos=e.ap;fx=hal===1||hal===4?.5:hal===2?1:0;fy=val===3?1:val===2?.5:0;if(hal>=3)fx=.5}
     const p=to(pos);pushText(e,s,p[0],p[1],e.h,e.wf||1,e.rot,ctx,xf,fx,fy===1?1:fy===.5?.5:0);break}
   case'MTEXT':{const s=cleanMText(e.s);if(!s.trim())break;const a=e.att||1,fx=[0,.5,1][(a-1)%3],fy=a<=3?1:a<=6?.5:0,ang=Math.atan2(e.xd[1],e.xd[0]);
     pushText(e,s,e.ip[0],e.ip[1],e.h,1,ang,ctx,xf,fx,fy);break}
-  case'INSERT':case'DIM':{const bk=D.blocks.get(e.blk);if(!bk||ctx.depth>8)break;const L=lay(e.layer);
+  case'INSERT':case'DIM':{const bk=D.blocks.get(e.blk);if(!bk||ctx.depth>8)break;const L=lay(e.layer),t0=texts.length;
     let m;if(e.kind==='DIM')m=I;else{const O2=ocs(e.n),ip=O2?[e.ip[0]*O2[0]+e.ip[1]*O2[2],e.ip[0]*O2[1]+e.ip[1]*O2[3]]:[e.ip[0],e.ip[1]],c=Math.cos(e.rot),s=Math.sin(e.rot);
      m=mul([1,0,0,1,ip[0],ip[1]],mul([c,s,-s,c,0,0],mul([e.sc[0],0,0,e.sc[1],0,0],[1,0,0,1,-bk.bp[0],-bk.bp[1]])));if(O2&&O2[0]<0)m=mul([-1,0,0,1,0,0],m)}
     const xf2=mul(xf,m);let col=e.color;if(col===256||col>256)col=L.col;else if(col===0)col=ctx.color!==null?ctx.color:L.col;
     const c2={layer:ctx.layer!==null&&lay(e.layer).name==='0'?ctx.layer:e.layer,color:col,depth:ctx.depth+1};
-    (bk.ents||[]).forEach(x=>draw(x,xf2,c2));break}
+    (bk.ents||[]).forEach(x=>draw(x,xf2,c2));
+    if(e.kind==='DIM'){/* 寸法値（表示）と定義点間の実測を照合用に記録 */
+     let L0=0;if(e.p13&&e.p14){const dx=e.p14[0]-e.p13[0],dy=e.p14[1]-e.p13[1];L0=e.drot!==undefined?Math.abs(dx*Math.cos(e.drot)+dy*Math.sin(e.drot)):Math.hypot(dx,dy)}
+     const A=isFinite(e.act)&&e.act>0&&e.act<1e9?e.act:0,Lm=L0>0&&(!A||Math.abs(A-L0)<=1e-3*L0)?L0:(A||L0);
+     const ut=(e.ut||'').trim(),sv=ut&&!/<>/.test(ut)?cleanMText(ut):texts.slice(t0).map(t=>t.s).join(''),v=numOf(sv);
+     if(Lm>0&&v>0){const sc=Math.sqrt(Math.abs(xf[0]*xf[3]-xf[1]*xf[2]))||1;dimS.push({v,L:Lm*sc,src:'dim'})}}
+    break}
   }}
+ function pushPoly(P,closed,ent,ctx,xf){/* 頂点{p,b(膨らみ),w[始,終]}から折れ線と各点の太さを作る */
+  const n=P.length;if(n<2)return;
+  if(closed&&n===2&&Math.abs(Math.abs(P[0].b)-1)<1e-6&&Math.abs(Math.abs(P[1].b)-1)<1e-6){/* ドーナツ（寸法の黒丸 _Dot/_DotSmall など） */
+   const c=[(P[0].p[0]+P[1].p[0])/2,(P[0].p[1]+P[1].p[1])/2],R=Math.hypot(P[1].p[0]-P[0].p[0],P[1].p[1]-P[0].p[1])/2,w=Math.max(P[0].w[0],P[0].w[1],P[1].w[0],P[1].w[1]);
+   const pts=arcPts(c,R,0,2*Math.PI);pts.pop();pushLine(pts,true,ent,ctx,xf,w>0?{circ:{c,R,w}}:null);return}
+  const pts=[P[0].p],wv=[P[0].w[0]],m=closed?n:n-1;
+  for(let i=0;i<m;i++){const q=P[(i+1)%n].p,[w0,w1]=P[i].w;const seg=P[i].b?bulgePts(P[i].p,q,P[i].b):[q];
+   seg.forEach((v,j)=>{pts.push(v);wv.push(w0+(w1-w0)*(j+1)/seg.length)})}
+  if(closed){pts.pop();wv.pop()}
+  pushLine(pts,closed,ent,ctx,xf,{wv})}
  /* ポリラインの頂点を集め、モデル空間・ブロックごとに仕分け */
  const raw=D.raw;for(let i=0;i<raw.length;i++){const e=raw[i];if(e.kind==='POLYLINE2D'||e.kind==='POLYLINE3D'){e.verts=[];let j=i+1;while(j<raw.length&&/^VERTEX/.test(raw[j].kind)){e.verts.push(raw[j]);j++}}}
  for(const bk of D.blocks.values())bk.ents=[];
@@ -1953,16 +1979,54 @@ function toModel(D,opt){opt=opt||{};
  for(const e of raw){if(/^(VERTEX|SEQEND)/.test(e.kind))continue;
   if(e.emode===2)model.push(e);else if(e.emode===0&&e.owner!==undefined){const bk=D.blocks.get(e.owner);if(bk&&!/^\*Paper_Space/i.test(bk.name)){if(/^\*Model_Space/i.test(bk.name))model.push(e);else bk.ents.push(e)}}}
  model.forEach(e=>draw(e,I,{layer:null,color:null,depth:0}));
+ /* ---- 寸法値（表示）と実測の照合 ----
+   寸法オブジェクト（DIM）があれば定義点間の距離、分解済みの寸法なら
+   数値文字のすぐ下にある平行な寸法線の長さと比べ、図形全体の倍率を決める */
+ const dimRatio=()=>{let S=dimS.slice(),src='dim';
+  if(S.length<3){src='text';const segs=items.filter(it=>it.pts.length===2&&!it.solid&&!it.circ).map(it=>{const a=it.pts[0],b=it.pts[1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);return{a,b,L,ux:(b[0]-a[0])/L,uy:(b[1]-a[1])/L}}).filter(g=>g.L>1e-9);
+   for(const t of texts){const v=numOf(t.s);if(!(v>0))continue;const an=(t.ang||0)*Math.PI/180,dx=Math.cos(an),dy=Math.sin(an),nx=-dy,ny=dx,cx=t.x+dx*t.w/2,cy=t.y+dy*t.w/2;let best=null;
+    for(const g of segs){if(Math.abs(g.ux*dy-g.uy*dx)>.02||g.L<t.w*.8)continue;const mx=(g.a[0]+g.b[0])/2,my=(g.a[1]+g.b[1])/2,off=(mx-t.x)*nx+(my-t.y)*ny;if(off>t.h*.3||off<-t.h*1.5)continue;
+     const p0=(g.a[0]-cx)*dx+(g.a[1]-cy)*dy,p1=(g.b[0]-cx)*dx+(g.b[1]-cy)*dy;if(Math.min(p0,p1)>0||Math.max(p0,p1)<0)continue;if(!best||Math.abs(off)<Math.abs(best.off))best={off,L:g.L}}
+    if(best)S.push({v,L:best.L,src:'text'})}}
+  const R=S.map(x=>x.v/x.L).filter(r=>isFinite(r)&&r>0).sort((a,b)=>a-b);if(R.length<3)return{f:1,n:R.length,tot:R.length,src};
+  let bi=0,bc=0;R.forEach((r,i)=>{const c=R.filter(q=>Math.abs(q-r)<=r*.01).length;if(c>bc){bc=c;bi=i}});
+  const cl=R.filter(q=>Math.abs(q-R[bi])<=R[bi]*.01),med=cl[cl.length>>1];
+  if(bc<3||bc<R.length*.4)return{f:1,n:bc,tot:R.length,src,weak:1};
+  const NICE=[1,2,.5,4,.25,5,.2,10,.1,3,1/3,20,.05,25.4,1/25.4,50,.02,100,.01,1000,.001];let nf=null;for(const c of NICE)if(Math.abs(med-c)<=c*.015){nf=c;break}
+  /* DIMの定義点で一致が厳密なら実測比をそのまま、分解済み寸法は標準倍率に近い場合のみ採用 */
+  const f=nf!==null?nf:(src==='dim'&&cl[cl.length-1]/cl[0]<1.002?med:1);return{f,n:bc,tot:R.length,src}};
+ const dr=dimRatio();info.dim=dr;
+ const scaleAll=k=>{if(k===1)return;items.forEach(it=>{it.pts=it.pts.map(p=>[p[0]*k,p[1]*k]);if(it.circ)it.circ={c:[it.circ.c[0]*k,it.circ.c[1]*k],R:it.circ.R*k,w:it.circ.w*k};if(it.wv)it.wv=it.wv.map(v=>v*k);if(it.solid)it.solid=it.solid.map(p=>[p[0]*k,p[1]*k])});
+  texts.forEach(t=>{t.x*=k;t.y*=k;t.h*=k;t.w*=k})};
+ scaleAll(dr.f);
+ /* ---- 範囲と縮尺：用紙(A0)に収まる縮尺を選ぶ ----
+   JWWの座標は図寸(用紙mm)で、実寸＝図寸×縮尺。実寸mmを縮尺で割って書き出す（測定値＝寸法値になる） */
+ let x0=1e18,y0=1e18,x1=-1e18,y1=-1e18;const ex=(x,y)=>{if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y};
+ items.forEach(it=>it.pts.forEach(p=>ex(p[0],p[1])));texts.forEach(t=>ex(t.x,t.y));
+ const bw=Math.max(1,x1-x0),bh=Math.max(1,y1-y0);let den=1;for(const d of[1,2,5,10,20,25,30,40,50,100,200,300,500,1000,2000,5000]){den=d;if(bw<=1189*d*.95&&bh<=841*d*.95)break}
+ if(opt.den>0)den=+opt.den;
+ info.bbox=[x0,y0,x1,y1];info.den=den;
+ scaleAll(1/den);
+ /* ---- 塗りつぶし（●・矢印・SOLID）を細かい線で塗る（JWWは線と文字のみ出力のため） ---- */
+ const SP=.08,extra=[],cp=(it,pts,c)=>({pg:0,k:'line',col:it.col,pts,c:!!c,lw:0,ds:1,oc:null,lk:it.lk}),r4=p=>[+p[0].toFixed(5),+p[1].toFixed(5)];
+ const ring=(c,r)=>{const n=Math.max(12,Math.min(96,Math.ceil(2*Math.PI*r/.05))),o=[];for(let i=0;i<n;i++){const a=2*Math.PI*i/n;o.push(r4([c[0]+r*Math.cos(a),c[1]+r*Math.sin(a)]))}return o};
+ for(const it of items){
+  if(it.circ){const {c,R,w}=it.circ,ro=R+w/2,ri=Math.max(0,R-w/2);it.pts=ring(c,ro);it.c=true;it.ds=1;
+   for(let r=ro-SP;r>ri+SP*.3&&r>SP*.4;r-=SP)extra.push(cp(it,ring(c,r),1));
+   if(ri<SP){const d=Math.max(SP*.5,Math.min(ro,SP));extra.push(cp(it,[r4([c[0]-d,c[1]]),r4([c[0]+d,c[1]])]),cp(it,[r4([c[0],c[1]-d]),r4([c[0],c[1]+d])]))}continue}
+  if(it.wv){const P=it.pts,m=it.c?P.length:P.length-1;it.ds=1;
+   for(let j=0;j<m;j++){const a=P[j],b=P[(j+1)%P.length],w0=it.wv[j]||0,w1=it.wv[(j+1)%P.length]||0,L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(L<1e-9||Math.max(w0,w1)<=SP*1.2)continue;
+    const nx=-(b[1]-a[1])/L,ny=(b[0]-a[0])/L,n=Math.ceil(Math.max(w0,w1)/SP);
+    for(let k=0;k<=n;k++){const t=-1+2*k/n,p=r4([a[0]+nx*t*w0/2,a[1]+ny*t*w0/2]),q=r4([b[0]+nx*t*w1/2,b[1]+ny*t*w1/2]);if(Math.hypot(q[0]-p[0],q[1]-p[1])>1e-6)extra.push(cp(it,[p,q]))}}continue}
+  if(it.solid){const o=it.solid,A=[o[0],o[3]],B=[o[1],o[2]],H=Math.max(Math.hypot(A[1][0]-A[0][0],A[1][1]-A[0][1]),Math.hypot(B[1][0]-B[0][0],B[1][1]-B[0][1]));it.ds=1;
+   const n=Math.min(400,Math.ceil(H/SP));for(let k=1;k<n;k++){const t=k/n,p=r4([A[0][0]+(A[1][0]-A[0][0])*t,A[0][1]+(A[1][1]-A[0][1])*t]),q=r4([B[0][0]+(B[1][0]-B[0][0])*t,B[0][1]+(B[1][1]-B[0][1])*t]);if(Math.hypot(q[0]-p[0],q[1]-p[1])>1e-6)extra.push(cp(it,[p,q]))}}}
+ extra.forEach(x=>items.push(x));info.fills=extra.length;
+ texts.forEach(t=>{t.x=+t.x.toFixed(5);t.y=+t.y.toFixed(5);t.h=+t.h.toFixed(4);t.w=+t.w.toFixed(4)});
  /* レイヤー（JWWは0〜Fの16枚） */
  const names=[...lset.keys()],lays=names.map((n,i)=>({key:n,i,idx:Math.min(15,i),name:String(i+1).padStart(2,'0')+'_'+n,nl:0,nt:0}));
  const lmap=new Map(lays.map(l=>[l.key,l]));items.forEach(it=>lmap.get(it.lk).nl++);texts.forEach(t=>lmap.get(t.lk).nt++);
  info.layers=lays.map(l=>({name:l.key,idx:l.idx,nl:l.nl,nt:l.nt}));
- /* 範囲と縮尺（用紙に収まる縮尺を選ぶ。座標は実寸mmのまま） */
- let x0=1e18,y0=1e18,x1=-1e18,y1=-1e18;const ex=(x,y)=>{if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y};
- items.forEach(it=>it.pts.forEach(p=>ex(p[0],p[1])));texts.forEach(t=>ex(t.x,t.y));
- const bw=Math.max(1,x1-x0),bh=Math.max(1,y1-y0);let den=1;for(const d of[1,2,5,10,20,25,30,40,50,100,200,300,500,1000,2000,5000]){den=d;if(bw<=1189*d*.95&&bh<=841*d*.95)break}
- info.bbox=[x0,y0,x1,y1];info.den=den;
- const M={items,texts,dt:[],vt:[],pages:1,scales:[opt.den||den],ltsc:1,real:true,paperMM:Math.max(bw,bh),lays,lmap,layMode:'dwg',dup:{lines:0,texts:0},reg:{runs:0,rounded:0,q:0},fix:{}};
+ const M={items,texts,dt:[],vt:[],pages:1,scales:[den],ltsc:1,real:false,paperMM:Math.max(bw,bh)/den,lays,lmap,layMode:'dwg',dup:{lines:0,texts:0},reg:{runs:0,rounded:0,q:0},fix:{}};
  return{M,info}}
 return{parse,BR,toModel}})();
 
@@ -1984,7 +2048,8 @@ return{parse,BR,toModel}})();
    await save(nm,data);
    const sk=Object.keys(info.skipped).length?'／未対応で除外：'+Object.entries(info.skipped).map(([k,v])=>k+' '+v).join('、'):'';
    const ov=info.layers.length>16?'／レイヤーは16枚を超えるため15番以降はF層にまとめました':'';
-   msg(`DWGをJWWに変換しました：${nm}（線 ${info.lines}・文字 ${info.texts}・縮尺 1/${M.scales[0]}・実寸mm・レイヤー ${info.layers.length}）`+sk+ov);
+   const dm=info.dim||{},dmt=dm.tot?`・寸法照合 ${dm.n}/${dm.tot}件一致`+(dm.f!==1?`→図形を×${+dm.f.toFixed(4)}で実寸に補正`:'（補正不要）'):'';
+   msg(`DWGをJWWに変換しました：${nm}（線 ${info.lines}・文字 ${info.texts}・縮尺 1/${M.scales[0]}（図寸＝実寸÷${M.scales[0]}、測定は実寸）`+dmt+(info.fills?`・塗り(●/矢印) ${info.fills}本`:'')+`・レイヤー ${info.layers.length}）`+sk+ov);
   }}
  const prev=ACT.dwg;ACT.dwg=()=>window.dwgPick();
 })();
