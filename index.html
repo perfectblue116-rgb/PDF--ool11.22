@@ -215,7 +215,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 <div id="ffl"></div>
 <div class="ffb"><button class="pri" id="ffsv">PDF保存</button><span class="hint" style="padding:0;background:none;border:0">入力するとPDFに反映されます。一覧にない欄は「範囲指定入力」でPDF上をドラッグして直接入力できます</span></div>
 </aside>
-<div id="pages"><div class="empty">「ホーム → 開く」または PDF をここにドラッグ&amp;ドロップ</div></div></div></section>
+<div id="pages"><div class="empty">「ホーム → 開く」または PDF をここにドラッグ&amp;ドロップ<br><small>DWGファイルをドロップすると、JWWに変換して保存します</small></div></div></div></section>
 <div id="cm"></div>
 <textarea id="ie"></textarea>
 <div id="fbar"><button id="fbd" title="カレンダーで日付を入力">📅 日付</button><span id="fbf"></span></div>
@@ -274,10 +274,10 @@ const FF="'Hiragino Sans','Yu Gothic',Meiryo,sans-serif",PAD=4,
 const ROT=[['a:rotl','左90°','rotL'],['a:rotr','右90°','rotR'],['a:rotal','全頁 左','rotL'],['a:rotar','全頁 右','rotR']];
 const TABS=[['home','ホーム'],['cm','注釈'],['ms','測定'],['pg','整理'],['vw','表示']];
 const RB={
- home:[['ファイル',[['a:open','開く','open'],['a:save','PDF保存','save']]],['編集',[['a:undo','元に戻す','undo'],['a:redo','やり直し','redo'],['a:del','削除','del']]],['選択',[['t:select','選択','sel'],['t:marq','範囲選択','marq'],['a:orig','元データも選択','orig']]],['PDF文字',[['t:tedit','文字編集','tedit'],['t:hl','ハイライト','hl']]],['スタンプ',[['a:stamp','スタンプ','stamp'],['a:stadd','登録','image']]],['ページ回転(表示ページ)',ROT],['パネル',[['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]],['記入欄',[['a:fft','記入欄パネル','form'],['t:ffill','枠をタップ','form'],['t:frange','範囲指定入力','tbox']]],['CAD',[['a:cad','CAD変換','cad']]]],
+ home:[['ファイル',[['a:open','開く','open'],['a:save','PDF保存','save']]],['編集',[['a:undo','元に戻す','undo'],['a:redo','やり直し','redo'],['a:del','削除','del']]],['選択',[['t:select','選択','sel'],['t:marq','範囲選択','marq'],['a:orig','元データも選択','orig']]],['PDF文字',[['t:tedit','文字編集','tedit'],['t:hl','ハイライト','hl']]],['スタンプ',[['a:stamp','スタンプ','stamp'],['a:stadd','登録','image']]],['ページ回転(表示ページ)',ROT],['パネル',[['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]],['記入欄',[['a:fft','記入欄パネル','form'],['t:ffill','枠をタップ','form'],['t:frange','範囲指定入力','tbox']]],['CAD',[['a:cad','PDFからCAD変換','cad'],['a:dwg','DWGからJWW変換','cad']]]],
  cm:[['テキスト',[['t:text','テキスト','text'],['t:tbox','枠付テキスト','tbox'],['t:callout','吹き出し','callout'],['t:leader','引き出し線','leader']]],['図形',[['t:rect','矩形','rect'],['t:ellipse','〇（円）','ellipse'],['t:line','直線','line'],['t:arrow','矢印','arrow'],['t:poly','多角形','poly'],['t:pline','ポリライン','pline'],['t:cloud','雲形','cloud'],['t:bucket','塗りつぶし','bucket']]],['PDF文字',[['t:tedit','文字編集','tedit'],['t:hl','ハイライト','hl']]],['選択',[['t:marq','範囲選択','marq']]],['画像',[['t:image','画像挿入','image']]],['スタンプ',[['a:stamp','スタンプ','stamp'],['a:stadd','登録','image']]],['リンク',[['a:link','リンク設定','link'],['t:linkarea','範囲リンク','linkarea']]],['重ね順',[['a:top','最前面','top'],['a:up','前面','up'],['a:down','背面','down'],['a:bot','最背面','bot']]]],
  ms:[['縮尺',[['t:scale','寸法設定','scale']]],['測定',[['t:dim','寸法','dim'],['t:mdist','距離','dist'],['t:mperi','周囲','peri'],['t:marea','面積','area']]]],
- pg:[['ツール',[['s:mg','結合','merge'],['s:sp','分割','split'],['s:a3','A4→A3','a3'],['s:cp','圧縮','comp'],['s:pw','パスワード','lock'],['s:xl','Excel変換','xls'],['a:cad','CAD変換','cad'],['a:fft','記入欄パネル','form'],['t:ffill','枠をタップして入力','form'],['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]],['ページ回転(表示ページ)',ROT]],
+ pg:[['ツール',[['s:mg','結合','merge'],['s:sp','分割','split'],['s:a3','A4→A3','a3'],['s:cp','圧縮','comp'],['s:pw','パスワード','lock'],['s:xl','Excel変換','xls'],['a:cad','PDFからCAD変換','cad'],['a:dwg','DWGからJWW変換','cad'],['a:fft','記入欄パネル','form'],['t:ffill','枠をタップして入力','form'],['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]],['ページ回転(表示ページ)',ROT]],
  vw:[['パネル',[['a:tht','サムネイル','thumb'],['a:bmt','しおり','bm']]],['ズーム',[['a:zin','拡大','zin'],['a:zout','縮小','zout'],['a:zfit','幅に合わせる','fit']]],['ヘルプ',[['a:help','操作説明','help']]]]};
 $('#tabb').innerHTML=TABS.map(t=>`<button class="tab" data-tab="${t[0]}">${t[1]}</button>`).join('');
 function buildRib(){$('#rib').innerHTML=RB[tab].map(g=>`<div class="grp"><div class="it">${g[1].map(b=>`<button class="rb" data-i="${b[0]}" title="${b[1]}">${ic(b[2])}<span>${b[1]}</span></button>`).join('')}</div><small>${g[0]}</small></div>`).join('');syncRib();fitH()}
@@ -1092,6 +1092,7 @@ const SEC={xl:'#xlf',mg:'#mgf',sp:'#spf',a3:'#a3f',cp:'#cpf',pw:'#pwf',ed:'#edf'
 addEventListener('dragleave',e=>{if(!e.relatedTarget)hl(0)});
 addEventListener('drop',e=>{e.preventDefault();hl(0);const all=dtFiles(e),id=document.querySelector('section.on').id,pdfs=all.filter(f=>f.type==='application/pdf'||/\.pdf$/i.test(f.name));
  const set=(s,fl)=>fileSet(s,fl);
+ {const dw=all.filter(f=>/\.dwg$/i.test(f.name));if(dw.length){run(()=>dwgConvert(dw));return}}
  if(!SEC[id])return msg('この画面ではドロップできません');
  if(id==='ed'){const im=all.filter(f=>f.type.startsWith('image/'));if(pdfs.length>1){run(async()=>{if(!E.pages.length){await loadEd(pdfs[0]);await thInsert(pdfs.slice(1),E.pages.length)}else await thInsert(pdfs,E.pages.length)})}else if(pdfs.length)set('#edf',[pdfs[0]]);else if(im.length){if(!E.pages.length)return msg('先にPDFを開いてください');const el=document.elementFromPoint(e.clientX,e.clientY),pe=el&&el.closest&&el.closest('.pg');let i=E.pages.findIndex(P=>P.wrap===pe);if(i<0)i=0;dropPt={i,p:pt(e,i)};set('#imgf',im)}else msg('PDFまたは画像をドロップしてください');return}
  if(!pdfs.length)return msg('PDFファイルをドロップしてください');
@@ -1109,7 +1110,7 @@ Object.entries(SEC).forEach(([id,sel])=>{if(id==='ed'||id==='xl')return;const in
  z.onclick=()=>inp.click();
  ['dragenter','dragover'].forEach(n=>z.addEventListener(n,e=>{e.preventDefault();e.stopPropagation();hl(0);z.classList.add('over')}));
  z.addEventListener('dragleave',()=>z.classList.remove('over'));
- z.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();hl(0);z.classList.remove('over');const p=dtFiles(e).filter(f=>f.type==='application/pdf'||/\.pdf$/i.test(f.name));if(!p.length)return msg('PDFファイルをドロップしてください');fileSet(sel,multi?p:[p[0]])});
+ z.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();hl(0);z.classList.remove('over');{const dw=dtFiles(e).filter(f=>/\.dwg$/i.test(f.name));if(dw.length){run(()=>dwgConvert(dw));return}}const p=dtFiles(e).filter(f=>f.type==='application/pdf'||/\.pdf$/i.test(f.name));if(!p.length)return msg('PDFファイルをドロップしてください');fileSet(sel,multi?p:[p[0]])});
  inp.addEventListener('change',e=>{if(e.isTrusted){delete inp.files;dzName(sel,[...inp.files])}})});
 
 /* ===== サムネイル（表示・ページ追加・削除） ===== */
@@ -1707,7 +1708,7 @@ function cadScale(i,o,r){const PK=CAD.PK;
 function cadDlg(){if(!E.pages.length)return msg('先にPDFを開いてください');
  const o=cadOpts(),cal=!!mmOf(curPg);let d=document.getElementById('cadpop');if(!d){d=document.createElement('div');d.id='cadpop';d.style.cssText='position:fixed;inset:0;z-index:80;background:#0006;display:flex;align-items:center;justify-content:center';document.body.appendChild(d)}
  d.innerHTML=`<div style="background:var(--cd);color:var(--fg);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;width:min(520px,94vw);max-height:94vh;overflow:auto;box-shadow:0 8px 30px #0006;font-size:14px">
- <b style="font-size:15px">CAD変換（PDF → JWW / DXF）</b>
+ <b style="font-size:15px">PDFからCAD変換（PDF → JWW / DXF）</b>
  <div class="hint" style="padding:6px 0;background:none;border:0">PDF内のベクター線・図形・文字データを取り出してCADファイルにします。CADから出力したPDFが対象で、スキャン画像のPDFは変換できません。</div>
  <div class="row"><b>形式</b><label><input type="radio" name="cadf" value="jww" ${o.fmt==='jww'?'checked':''}> JWW（Jw_cad）</label><label><input type="radio" name="cadf" value="dxf" ${o.fmt==='dxf'?'checked':''}> DXF</label></div>
  <div class="row"><b>範囲</b><label><input type="radio" name="cadp" value="0" ${!o.all?'checked':''}> 表示中のページ（${curPg+1}）</label><label><input type="radio" name="cadp" value="1" ${o.all?'checked':''}> 全ページ（${E.pages.length}）</label></div>
@@ -1741,5 +1742,251 @@ async function cadRun(o){const idx=o.all?E.pages.map((_,i)=>i):[curPg];if(o.fmt=
  await save(nm,data);msg(`CAD変換しました：${nm}（線分・図形 ${M.items.length}／文字 ${M.texts.length}）`+(M.lays?`　レイヤー：${M.lays.length}種（${M.layMode==='pdf'?'PDFレイヤー名':M.layMode==='auto'?(M.layFb?'PDFレイヤー無し→自動分析':'自動分析'):M.layMode==='color'?'色別':'線幅別'}）`+M.lays.slice(0,16).map(e=>` ${e.idx.toString(16).toUpperCase()}=${e.key}`).join(''):'')+`　縮尺：${notes.join(' / ')}`+(M.dup&&(M.dup.texts||M.dup.lines)?`　重複整理：文字${M.dup.texts}・線${M.dup.lines}`:'')+(M.fix&&(M.fix.dim||M.fix.rect)?`　実寸補正：寸法値${M.fix.dim}件・矩形${M.fix.rect}件`+(M.fix.conf?`（矛盾${M.fix.conf}件は未補正）`:''):'')+(M.reg&&M.reg.runs?`　寸法補正：等間隔${M.reg.runs}列を補正（うち${M.reg.rounded}列は10mm単位に丸め）`:(o.reg!=='off'&&!M.reg.q?'　寸法補正：座標の丸め誤差なし（補正不要）':'')))}
 ACT.cad=cadDlg;
 
+</script>
+
+<script>
+/* ===== DWG → JWW 変換（DWG直接読み込み：文字・寸法値は文字、座標は実寸mm） ===== */
+/* DWG(AC1015 / AutoCAD 2000形式) 読み取り */
+const DWG=(()=>{
+class BR{constructor(u8,pos){this.d=u8;this.p=pos*8}
+ bit(){const v=(this.d[this.p>>3]>>(7-(this.p&7)))&1;this.p++;return v}
+ bits(n){let v=0;for(let i=0;i<n;i++)v=v*2+this.bit();return v}
+ B(){return this.bit()}BB(){return this.bits(2)}
+ RC(){return this.bits(8)}RS(){const a=this.RC(),b=this.RC();return a|b<<8}RL(){const a=this.RS(),b=this.RS();return(a+b*65536)>>>0}
+ RD(){const b=new Uint8Array(8);for(let i=0;i<8;i++)b[i]=this.RC();return new DataView(b.buffer).getFloat64(0,true)}
+ BS(){const t=this.BB();return t==0?this.RS():t==1?this.RC():t==2?0:256}
+ BL(){const t=this.BB();return t==0?this.RL():t==1?this.RC():0}
+ BD(){const t=this.BB();return t==0?this.RD():t==1?1:0}
+ DD(def){const t=this.BB();if(t==0)return def;const b=new Uint8Array(8),dv=new DataView(b.buffer);dv.setFloat64(0,def,true);
+  if(t==1){for(let i=0;i<4;i++)b[i]=this.RC()}else if(t==2){b[4]=this.RC();b[5]=this.RC();for(let i=0;i<4;i++)b[i]=this.RC()}else{for(let i=0;i<8;i++)b[i]=this.RC()}
+  return dv.getFloat64(0,true)}
+ BT(){return this.B()?0:this.BD()}
+ BE(){return this.B()?[0,0,1]:[this.BD(),this.BD(),this.BD()]}
+ H(){const c=this.RC(),code=c>>4,n=c&15;let v=0;for(let i=0;i<n;i++)v=v*256+this.RC();return{code,v}}
+ TV(dec){const n=this.BS();if(n<0||n>100000)throw Error('TV');const b=new Uint8Array(n);for(let i=0;i<n;i++)b[i]=this.RC();let e=n;while(e>0&&b[e-1]===0)e--;return dec(b.subarray(0,e))}
+}
+const TYPE={0x01:'TEXT',2:'ATTRIB',3:'ATTDEF',4:'BLOCK',5:'ENDBLK',6:'SEQEND',7:'INSERT',8:'MINSERT',0x0A:'VERTEX2D',0x0B:'VERTEX3D',0x0F:'POLYLINE2D',0x10:'POLYLINE3D',0x11:'ARC',0x12:'CIRCLE',0x13:'LINE',
+ 0x14:'DIM',0x15:'DIM',0x16:'DIM',0x17:'DIM',0x18:'DIM',0x19:'DIM',0x1A:'DIM',0x1B:'POINT',0x1F:'SOLID',0x20:'SOLID',0x23:'ELLIPSE',0x24:'SPLINE',0x2C:'MTEXT',0x31:'BLOCK_HEADER',0x33:'LAYER',6:'SEQEND',0x39:'LTYPE'};
+const SKIPN={0x1C:'3DFACE',0x21:'SHAPE',0x22:'VIEWPORT',0x25:'REGION',0x26:'3DSOLID',0x27:'BODY',0x28:'RAY',0x29:'XLINE',0x2D:'LEADER',0x2E:'TOLERANCE',0x2F:'MLINE',0x0C:'POLYLINE_MESH',0x1D:'POLYLINE_PFACE',0x1E:'POLYLINE_MESH'};
+function parse(buf){
+ const u8=buf instanceof Uint8Array?buf:new Uint8Array(buf),dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);
+ const ver=String.fromCharCode(...u8.slice(0,6));
+ if(!/^AC10/.test(ver))throw Error('DWGファイルではないようです');
+ if(ver!=='AC1015'){const nm={AC1012:'R13',AC1014:'R14',AC1018:'2004',AC1021:'2007',AC1024:'2010',AC1027:'2013',AC1032:'2018'}[ver]||ver;
+  throw Error('このDWGは AutoCAD '+nm+' 形式（'+ver+'）のため読み込めません。AutoCADで「AutoCAD 2000 / LT2000 図面(*.dwg)」形式で保存し直してください（DXFでも可）。');}
+ const cp=dv.getUint16(0x13,true),ns=dv.getInt32(0x15,true),sec={};
+ for(let i=0;i<ns;i++){const o=0x19+i*9;sec[dv.getUint8(o)]={off:dv.getInt32(o+1,true),size:dv.getInt32(o+5,true)}}
+ const sj=new TextDecoder('shift_jis'),la=new TextDecoder('latin1'),dec=cp===38?(b=>sj.decode(b)):(b=>la.decode(b));
+ /* クラス */
+ const cls=new Map();
+ try{const s=sec[1];if(s){const sz=dv.getUint32(s.off+16,true),r=new BR(u8,s.off+20),end=(s.off+20+sz)*8;
+  while(r.p<end-80){const n=r.BS();r.BS();r.TV(dec);r.TV(dec);const dx=r.TV(dec);r.B();r.BS();if(n>=500&&n<2000)cls.set(n,dx);if(n<500)break}}}catch(e){}
+ /* オブジェクトマップ */
+ const map=new Map();
+ {let p=sec[2].off;const end=p+sec[2].size;
+  while(p<end){const len=(u8[p]<<8)|u8[p+1];if(len<=2)break;let q=p+2,h=0,loc=0;const e=p+len;
+   const mc=sg=>{let v=0,sh=0;for(;;){const b=u8[q++];if(b&0x80){v+=(b&0x7f)*Math.pow(2,sh);sh+=7}else{if(sg&&(b&0x40))return-(v+(b&0x3f)*Math.pow(2,sh));return v+b*Math.pow(2,sh)}}};
+   while(q<e){h+=mc(false);loc+=mc(true);map.set(h,loc)}
+   p+=len+2}}
+ const abs=(hd,own)=>{const c=hd.code;if(c<=5)return hd.v;if(c==6)return own+1;if(c==8)return own-1;if(c==0xA)return own+hd.v;if(c==0xC)return own-hd.v;return hd.v};
+ const D={layers:new Map(),blocks:new Map(),ents:[],cls,stat:{},map};
+ const st=D.stat;
+ function readObj(h){const loc=map.get(h);if(loc===undefined)return null;
+  const r=new BR(u8,loc+2);const t=r.BS(),bits=r.RL(),hpos=(loc+2)*8+bits;
+  let kind=t<500?TYPE[t]:cls.get(t);
+  return{h,t,kind,r,bits,hpos,loc}}
+ function common(o){const r=o.r,e={h:o.h,kind:o.kind};
+  const own=r.H().v;if(own!==o.h)e.hmis=1;
+  for(;;){const sz=r.BS();if(!sz)break;r.H();r.p+=sz*8}
+  if(r.B()){const n=r.RL();r.p+=n*8}
+  e.emode=r.BB();e.nrc=r.BL();e.nolinks=r.B();e.color=r.BS();r.BD();e.ltf=r.BB();e.psf=r.BB();e.inv=r.BS();e.lw=r.RC();return e}
+ function chandles(o,e){const r=new BR(u8,0);r.p=o.hpos;
+  if(e.emode===0)e.owner=abs(r.H(),o.h);
+  for(let i=0;i<e.nrc;i++)r.H();
+  r.H();
+  if(!e.nolinks){r.H();r.H()}
+  e.layer=abs(r.H(),o.h);
+  if(e.ltf===3)e.ltype=abs(r.H(),o.h);
+  if(e.psf===3)r.H();
+  return r}
+ /* 先に: レイヤー表・ブロックヘッダ */
+ const layerCand=new Set();
+ for(const[h]of map){const o=readObj(h);if(o&&o.kind==='LAYER')layerCand.add(h)}
+ /* LAYER */
+ for(const h of layerCand){try{const o=readObj(h),r=o.r;r.H();for(;;){const sz=r.BS();if(!sz)break;r.H();r.p+=sz*8}
+  const nrc=r.BL();const name=r.TV(dec);r.B();r.BS();r.B();const vals=r.BS(),col=r.BS();
+  let lt=0;try{const q=new BR(u8,0);q.p=o.hpos;q.H();for(let i=0;i<nrc;i++)q.H();q.H();q.H();q.H();lt=abs(q.H(),h)}catch(_){}
+  D.layers.set(h,{name,vals,col:col>255?7:Math.abs(col),lt})}catch(e){st.layerErr=(st.layerErr||0)+1}}
+ D.ltypes=new Map();
+ for(const[h]of map){const o=readObj(h);if(!o||o.kind!=='LTYPE')continue;try{const r=o.r;r.H();for(;;){const sz=r.BS();if(!sz)break;r.H();r.p+=sz*8}r.BL();D.ltypes.set(h,r.TV(dec))}catch(e){}}
+ /* BLOCK_HEADER: 基点 */
+ for(const[h]of map){const o=readObj(h);if(!o||o.kind!=='BLOCK_HEADER')continue;try{const r=o.r;r.H();for(;;){const sz=r.BS();if(!sz)break;r.H();r.p+=sz*8}
+  r.BL();const name=r.TV(dec);r.B();r.BS();r.B();const anon=r.B(),hasatt=r.B(),isx=r.B(),ovl=r.B();const bp=[r.BD(),r.BD(),r.BD()];
+  D.blocks.set(h,{name,anon,isx,bp,ents:[]})}catch(e){st.blkErr=(st.blkErr||0)+1}}
+ /* エンティティ */
+ const raw=[];
+ const ords=[...map.keys()].sort((a,b)=>a-b);
+ D.skipped={};
+ for(const h of ords){const o=readObj(h);if(!o)continue;if(!o.kind){continue}
+  if(o.t<500&&SKIPN[o.t]){D.skipped[SKIPN[o.t]]=(D.skipped[SKIPN[o.t]]||0)+1;continue}
+  if(o.t>=500&&/^(HATCH|LEADER|MLEADER|MLINE|IMAGE|WIPEOUT|ACAD_TABLE|TABLE|ACAD_PROXY_ENTITY|REGION|3DSOLID|BODY|SURFACE|HELIX|LWPOLYLINE_X)$/.test(o.kind)){D.skipped[o.kind]=(D.skipped[o.kind]||0)+1;continue}
+  const k=o.kind;if(!k||o.t<500&&SKIPN[o.t]){}if(['LINE','ARC','CIRCLE','LWPOLYLINE','POLYLINE2D','POLYLINE3D','VERTEX2D','VERTEX3D','TEXT','ATTRIB','MTEXT','INSERT','DIM','SOLID','ELLIPSE','SPLINE','POINT','SEQEND'].indexOf(k)<0)continue;
+  st[k]=(st[k]||0)+1;
+  try{const e=common(o),r=o.r;e.t=o.t;
+   switch(k){
+   case'LINE':{const z=r.B(),x1=r.RD(),x2=r.DD(x1),y1=r.RD(),y2=r.DD(y1);let z1=0,z2=0;if(!z){z1=r.RD();z2=r.DD(z1)}e.a=[x1,y1,z1];e.b=[x2,y2,z2];r.BT();e.n=r.BE();break}
+   case'CIRCLE':e.c=[r.BD(),r.BD(),r.BD()];e.r=r.BD();r.BT();e.n=r.BE();break;
+   case'ARC':e.c=[r.BD(),r.BD(),r.BD()];e.r=r.BD();r.BT();e.n=r.BE();e.a0=r.BD();e.a1=r.BD();break;
+   case'POINT':break;
+   case'LWPOLYLINE':{const f=r.BS();let cw=0,el=0;if(f&4)cw=r.BD();if(f&8)el=r.BD();if(f&2)r.BD();if(f&1)e.n=[r.BD(),r.BD(),r.BD()];
+     const np=r.BL();let nb=0,nw=0;if(f&16)nb=r.BL();if(f&32)nw=r.BL();
+     const pts=[];if(np>0){let x=r.RD(),y=r.RD();pts.push([x,y]);for(let i=1;i<np;i++){x=r.DD(x);y=r.DD(y);pts.push([x,y])}}
+     const bl=[];for(let i=0;i<nb;i++)bl.push(r.BD());for(let i=0;i<nw;i++){r.BD();r.BD()}
+     e.pts=pts;e.bul=bl;e.closed=!!(f&512);e.z=el;break}
+   case'POLYLINE2D':{const f=r.BS();e.pf=f;e.curve=r.BS();r.BD();r.BD();r.BT();e.z=r.BD();e.n=r.BE();e.closed=!!(f&1);break}
+   case'POLYLINE3D':{e.sf=r.RC();e.cf=r.RC();e.closed=!!(e.cf&1);break}
+   case'VERTEX2D':{const f=r.RC();e.p=[r.BD(),r.BD(),r.BD()];const sw=r.BD();if(sw>=0)r.BD();e.bul=r.BD();e.vf=f;break}
+   case'VERTEX3D':{e.vf=r.RC();e.p=[r.BD(),r.BD(),r.BD()];break}
+   case'TEXT':case'ATTRIB':{const f=r.RC();let el=0;if(!(f&1))el=r.RD();const ip=[r.RD(),r.RD()];let ap=null;if(!(f&2))ap=[r.DD(ip[0]),r.DD(ip[1])];e.n=r.BE();r.BT();let ob=0,rot=0,wf=1,hal=0,val=0;
+     if(!(f&4))ob=r.BD();if(!(f&8))rot=r.BD();e.h=r.RD();if(!(f&0x10))wf=r.RD();e.s=r.TV(dec);if(!(f&0x20))r.BS();if(!(f&0x40))hal=r.BS();if(!(f&0x80))val=r.BS();
+     e.ip=ip;e.ap=ap;e.ob=ob;e.rot=rot;e.wf=wf;e.hal=hal;e.val=val;
+     if(k==='ATTRIB'){e.tag=r.TV(dec);r.BS();e.af=r.RC();e.hide=!!(e.af&1)}break}
+   case'MTEXT':{e.ip=[r.BD(),r.BD(),r.BD()];e.n=[r.BD(),r.BD(),r.BD()];e.xd=[r.BD(),r.BD(),r.BD()];e.rw=r.BD();e.h=r.BD();e.att=r.BS();e.dir=r.BS();e.eh=r.BD();e.ew=r.BD();e.s=r.TV(dec);break}
+   case'INSERT':{e.ip=[r.BD(),r.BD(),r.BD()];const f=r.BB();let sx=1,sy=1,sz=1;if(f==0){sx=r.RD();sy=r.DD(sx);sz=r.DD(sx)}else if(f==1){sy=r.DD(1);sz=r.DD(1)}else if(f==2){sx=r.RD();sy=sx;sz=sx}
+     e.sc=[sx,sy,sz];e.rot=r.BD();e.n=[r.BD(),r.BD(),r.BD()];e.hasatt=r.B();if(e.hasatt)r.BL();break}
+   case'SOLID':{r.BT();const el=r.BD();e.q=[[r.RD(),r.RD()],[r.RD(),r.RD()],[r.RD(),r.RD()],[r.RD(),r.RD()]];e.n=r.BE();break}
+   case'ELLIPSE':{e.c=[r.BD(),r.BD(),r.BD()];e.sm=[r.BD(),r.BD(),r.BD()];e.n=[r.BD(),r.BD(),r.BD()];e.ratio=r.BD();e.a0=r.BD();e.a1=r.BD();break}
+   case'SPLINE':{const sc=r.BL(),deg=r.BL();e.deg=deg;if(sc==2){r.BD();r.BD();r.BD();r.BD();r.BD();r.BD();r.BD();const nf=r.BL();e.fit=[];for(let i=0;i<nf;i++)e.fit.push([r.BD(),r.BD(),r.BD()])}
+     else if(sc==1){const rat=r.B();e.closed=!!r.B();r.B();r.BD();r.BD();const nk=r.BL(),nc=r.BL(),wt=r.B();e.knots=[];e.ctrl=[];e.w=[];for(let i=0;i<nk;i++)e.knots.push(r.BD());for(let i=0;i<nc;i++){e.ctrl.push([r.BD(),r.BD(),r.BD()]);e.w.push(wt?r.BD():1)}}break}
+   case'DIM':{e.n=[r.BD(),r.BD(),r.BD()];e.tm=[r.RD(),r.RD()];r.BD();r.RC();r.TV(dec);break}
+   case'SEQEND':break;
+   }
+   if(k==='INSERT'||k==='DIM'){const hr=chandles(o,e);
+     if(k==='INSERT'){e.blk=abs(hr.H(),o.h)}
+     else{r.H();e.blk=abs(hr.H(),o.h)}
+   }else chandles(o,e);
+   e.endp=r.p;e.loc=o.loc;e.bits=o.bits;raw.push(e);
+  }catch(ex){st.err=(st.err||0)+1;(st.errk=st.errk||{})[k]=(st.errk[k]||0)+1}}
+ D.raw=raw;return D}
+
+/* ---------- DWG → 変換用モデル（mm・実寸） ---------- */
+const ACI_RGB=i=>{const T={1:[255,0,0],2:[255,255,0],3:[0,255,0],4:[0,255,255],5:[0,0,255],6:[255,0,255],7:[0,0,0],8:[128,128,128],9:[192,192,192]};
+ if(T[i])return T[i];if(i>=250){const g=[51,91,132,173,214,255][i-250];return[g,g,g]}
+ if(i<10)return[0,0,0];const h=(Math.floor((i-10)/10)*15)/60,k=(i-10)%10,sv=[[1,1],[.5,1],[1,.65],[.5,.65],[1,.5],[.5,.5],[1,.4],[.5,.4],[1,.25],[.5,.25]][k],S=sv[0],V=sv[1];
+ const f=(n)=>{const kk=(n+h*6)%6;return V-V*S*Math.max(0,Math.min(kk,4-kk,1))};return[Math.round(f(5)*255),Math.round(f(3)*255),Math.round(f(1)*255)]};
+const LTD=n=>{n=(n||'').toUpperCase();if(/^(CONTINUOUS|BYLAYER|BYBLOCK|)$/.test(n))return 1;if(/DASHDOT2|DIVIDE2|PHANTOM2/.test(n))return 7;if(/PHANTOM|DIVIDE|DASHDOTX2/.test(n))return 6;if(/CENTER2/.test(n))return 5;if(/CENTER|DASHDOT|DASH_DOT/.test(n))return 4;if(/DOT/.test(n)&&!/DASH/.test(n))return 3;if(/HIDDEN|DASH/.test(n))return 2;return 1};
+function cleanMText(t){
+ t=t.replace(/\\[Pp]/g,'\n').replace(/\\~/g,' ').replace(/\\\\/g,'\u0001').replace(/\\([{}])/g,'$1');
+ t=t.replace(/\\[ACQWTHFfpLlOoKk][^;\\]*;/g,'').replace(/\\[LlOoKk]/g,'').replace(/\\S([^;\\]*)[\^\/#]([^;]*);/g,'$1/$2').replace(/[{}]/g,'');
+ t=t.replace(/%%[cC]/g,'φ').replace(/%%[dD]/g,'°').replace(/%%[pP]/g,'±').replace(/%%[uUoO]/g,'').replace(/\u0001/g,'\\');
+ return t}
+function toModel(D,opt){opt=opt||{};
+ const TOL=opt.tol||0.05,info={lines:0,texts:0,skipped:Object.assign({},D.skipped||{}),layers:[],hidden:0};
+ const items=[],texts=[],lset=new Map();
+ const crs=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],nrm=v=>{const l=Math.hypot(...v)||1;return v.map(x=>x/l)};
+ const ocs=n=>{if(!n||(Math.abs(n[0])<1e-12&&Math.abs(n[1])<1e-12&&n[2]>0))return null;const N=nrm(n),ax=(Math.abs(N[0])<1/64&&Math.abs(N[1])<1/64)?nrm(crs([0,1,0],N)):nrm(crs([0,0,1],N)),ay=crs(N,ax);return[ax[0],ax[1],ay[0],ay[1]]};
+ const I=[1,0,0,1,0,0],mul=(m,n)=>[m[0]*n[0]+m[2]*n[1],m[1]*n[0]+m[3]*n[1],m[0]*n[2]+m[2]*n[3],m[1]*n[2]+m[3]*n[3],m[0]*n[4]+m[2]*n[5]+m[4],m[1]*n[4]+m[3]*n[5]+m[5]];
+ const ap=(m,p)=>[m[0]*p[0]+m[2]*p[1]+m[4],m[1]*p[0]+m[3]*p[1]+m[5]];
+ const lay=h=>D.layers.get(h)||{name:'0',vals:0,col:7,lt:0};
+ const hidden=l=>(l.vals&1)||(l.vals&2);
+ const segsFor=(r,sw)=>{r=Math.abs(r);const st=r<=TOL?Math.PI/2:2*Math.acos(Math.max(0,1-TOL/r));return Math.max(1,Math.min(720,Math.ceil(Math.abs(sw)/Math.max(st,1e-3))))};
+ const arcPts=(c,r,a0,sw)=>{const n=segsFor(r,sw),o=[];for(let i=0;i<=n;i++){const a=a0+sw*i/n;o.push([c[0]+r*Math.cos(a),c[1]+r*Math.sin(a)])}return o};
+ const bulgePts=(p,q,b)=>{const dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy);if(!b||L<1e-12)return[q];const off=(L/2)*(1-b*b)/(2*b),c=[(p[0]+q[0])/2-dy/L*off,(p[1]+q[1])/2+dx/L*off],r=Math.hypot(p[0]-c[0],p[1]-c[1]),a0=Math.atan2(p[1]-c[1],p[0]-c[0]),sw=4*Math.atan(b),pts=arcPts(c,r,a0,sw);pts.shift();pts[pts.length-1]=q;return pts};
+ function bspl(ctrl,knots,w,deg,closed){const n=ctrl.length;if(n<2||knots.length<n+deg+1)return ctrl;const t0=knots[deg],t1=knots[n],out=[],N=Math.max(24,n*10);
+  for(let s=0;s<=N;s++){const t=Math.min(t1-1e-9,t0+(t1-t0)*s/N);let k=deg;while(k<n-1&&t>=knots[k+1])k++;const d=[];for(let j=0;j<=deg;j++){const c=ctrl[j+k-deg],wt=w[j+k-deg]||1;d.push([c[0]*wt,c[1]*wt,wt])}
+   for(let r=1;r<=deg;r++)for(let j=deg;j>=r;j--){const den=knots[j+1+k-r]-knots[j+k-deg];const al=den?(t-knots[j+k-deg])/den:0;for(let q=0;q<3;q++)d[j][q]=(1-al)*d[j-1][q]+al*d[j][q]}
+   const W=d[deg][2]||1;out.push([d[deg][0]/W,d[deg][1]/W])}
+  out.push([ctrl[n-1][0],ctrl[n-1][1]]);return out}
+ function pushLine(pts,closed,ent,ctx,xf){if(pts.length<2)return;const L=ctx.layer!==null&&lay(ent.layer).name==='0'?lay(ctx.layer):lay(ent.layer);
+  if(hidden(L)||ent.inv===1){info.hidden++;return}
+  let ci=ent.color;if(ci===256||ci>256)ci=L.col;else if(ci===0)ci=ctx.color!==null?ctx.color:L.col;
+  let lt=L.lt?D.ltypes.get(L.lt):'';if(ent.ltf===3&&ent.ltype)lt=D.ltypes.get(ent.ltype);else if(ent.ltf===2)lt='Continuous';
+  if(!lset.has(L.name))lset.set(L.name,lset.size);
+  const p2=pts.map(p=>{const q=ap(xf,p);return[+q[0].toFixed(4),+q[1].toFixed(4)]});
+  items.push({pg:0,k:'line',col:ACI_RGB(ci||7),pts:p2,c:!!closed,lw:0,ds:LTD(lt),oc:null,lk:L.name});info.lines++}
+ function pushText(ent,s,x,y,h,wf,ang,ctx,xf,fx,fy){
+  const L=ctx.layer!==null&&lay(ent.layer).name==='0'?lay(ctx.layer):lay(ent.layer);if(hidden(L)||ent.inv===1){info.hidden++;return}
+  s=s.replace(/\r/g,'');const lines=s.split('\n').filter((v,i,a)=>!(i===a.length-1&&v===''&&a.length>1));
+  const sc=Math.sqrt(Math.abs(xf[0]*xf[3]-xf[1]*xf[2]))||1,H=h*sc,ra=ang+Math.atan2(xf[1],xf[0]),dx=Math.cos(ra),dy=Math.sin(ra);
+  const un=t=>{let u=0;for(const ch of t){const c=ch.codePointAt(0);u+=(c<0x80||(c>=0xFF61&&c<=0xFF9F))?.5:1}return u||.5};
+  const p0=ap(xf,[x,y]);let tot=lines.length;
+  lines.forEach((t,i)=>{if(!t.trim())return;const w=un(t)*H*wf,ln=1.6*H;
+   /* 行頭位置: 揃え(fx)と縦位置(fy)から左下基点を求める */
+   const b0=fy===1?-H:fy===.5?((tot-1)*ln+H)/2-H:(tot-1)*ln,vy=b0-i*ln;
+   const sx=p0[0]-fx*w*dx+(-dy)*vy,sy=p0[1]-fx*w*dy+dx*vy;
+   if(!lset.has(L.name))lset.set(L.name,lset.size);
+   texts.push({pg:0,x:+sx.toFixed(4),y:+sy.toFixed(4),h:+H.toFixed(3),w:+w.toFixed(3),s:t,ang:(ra*180/Math.PI+360)%360,lk:L.name});info.texts++})}
+ function draw(e,xf,ctx){
+  const O=ocs(e.n),to=O?(p=>[p[0]*O[0]+p[1]*O[2],p[0]*O[1]+p[1]*O[3]]):(p=>p);
+  switch(e.kind){
+  case'LINE':pushLine([e.a,e.b],false,e,ctx,xf);break;
+  case'CIRCLE':{const c=to(e.c),p=arcPts(c,e.r,0,2*Math.PI);p.pop();pushLine(p,true,e,ctx,xf);break}
+  case'ARC':{const c=to(e.c);let a0=e.a0,a1=e.a1;if(O){const f=to([Math.cos(a0),Math.sin(a0)]),g=to([Math.cos(a1),Math.sin(a1)]);a0=Math.atan2(f[1],f[0]);a1=Math.atan2(g[1],g[0]);if(O[0]*O[3]-O[1]*O[2]<0){const t=a0;a0=a1;a1=t}}
+    let sw=a1-a0;while(sw<=0)sw+=2*Math.PI;pushLine(arcPts(c,e.r,a0,sw),false,e,ctx,xf);break}
+  case'ELLIPSE':{const c=e.c,m=e.sm,n=e.n,mn=crs(n,m),r=e.ratio;let a0=e.a0,a1=e.a1;if(!isFinite(a0)||!isFinite(a1)){a0=0;a1=2*Math.PI}let sw=a1-a0;while(sw<=1e-9)sw+=2*Math.PI;const rad=Math.hypot(m[0],m[1],m[2]),cnt=segsFor(rad,sw),p=[];
+    for(let i=0;i<=cnt;i++){const t=a0+sw*i/cnt;p.push([c[0]+m[0]*Math.cos(t)+mn[0]*r*Math.sin(t),c[1]+m[1]*Math.cos(t)+mn[1]*r*Math.sin(t)])}
+    const full=Math.abs(sw-2*Math.PI)<1e-6;if(full)p.pop();pushLine(p,full,e,ctx,xf);break}
+  case'LWPOLYLINE':{const P=e.pts.map(to),pts=[];if(!P.length)break;pts.push(P[0]);const m=e.closed?P.length:P.length-1;
+    for(let i=0;i<m;i++){const b=e.bul&&e.bul[i]?e.bul[i]:0,q=P[(i+1)%P.length];if(b)bulgePts(P[i],q,b).forEach(v=>pts.push(v));else pts.push(q)}
+    if(e.closed)pts.pop();pushLine(pts,e.closed,e,ctx,xf);break}
+  case'POLYLINE2D':case'POLYLINE3D':{const V=e.verts||[];const P=V.filter(v=>!(v.vf&16)).map(v=>({p:e.kind==='POLYLINE2D'?to(v.p):[v.p[0],v.p[1]],b:v.bul||0}));if(P.length<2)break;const pts=[P[0].p],m=e.closed?P.length:P.length-1;
+    for(let i=0;i<m;i++){const q=P[(i+1)%P.length].p;if(P[i].b)bulgePts(P[i].p,q,P[i].b).forEach(v=>pts.push(v));else pts.push(q)}
+    if(e.closed)pts.pop();pushLine(pts,e.closed,e,ctx,xf);break}
+  case'SPLINE':{let p=null;if(e.ctrl&&e.ctrl.length&&e.knots&&e.knots.length)p=bspl(e.ctrl,e.knots,e.w,e.deg,e.closed);else if(e.fit&&e.fit.length)p=e.fit.map(v=>[v[0],v[1]]);if(p)pushLine(p,false,e,ctx,xf);break}
+  case'SOLID':{const q=e.q.map(to),o=[q[0],q[1],q[3],q[2]],u=[];o.forEach(p=>{const l=u[u.length-1];if(!l||Math.hypot(l[0]-p[0],l[1]-p[1])>1e-9)u.push(p)});if(u.length>1&&Math.hypot(u[0][0]-u[u.length-1][0],u[0][1]-u[u.length-1][1])<1e-9)u.pop();pushLine(u,u.length>2,e,ctx,xf);break}
+  case'TEXT':case'ATTRIB':{if(e.hide)break;let s=e.s.replace(/%%[cC]/g,'φ').replace(/%%[dD]/g,'°').replace(/%%[pP]/g,'±').replace(/%%[uUoO]/g,'');if(!s.trim())break;
+    let pos=e.ip;const hal=e.hal,val=e.val;let fx=0,fy=0;if(e.ap&&(hal||val)){pos=e.ap;fx=hal===1||hal===4?.5:hal===2?1:0;fy=val===3?1:val===2?.5:0;if(hal>=3)fx=.5}
+    const p=to(pos);pushText(e,s,p[0],p[1],e.h,e.wf||1,e.rot,ctx,xf,fx,fy===1?1:fy===.5?.5:0);break}
+  case'MTEXT':{const s=cleanMText(e.s);if(!s.trim())break;const a=e.att||1,fx=[0,.5,1][(a-1)%3],fy=a<=3?1:a<=6?.5:0,ang=Math.atan2(e.xd[1],e.xd[0]);
+    pushText(e,s,e.ip[0],e.ip[1],e.h,1,ang,ctx,xf,fx,fy);break}
+  case'INSERT':case'DIM':{const bk=D.blocks.get(e.blk);if(!bk||ctx.depth>8)break;const L=lay(e.layer);
+    let m;if(e.kind==='DIM')m=I;else{const O2=ocs(e.n),ip=O2?[e.ip[0]*O2[0]+e.ip[1]*O2[2],e.ip[0]*O2[1]+e.ip[1]*O2[3]]:[e.ip[0],e.ip[1]],c=Math.cos(e.rot),s=Math.sin(e.rot);
+     m=mul([1,0,0,1,ip[0],ip[1]],mul([c,s,-s,c,0,0],mul([e.sc[0],0,0,e.sc[1],0,0],[1,0,0,1,-bk.bp[0],-bk.bp[1]])));if(O2&&O2[0]<0)m=mul([-1,0,0,1,0,0],m)}
+    const xf2=mul(xf,m);let col=e.color;if(col===256||col>256)col=L.col;else if(col===0)col=ctx.color!==null?ctx.color:L.col;
+    const c2={layer:ctx.layer!==null&&lay(e.layer).name==='0'?ctx.layer:e.layer,color:col,depth:ctx.depth+1};
+    (bk.ents||[]).forEach(x=>draw(x,xf2,c2));break}
+  }}
+ /* ポリラインの頂点を集め、モデル空間・ブロックごとに仕分け */
+ const raw=D.raw;for(let i=0;i<raw.length;i++){const e=raw[i];if(e.kind==='POLYLINE2D'||e.kind==='POLYLINE3D'){e.verts=[];let j=i+1;while(j<raw.length&&/^VERTEX/.test(raw[j].kind)){e.verts.push(raw[j]);j++}}}
+ for(const bk of D.blocks.values())bk.ents=[];
+ const model=[];
+ for(const e of raw){if(/^(VERTEX|SEQEND)/.test(e.kind))continue;
+  if(e.emode===2)model.push(e);else if(e.emode===0&&e.owner!==undefined){const bk=D.blocks.get(e.owner);if(bk&&!/^\*Paper_Space/i.test(bk.name)){if(/^\*Model_Space/i.test(bk.name))model.push(e);else bk.ents.push(e)}}}
+ model.forEach(e=>draw(e,I,{layer:null,color:null,depth:0}));
+ /* レイヤー（JWWは0〜Fの16枚） */
+ const names=[...lset.keys()],lays=names.map((n,i)=>({key:n,i,idx:Math.min(15,i),name:String(i+1).padStart(2,'0')+'_'+n,nl:0,nt:0}));
+ const lmap=new Map(lays.map(l=>[l.key,l]));items.forEach(it=>lmap.get(it.lk).nl++);texts.forEach(t=>lmap.get(t.lk).nt++);
+ info.layers=lays.map(l=>({name:l.key,idx:l.idx,nl:l.nl,nt:l.nt}));
+ /* 範囲と縮尺（用紙に収まる縮尺を選ぶ。座標は実寸mmのまま） */
+ let x0=1e18,y0=1e18,x1=-1e18,y1=-1e18;const ex=(x,y)=>{if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y};
+ items.forEach(it=>it.pts.forEach(p=>ex(p[0],p[1])));texts.forEach(t=>ex(t.x,t.y));
+ const bw=Math.max(1,x1-x0),bh=Math.max(1,y1-y0);let den=1;for(const d of[1,2,5,10,20,25,30,40,50,100,200,300,500,1000,2000,5000]){den=d;if(bw<=1189*d*.95&&bh<=841*d*.95)break}
+ info.bbox=[x0,y0,x1,y1];info.den=den;
+ const M={items,texts,dt:[],vt:[],pages:1,scales:[opt.den||den],ltsc:1,real:true,paperMM:Math.max(bw,bh),lays,lmap,layMode:'dwg',dup:{lines:0,texts:0},reg:{runs:0,rounded:0,q:0},fix:{}};
+ return{M,info}}
+return{parse,BR,toModel}})();
+
+(function(){
+ const inp=document.createElement('input');inp.type='file';inp.accept='.dwg,application/acad,image/vnd.dwg';inp.multiple=true;inp.hidden=true;document.body.appendChild(inp);
+ inp.addEventListener('change',()=>{const fl=[...inp.files];inp.value='';if(fl.length)run(()=>dwgConvert(fl))});
+ window.dwgPick=()=>inp.click();
+ window.dwgConvert=async function(files){
+  for(const f of files){
+   if(!/\.dwg$/i.test(f.name)){msg('DWGファイルを選んでください');continue}
+   msg('DWG読み込み中… '+f.name);
+   const buf=new Uint8Array(await f.arrayBuffer());
+   const D=DWG.parse(buf);
+   msg('JWWへ変換中… '+f.name);
+   await new Promise(r=>setTimeout(r,20));
+   const {M,info}=DWG.toModel(D);
+   if(!M.items.length&&!M.texts.length)throw Error('変換できる線・文字が見つかりません（対応していない図形のみの可能性があります）');
+   const data=CAD.jww(M,{}),nm=f.name.replace(/\.dwg$/i,'')+'.jww';
+   await save(nm,data);
+   const sk=Object.keys(info.skipped).length?'／未対応で除外：'+Object.entries(info.skipped).map(([k,v])=>k+' '+v).join('、'):'';
+   const ov=info.layers.length>16?'／レイヤーは16枚を超えるため15番以降はF層にまとめました':'';
+   msg(`DWGをJWWに変換しました：${nm}（線 ${info.lines}・文字 ${info.texts}・縮尺 1/${M.scales[0]}・実寸mm・レイヤー ${info.layers.length}）`+sk+ov);
+  }}
+ const prev=ACT.dwg;ACT.dwg=()=>window.dwgPick();
+})();
 </script>
 </body></html>
