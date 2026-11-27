@@ -47,6 +47,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 .tb textarea{width:200px;height:34px;font:inherit;font-size:12px}
 .hint{color:var(--mu);font-size:12px;padding:4px 12px;background:var(--cd);border-bottom:1px solid var(--bd);max-height:30vh;overflow:auto}
 #pages{display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding:14px;background:#7d838d;flex:1;min-height:0;overflow:auto}
+body.panning,body.panning *{cursor:grabbing!important;user-select:none!important}
 #pages .empty{color:#fff;margin:auto;font-size:16px;text-align:center}
 .pg{position:relative;background:#fff;box-shadow:0 2px 10px #0006;flex:none;margin:0 auto}
 .pg canvas{width:100%;display:block;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.pg svg{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}html,body{touch-action:pan-x pan-y}.pg svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;overflow:visible}
@@ -175,7 +176,7 @@ li{margin:4px 0}#st{color:var(--mu);padding:4px 14px;min-height:28px;font-size:1
 </div>
 <div class="tb hide" id="stw"><b>スタンプ</b><span id="stl"></span><button id="stadd2" class="pri">＋登録</button><span style="color:var(--mu)">画像をクリック→ページ上で貼り付け位置をクリック（JPG/PNG）</span><input type="file" id="stf" accept="image/*" multiple hidden></div>
 <div class="hint hide" id="hint">
-<b>基本</b>：「ホーム→開く」でPDFを読込（ドラッグ&amp;ドロップも可）。図形は右クリックで色・透過・線幅・種類切替・複製・重ね順・削除。Ctrl+Z で元に戻す。Shift+ホイールで作業画面のみ拡大縮小。<br>
+<b>基本</b>：「ホーム→開く」でPDFを読込（ドラッグ&amp;ドロップも可）。図形は右クリックで色・透過・線幅・種類切替・複製・重ね順・削除。Ctrl+Z で元に戻す。作業画面上でマウスホイールを回すと拡大縮小（Alt+ホイールでページをスクロール）。選択ツールで何もない所（または灰色の背景）を左ボタンで押したままドラッグすると画面移動。<br>
 <b>テキスト</b>：「枠付テキスト」は枠の中に文字入力、「吹き出し」は枠＋引き出し線(矢印)、「引き出し線」は枠なしで水平線の上に文字入力。図形をダブルクリックで文字編集（Enterで改行）。吹き出し／引き出し線は、最初にクリックした点が矢印の先端になり、次にクリック（またはドラッグ）した位置にボックスが置かれます。先端は橙色の●ドラッグで移動。<br>
 <b>元データの選択</b>：何も図形が無い所をクリックすると、PDFに元から入っている画像・図形を選択できます（「元データも選択」で切替）。ドラッグで移動、Deleteで白塗り削除、右クリックで重ね順など。選択した範囲は画像として切り出して編集可能にします。<br>
 <b>サムネイル</b>：左端のアイコンまたは「ホーム／表示→サムネイル」で開閉。クリックでそのページへ移動（青枠は現在の表示範囲）、Ctrl／Shiftで複数選択し、🗑またはDeleteで削除。サムネイルをドラッグで並べ替え（複数選択して移動も可）、空白部分からドラッグで範囲選択。別のPDFをサムネイル欄へドロップすると、青線の位置にページを追加します（保存でPDFに反映）。<br>
@@ -612,7 +613,7 @@ function down(e,i){if(e.button||tool==='bucket'||tool==='ffill')return;closeIE()
  else if(t.h||t.v!==undefined||t.m!==undefined){snap();const s=cur();if(t.m!==undefined){s.p.splice(+t.m+1,0,p);drag={k:'v',i:+t.m+1,pi:i};selV={id:s.id,i:+t.m+1}}else if(t.v!==undefined){drag={k:'v',i:+t.v,pi:i};selV={id:s.id,i:+t.v}}else drag={k:'h',h:t.h,o:clone(s),pi:i}}
  else if(t.id){const was=sel===+t.id;sel=+t.id;ot=null;snap();drag={k:t.part==='dl'?'dl':'m',s:p,o:clone(cur()),pi:i};{drag.was=was;const c0=cur();if(was&&c0&&['poly','pline','meas'].includes(c0.ty)&&t.part!=='dl')drag.addv=p}drawAll();syncP()}
  else if(ot&&ot.pg===i&&p[0]>=ot.x&&p[0]<=ot.x+ot.w&&p[1]>=ot.y&&p[1]<=ot.y+ot.h){const s=lift();drag={k:'m',s:p,o:clone(s),pi:i};drawAll();syncP()}
- else{sel=null;ot=null;if(pickOrig){const h=hitOrig(i,p);if(h){ot={pg:i,...h};msg('元データを選択：ドラッグで移動／Deleteで削除／右クリックでメニュー')}}drawAll();syncP();return}
+ else{sel=null;ot=null;if(pickOrig){const h=hitOrig(i,p);if(h){ot={pg:i,...h};msg('元データを選択：ドラッグで移動／Deleteで削除／右クリックでメニュー')}}drawAll();syncP();if(e.pointerType==='mouse'&&!ot)startPan(e);return}
  P.svg.setPointerCapture(e.pointerId)}
 function resize(s,o,hd,p){
  if(o.p&&stS(o)){const xs=o.p.map(q=>q[0]),ys=o.p.map(q=>q[1]),bx1=Math.min(...xs),bx2=Math.max(...xs),by1=Math.min(...ys),by2=Math.max(...ys),w0=bx2-bx1,h0=by2-by1,pd=plPad(o);let sx=1,sy=1,ax=bx1,ay=by1;
@@ -745,7 +746,27 @@ async function rr(){const tok=++rrTok,dpr=window.devicePixelRatio||1,R=$('#pages
  if(sN>s*1.02&&r.bottom>R.top&&r.top<R.bottom)await tileRR(P,tok,sN);else dropTile(P)}}
 function updPg(){if(!E.pages.length||sec!=='ed')return;const R=$('#pages').getBoundingClientRect(),cy=(R.top+R.bottom)/2;let b=0,bd=1e12;E.pages.forEach((P,i)=>{const r=P.wrap.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-cy);if(d<bd){bd=d;b=i}});curPg=b;{const n=$('#bmpg');if(n&&n!==document.activeElement)n.value=b+1}$('#pi').textContent=`ページ ${b+1}/${E.pages.length}`;thSync();if(ffOpen&&ffPg!==b&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#ffl')))ffBuild()}
 $('#pages').addEventListener('scroll',()=>{schedRR();updPg()});
-addEventListener('wheel',e=>{if(!(e.shiftKey||e.ctrlKey||e.metaKey))return;e.preventDefault();if(!$('#ed').classList.contains('on')||!E.pages.length)return;const d=e.deltaY||e.deltaX;if(!d)return;const R=$('#pages'),rc=R.getBoundingClientRect(),ox=Math.min(Math.max(e.clientX-rc.left,0),rc.width),oy=Math.min(Math.max(e.clientY-rc.top,0),rc.height),old=z;z=Math.min(ZMAX,Math.max(.5,z*(d<0?1.12:1/1.12)));setZm();setZ();const q=z/old;R.scrollLeft=(R.scrollLeft+ox)*q-ox;R.scrollTop=(R.scrollTop+oy)*q-oy},{passive:false});
+/* 左ボタンを押したままドラッグで画面移動（選択ツールの空白部・灰色の背景。タッチは従来のスクロール） */
+function startPan(e){const R=$('#pages'),x0=e.clientX,y0=e.clientY,sl=R.scrollLeft,st=R.scrollTop,id=e.pointerId;let on=false;
+ try{R.setPointerCapture(id)}catch(_){}
+ const mv=ev=>{if(ev.pointerId!==id)return;const dx=ev.clientX-x0,dy=ev.clientY-y0;if(!on){if(Math.hypot(dx,dy)<3)return;on=true;document.body.classList.add('panning')}R.scrollLeft=sl-dx;R.scrollTop=st-dy},
+ up=ev=>{if(ev.pointerId!==id)return;R.removeEventListener('pointermove',mv);R.removeEventListener('pointerup',up);R.removeEventListener('pointercancel',up);document.body.classList.remove('panning');try{R.releasePointerCapture(id)}catch(_){}};
+ R.addEventListener('pointermove',mv);R.addEventListener('pointerup',up);R.addEventListener('pointercancel',up)}
+$('#pages').addEventListener('pointerdown',e=>{if(e.button||e.pointerType!=='mouse')return;if(e.target!==e.currentTarget&&!(e.target.classList&&e.target.classList.contains('empty')))return;startPan(e)});
+/* ホイールズーム：入力を目標倍率に集約し、毎フレーム補間して滑らかに動かす。重い再描画は停止後に1回だけ */
+let zT=null,zRaf=0,zFx=0,zFy=0;
+function zStep(){zRaf=0;if(zT===null)return;const R=$('#pages'),old=z,ln=Math.log(zT/z);
+ if(Math.abs(ln)<.0015)z=zT;else z=z*Math.exp(ln*.28);
+ z=Math.min(ZMAX,Math.max(ZMIN,z));
+ const q=z/old;
+ if(q!==1){const sl=R.scrollLeft,st=R.scrollTop;E.pages.forEach(P=>P.wrap.style.width=P.w*z+'px');R.scrollLeft=(sl+zFx)*q-zFx;R.scrollTop=(st+zFy)*q-zFy;setZm()}
+ if(z===zT){zT=null;drawAll();schedRR();thView()}else zRaf=requestAnimationFrame(zStep)}
+addEventListener('wheel',e=>{const inP=!!(e.target.closest&&e.target.closest('#pages')),mod=e.shiftKey||e.ctrlKey||e.metaKey;if(e.altKey&&inP&&!mod)return;/* Alt+ホイール＝通常スクロール */if(!mod&&!inP)return;e.preventDefault();if(!$('#ed').classList.contains('on')||!E.pages.length)return;
+ let d=e.deltaY||e.deltaX;if(!d)return;if(e.deltaMode===1)d*=16;else if(e.deltaMode===2)d*=400;
+ d=Math.max(-240,Math.min(240,d));
+ const R=$('#pages'),rc=R.getBoundingClientRect();zFx=Math.min(Math.max(e.clientX-rc.left,0),rc.width);zFy=Math.min(Math.max(e.clientY-rc.top,0),rc.height);
+ zT=Math.min(ZMAX,Math.max(ZMIN,(zT===null?z:zT)*Math.exp(-d*(e.ctrlKey?.01:.0013))));
+ if(!zRaf)zRaf=requestAnimationFrame(zStep)},{passive:false});
 $('#calok').onclick=()=>{if(!draft||draft.k!=='scale'||!draft.wait)return;const v=+$('#calv').value;if(!(v>0))return msg('実寸法(mm)を入力してください');const[a,b]=draft.p,P=E.pages[draft.pi];P.mm=E.mm=v/len(a,b);draft=null;$('#cal').style.display='none';$('#calv').value='';tool='dim';syncRib();drawAll();msg('寸法を設定しました。「寸法／距離／周囲／面積」で測定できます（寸法ツールに切り替え済み）')};
 $('#calv').onkeydown=e=>{if(e.key==='Enter')$('#calok').click()};
 
