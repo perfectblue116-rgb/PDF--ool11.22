@@ -1048,14 +1048,46 @@ function rotS(s,W,H,d){const m=(x,y)=>d>0?[H-y,x]:[y,W-x];if(s.p)s.p=s.p.map(q=>
 async function rotPage(i,d){const P=E.pages[i];if(!P)throw Error('PDFを開いてください');if(shapes.some(s=>s.pg===i&&s.ty==='orig'))throw Error('元データを移動した図形があるページは回転できません（先に回転してから編集してください）');
  const W=P.w,H=P.h;closeIE();ot=null;shapes.filter(s=>s.pg===i).forEach(s=>rotS(s,W,H,d));P.rot=(P.rot+d*90+360)%360;P.mf=null;undo=[];redo=[];await paintBase(P);setZ();updPg();thSoon();if(tool==='ffill')ffEnter();msg(`ページ${i+1}を${d>0?'右':'左'}に90°回転しました（保存すると表示のとおりに保存されます）`)}
 $('#edf').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)run(()=>loadEd(f)).then(()=>msg(''))};
+/* ===== PDF内の多角形・折れ線注釈（/Polygon,/PolyLine）を、頂点で編集できる図形へ変換 =====
+   他ツールで作成した注釈は「元データ」（画像化された1つの塊）として扱われ、点で選択できなかった。
+   読み込み時に注釈を取り除いて（編集用のPDFバイト列から削除）、同じ形の poly / pline 図形として取り込む。 */
+async function stripPolyAnnots(bytes){
+ let doc;try{doc=await PDFDocument.load(bytes.slice(),{ignoreEncryption:true})}catch(e){return null}
+ const ctx=doc.context,NM=PDFLib.PDFName.of,items=[];
+ const nums=a=>{try{if(!a||!a.asArray)return null;const r=a.asArray().map(x=>{const v=ctx.lookup(x);return v&&v.asNumber?v.asNumber():NaN});return r.some(isNaN)?null:r}catch(e){return null}};
+ const num=a=>{try{const v=ctx.lookup(a);return v&&v.asNumber?v.asNumber():null}catch(e){return null}};
+ doc.getPages().forEach((pg,pi)=>{const an=pg.node.Annots();if(!an)return;const keep=[];let ch=false;
+  for(let k=0;k<an.size();k++){const ref=an.get(k);let a=null;try{a=ctx.lookup(ref)}catch(e){}
+   if(!a||!a.get||!a.lookup){keep.push(ref);continue}
+   try{const st=String(a.get(NM('Subtype'))),fl=num(a.get(NM('F')))||0;
+    if((st!=='/Polygon'&&st!=='/PolyLine')||(fl&2)||(fl&32)){keep.push(ref);continue}
+    const v=nums(a.lookup(NM('Vertices')));if(!v||v.length<4){keep.push(ref);continue}
+    let w=null;const bs=a.lookup(NM('BS'));if(bs&&bs.get)w=num(bs.get(NM('W')));if(w===null){const b=nums(a.lookup(NM('Border')));if(b&&b.length>=3)w=b[2]}
+    const ca=num(a.get(NM('CA')));
+    items.push({pi,poly:st==='/Polygon',v,c:nums(a.lookup(NM('C'))),ic:nums(a.lookup(NM('IC'))),ca:ca===null?1:ca,w:w===null?1:w});ch=true}
+   catch(e){keep.push(ref)}}
+  if(ch){if(keep.length)pg.node.set(NM('Annots'),ctx.obj(keep));else pg.node.delete(NM('Annots'))}});
+ if(!items.length)return null;
+ return{bytes:new Uint8Array(await doc.save()),items}}
+function annHex(c,def){if(!c||!c.length)return def;let r,g,b;if(c.length===1)r=g=b=c[0];else if(c.length===3)[r,g,b]=c;else if(c.length===4){const k=1-c[3];r=(1-c[0])*k;g=(1-c[1])*k;b=(1-c[2])*k}else return def;
+ const h=x=>Math.round(Math.max(0,Math.min(1,x))*255).toString(16).padStart(2,'0');return'#'+h(r)+h(g)+h(b)}
+function addAnnShapes(items){let n=0;for(const it of items){const P=E.pages[it.pi];if(!P)continue;const vt=vp(P,1).transform,sc=Math.hypot(vt[0],vt[1])||1,p=[];
+  for(let k=0;k+1<it.v.length;k+=2){const q=ap(vt,it.v[k],it.v[k+1]),r=[+q[0].toFixed(2),+q[1].toFixed(2)],l=p[p.length-1];if(!l||Math.abs(l[0]-r[0])>.01||Math.abs(l[1]-r[1])>.01)p.push(r)}
+  if(p.length>2&&Math.hypot(p[0][0]-p[p.length-1][0],p[0][1]-p[p.length-1][1])<.01)p.pop();
+  if(p.length<(it.poly?3:2))continue;
+  const sc0=annHex(it.c,it.ic?annHex(it.ic,'#000000'):'#000000'),sw=+(it.w*sc).toFixed(2);
+  if(it.poly)mk(it.pi,'poly',{p,sc:sc0,fc:annHex(it.ic,'#ffffff'),fa:it.ic&&it.ic.length?it.ca:0,lo:it.ca,sw});
+  else mk(it.pi,'pline',{p,sc:sc0,sw:Math.max(.5,sw),lo:it.ca});n++}
+ return n}
 async function loadEd(f,pre){let bytes=pre?new Uint8Array(pre.bytes):new Uint8Array(await f.arrayBuffer()),pdf=await openPdf(bytes),data=pre?pre.data:null;const encd=pdf.__enc||looksEnc(bytes);
  if(!pre)try{const at=await pdf.getAttachments();if(at&&at['pdftool_edit.json']&&at['pdftool_base.pdf']&&confirm('このPDFには編集用データ（図形・テキスト等）が含まれています。\n編集可能な状態で復元しますか？\n\nOK＝復元／キャンセル＝そのまま開く')){data=JSON.parse(new TextDecoder().decode(at['pdftool_edit.json'].content));bytes=new Uint8Array(at['pdftool_base.pdf'].content);pdf=await pdfjsLib.getDocument({data:bytes.slice()}).promise}}catch(er){data=null}
  if(!data&&encd)throw Error('パスワード保護されたPDFは、このアプリでは編集できません（「編集データを埋め込む」で保存したPDFは、パスワード入力後に復元して編集できます）');
+ let PA=[];if(!data){try{const r=await stripPolyAnnots(bytes);if(r){const np=await pdfjsLib.getDocument({data:r.bytes.slice()}).promise;bytes=r.bytes;pdf=np;PA=r.items}}catch(er){PA=[]}}
  E.pdf=pdf;E.bytes=bytes;E.name=f.name.replace(/\.pdf$/i,'').replace(/_PW$/,'').replace(/_編集$/,'');E.pages=[];E.mm=data&&data.mm||0;shapes=data?data.shapes||[]:[];imgs=data?data.imgs||{}:{};sel=null;ot=null;undo=[];redo=[];draft=null;pl=[];curPg=0;bmSel=-1;uid=Math.max(1,...shapes.map(s=>s.id+1),...Object.keys(imgs).map(k=>(+k.slice(1)||0)+1),data&&data.uid||1);
  E.bm=data&&data.bm?data.bm:await readOutline(pdf);$('#pages').innerHTML='';
  for(let n=1;n<=pdf.numPages;n++){const pg=await pdf.getPage(n),w=document.createElement('div'),svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),P={w:0,h:0,svg,wrap:w,pg,rot:data&&data.rots?data.rots[n-1]||0:0,dc:null,ops:null,mm:data&&data.mms?data.mms[n-1]||0:0,mf:(data&&data.mfs&&data.mfs[n-1]&&data.mfs[n-1].length)?data.mfs[n-1]:null};
   w.className='pg';w.append(svg);$('#pages').append(w);E.pages.push(P);bind(svg,n-1);await paintBase(P);setZ();msg(`読込中 ${n}/${pdf.numPages}`)}
- updPg();syncP();rbm();if(E.bm.length&&!bmOpen&&!thOpen)bmToggle(true);thSel=new Set([0]);thAnchor=0;thAuto=true;if(thOpen)thBuild();else if(!bmOpen&&innerWidth>=700)thToggle(true);if(data)msg('編集データを復元しました');(async()=>{for(const P of E.pages){try{await loadOps(P)}catch(er){}}if(E.pages.length<=40){let n=0;for(const P of E.pages){try{n+=(await findFields(P)).length}catch(er){}}const fi=await ffAutoFont();if(n){msg(`記入欄を${n}か所検出しました。${fi}入力したいときは「ページ」タブの「記入欄パネル」を開くと、検出した欄が青枠で表示されます`)}else if(fi)msg(fi)}})()}
+ const nAnn=PA.length?addAnnShapes(PA):0;if(nAnn)drawAll();updPg();syncP();rbm();if(E.bm.length&&!bmOpen&&!thOpen)bmToggle(true);thSel=new Set([0]);thAnchor=0;thAuto=true;if(thOpen)thBuild();else if(!bmOpen&&innerWidth>=700)thToggle(true);if(data)msg('編集データを復元しました');else if(nAnn)msg(`PDF内の多角形注釈${nAnn}個を編集可能な図形に変換しました（クリックで選択→●で頂点移動／小さい○で頂点追加／頂点を右クリックで削除）`);(async()=>{for(const P of E.pages){try{await loadOps(P)}catch(er){}}if(E.pages.length<=40){let n=0;for(const P of E.pages){try{n+=(await findFields(P)).length}catch(er){}}const fi=await ffAutoFont();if(n){msg(`記入欄を${n}か所検出しました。${fi}入力したいときは「ページ」タブの「記入欄パネル」を開くと、検出した欄が青枠で表示されます`)}else if(fi)msg(fi)}})()}
 
 /* ===== PDF保存 ===== */
 const hex=h=>rgb(parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255),b64=u=>Uint8Array.from(atob(u.split(',')[1]),c=>c.charCodeAt(0));
