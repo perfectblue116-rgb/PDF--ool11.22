@@ -495,7 +495,7 @@ function prims(s,ex){const o=[],tcl=s.ty==='text'?s.sc:(s.tc||'#000000'),F=s.fa>
  case'pline':o.push({k:'path',d:polyD(s.p),...sk,mj:1,so:s.lo!==undefined?s.lo:(s.ao===undefined?1:s.ao)});break;
  case'poly':o.push({k:'path',d:pathD(s),...sk,fill:F,fa:s.fa,bm:s.hl&&(!CO||ex)});break;
  case'image':if(imgs[s.k])o.push({k:'img',u:imgs[s.k],x:s.x,y:s.y,w:s.w,h:s.h});break;
- case'orig':o.push({k:'path',d:rectD(s.ox,s.oy,s.ow,s.oh),sw:0,fill:'#ffffff',fa:1,nohit:1});if(imgs[s.k])o.push({k:'img',u:imgs[s.k],x:s.x,y:s.y,w:s.w,h:s.h});else o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),col:'#2f7bff',sw:1,dash:'3 2',ui:1});break;
+ case'orig':if(s.ck&&imgs[s.ck])o.push({k:'img',u:imgs[s.ck],x:s.ox,y:s.oy,w:s.ow,h:s.oh,nohit:1});else if(!s.ck)o.push({k:'path',d:rectD(s.ox,s.oy,s.ow,s.oh),sw:0,fill:'#ffffff',fa:1,nohit:1});if(imgs[s.k])o.push({k:'img',u:imgs[s.k],x:s.x,y:s.y,w:s.w,h:s.h});else o.push({k:'path',d:rectD(s.x,s.y,s.w,s.h),col:'#2f7bff',sw:1,dash:'3 2',ui:1});break;
  case'dim':{const[a,b]=s.p,d=s.d||0,l0=len(a,b)||1,n=[(b[1]-a[1])/l0,-(b[0]-a[0])/l0],q1=[a[0]+n[0]*d,a[1]+n[1]*d],q2=[b[0]+n[0]*d,b[1]+n[1]*d],r=Math.max(3,s.sw*2.2),m=[(q1[0]+q2[0])/2,(q1[1]+q2[1])/2],L=lab(s),sd=d<0?-1:1,ov=0;
   if(Math.abs(d)>1){o.push({k:'path',d:polyD([a,[q1[0]+n[0]*sd*ov,q1[1]+n[1]*sd*ov]]),...sk,part:'ex'},{k:'path',d:polyD([b,[q2[0]+n[0]*sd*ov,q2[1]+n[1]*sd*ov]]),...sk,part:'ex'})}
   o.push({k:'path',d:polyD([q1,q2]),...sk,part:'dl',cur:Math.abs(b[0]-a[0])>=Math.abs(b[1]-a[1])?'ns-resize':'ew-resize'});
@@ -510,7 +510,7 @@ function prims(s,ex){const o=[],tcl=s.ty==='text'?s.sc:(s.tc||'#000000'),F=s.fa>
 
 function primSvg(q,s){const id=`data-id="${s.id}"`+(q.part?` data-part="${q.part}"`:'');
  if(q.k==='dot')return`<circle cx="${q.x}" cy="${q.y}" r="${q.r}" fill="${q.col}" pointer-events="none"/>`;
- if(q.k==='img')return`<image ${id} href="${q.u}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" preserveAspectRatio="none"/>`;
+ if(q.k==='img')return q.nohit?`<image href="${q.u}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" preserveAspectRatio="none" pointer-events="none"/>`:`<image ${id} href="${q.u}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" preserveAspectRatio="none"/>`;
  if(q.k==='text'){const ls=q.tx.split('\n');return(q.lb?`<rect data-lb="${q.lb}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent" style="cursor:move"/>`:'')+(q.hb?`<rect ${id} x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="transparent"/>`:'')+`<text ${q.lb?`data-lb="${q.lb}" style="cursor:move"`:'pointer-events="none"'} font-size="${q.fs}" font-family="${q.ff||FF}"${q.it?' font-style="italic"':''}${q.bd?' font-weight="bold"':''} fill="${q.col}"${q.halo?` stroke="#fff" stroke-width="${q.fs*.25}" paint-order="stroke" stroke-linejoin="round"`:''}>${ls.map((l,i)=>`<tspan x="${q.x}" y="${q.y+q.fs*((q.lh||1.2)*i+.95)}">${esc(l)||' '}</tspan>`).join('')}</text>`}
  const st=`stroke="${q.sw>0&&q.col?q.col:'none'}" stroke-width="${q.sw}" stroke-linejoin="${q.mj?'miter':'round'}" stroke-linecap="${q.mj?'butt':'round'}"${q.mj?' stroke-miterlimit="10"':''}${q.so!==undefined?` stroke-opacity="${q.so}"`:''}${q.dash?` stroke-dasharray="${q.dash}"`:''}`,fl=q.fill&&q.fa>0?`fill="${q.fill}" fill-opacity="${q.fa}"`:'fill="none"';
  if(q.nohit)return`<path d="${q.d}" ${st} ${fl} pointer-events="none"/>`;
@@ -613,7 +613,7 @@ function down(e,i){if(e.button||tool==='bucket'||tool==='ffill')return;closeIE()
  else if(t.h||t.v!==undefined||t.m!==undefined){snap();const s=cur();if(t.m!==undefined){s.p.splice(+t.m+1,0,p);drag={k:'v',i:+t.m+1,pi:i};selV={id:s.id,i:+t.m+1}}else if(t.v!==undefined){drag={k:'v',i:+t.v,pi:i};selV={id:s.id,i:+t.v}}else drag={k:'h',h:t.h,o:clone(s),pi:i}}
  else if(t.id){const was=sel===+t.id;sel=+t.id;ot=null;snap();drag={k:t.part==='dl'?'dl':'m',s:p,o:clone(cur()),pi:i};{drag.was=was;const c0=cur();if(was&&c0&&['poly','pline','meas'].includes(c0.ty)&&t.part!=='dl')drag.addv=p}drawAll();syncP()}
  else if(ot&&ot.pg===i&&p[0]>=ot.x&&p[0]<=ot.x+ot.w&&p[1]>=ot.y&&p[1]<=ot.y+ot.h){const s=lift();drag={k:'m',s:p,o:clone(s),pi:i};drawAll();syncP()}
- else{sel=null;ot=null;if(pickOrig){const h=hitOrig(i,p);if(h){ot={pg:i,...h};msg('元データを選択：ドラッグで移動／Deleteで削除／右クリックでメニュー')}}drawAll();syncP();if(e.pointerType==='mouse'&&!ot)startPan(e);return}
+ else{sel=null;ot=null;if(pickOrig){const h=hitOrig(i,p);if(h){ot={pg:i,...h};drag={k:'ol',s:p,pi:i};/* 押したまま動かせばそのまま移動 */P.svg.setPointerCapture(e.pointerId);msg('元データを選択：そのままドラッグで移動／Deleteで削除／右クリックでメニュー')}}drawAll();syncP();if(e.pointerType==='mouse'&&!ot)startPan(e);return}
  P.svg.setPointerCapture(e.pointerId)}
 function resize(s,o,hd,p){
  if(o.p&&stS(o)){const xs=o.p.map(q=>q[0]),ys=o.p.map(q=>q[1]),bx1=Math.min(...xs),bx2=Math.max(...xs),by1=Math.min(...ys),by2=Math.max(...ys),w0=bx2-bx1,h0=by2-by1,pd=plPad(o);let sx=1,sy=1,ax=bx1,ay=by1;
@@ -633,11 +633,11 @@ function showMulti(x,y){cmS=false;cmId=null;cmPick=false;const n=msel.size;
  cm.innerHTML=`<b style="font-size:12px">${n}個の図形を選択中</b><label>線・文字色<input type='color' id='mm_sc' value='${D.sc}'></label><label>塗り色<input type='color' id='mm_fc' value='${D.fc}'></label><button data-c='mdel' style='color:#e53935;font-weight:700'>🗑 ${n}個を削除</button><button data-c='mx'>選択解除</button>`;
  cm.style.maxHeight=(innerHeight-8)+'px';cm.style.display='flex';const W=cm.offsetWidth||200,H=cm.offsetHeight||180,cl=(v,a,b)=>Math.max(a,Math.min(v,b));
  cm.style.left=cl(x-W/2,4,innerWidth-W-4)+'px';cm.style.top=cl(y-H-36>4?y-H-36:y+36,4,innerHeight-H-4)+'px'}
-function delMulti(){if(!msel.size)return;snap();const n=msel.size;shapes=shapes.map(s=>msel.has(s.id)?(s.ty==='orig'?{id:uid++,pg:s.pg,ty:'rect',x:s.ox,y:s.oy,w:s.ow,h:s.oh,sc:'#ffffff',fc:'#ffffff',fa:1,sw:0,tc:'#000000',fs:18,tx:''}:null):s).filter(Boolean);msel=new Set();sel=null;drawAll();syncP();msg(n+'個の図形を削除しました（元に戻す／Ctrl+Zで復元できます）')}
+function delMulti(){if(!msel.size)return;snap();const n=msel.size;shapes=shapes.map(s=>msel.has(s.id)?(s.ty==='orig'?{id:uid++,pg:s.pg,ty:'rect',x:s.ox,y:s.oy,w:s.ow,h:s.oh,sc:'#ffffff',fc:'#ffffff',fa:1,sw:0,tc:'#000000',fs:18,tx:'',oi:s.oi}:null):s).filter(Boolean);msel=new Set();sel=null;drawAll();syncP();msg(n+'個の図形を削除しました（元に戻す／Ctrl+Zで復元できます）')}
 function move(e,i){if(mq&&mq.pi===i){mq.cur=pt(e,i);if(len(mq.s,mq.cur)*z>6)mq.moved=true;draw(i);return}if(lnd&&lnd.pi===i){let p=pt(e,i);const s=shapes.find(x=>x.id===lnd.id);if(s&&lnd.box&&e.shiftKey&&s.ty==='ellipse')p=sqP(lnd.s,p);if(s){lnd.cur=p;if(lnd.box)setBox(s,lnd.s,p);else s.p=[lnd.s,e.shiftKey?ortho(lnd.s,p):p];if(len(lnd.s,p)*z>6)lnd.moved=true;draw(i)}return}
  if(draft&&draft.pi===i&&!draft.wait){const p=pt(e,i),l=draft.p[draft.p.length-1];draft.cur=draft.t==='pline'?snapPl(i,p,e,l):(e.shiftKey&&l?ortho(l,p):p);if(draft.t&&draft.t!=='poly'&&draft.t!=='pline')lenMsg(draft);draw(i);return}
  if(drag&&drag.k==='hl'&&drag.pi===i){const p=pt(e,i);hlr={pi:i,x:Math.min(drag.s[0],p[0]),y:Math.min(drag.s[1],p[1]),w:Math.abs(p[0]-drag.s[0]),h:Math.abs(p[1]-drag.s[1]),a:drag.s,b:p};draw(i);return}
- if(!drag||drag.pi!==i)return;const p=pt(e,i),s=cur();if(!s)return;
+ if(!drag||drag.pi!==i)return;if(drag.k==='ol'){const q=pt(e,i);if(len(drag.s,q)*z<=3)return;const s0=ot&&ot.pg===i?lift():null;if(!s0){drag=null;return}drag={k:'m',s:drag.s,o:clone(s0),pi:i,mv:1};drawAll();syncP()}const p=pt(e,i),s=cur();if(!s)return;
  if(drag.k==='c'){if(s.p)s.p=[drag.s,e.shiftKey?ortho(drag.s,p):p];else if(s.ty==='callout'||s.ty==='leader')leadPlace(s,drag.s,p);else{s.x=Math.min(drag.s[0],p[0]);s.y=Math.min(drag.s[1],p[1]);s.w=Math.abs(p[0]-drag.s[0]);s.h=Math.abs(p[1]-drag.s[1])}}
  else if(drag.k==='m'){let dx=p[0]-drag.s[0],dy=p[1]-drag.s[1];const o=drag.o;if(Math.hypot(dx,dy)*z>3)drag.mv=1;if(s.ty==='dim'&&!e.altKey){if(drag.ax===undefined&&Math.hypot(dx,dy)*z>6)drag.ax=Math.abs(dx)>=Math.abs(dy)?0:1;if(drag.ax===0)dy=0;else if(drag.ax===1)dx=0;else{dx=0;dy=0}}if(s.p)s.p=o.p.map(q=>[q[0]+dx,q[1]+dy]);else{s.x=o.x+dx;s.y=o.y+dy}if(o.tip)s.tip=[o.tip[0]+dx,o.tip[1]+dy]}
  else if(drag.k==='l'){s.off=[drag.o.off[0]+p[0]-drag.s[0],drag.o.off[1]+p[1]-drag.s[1]]}
@@ -656,7 +656,7 @@ function lineEnd(p){const s=shapes.find(x=>x.id===lnd.id),L=lnd;lnd=null;
  if(s){s.p=[s.p[0],p];if(len(s.p[0],s.p[1])<3){shapes=shapes.filter(x=>x!==s);sel=null}else tool='select'}drawAll();syncRib();syncP()}
 function lineCancel(){if(!lnd)return;const id=lnd.id;lnd=null;shapes=shapes.filter(x=>x.id!==id);if(sel===id)sel=null;drawAll();syncP()}
 function up(){snapMk=null;if(mq&&mq.fr){const m=mq;mq=null;drawAll();frEnd(m);return}if(mq&&!mq.wait){if(mq.moved)mqEnd(mq.cur);else if(mq.pt==='mouse'){mq.wait=true;msg('範囲の反対側でもう一度クリックすると範囲が確定します（Escで取消）')}else{mq=null;drawAll()}return}if(lnd){if(lnd.moved){const s=shapes.find(x=>x.id===lnd.id);lineEnd(lnd.box?(lnd.cur||lnd.s):(s&&s.p?s.p[1]:lnd.s))}return}if(drag&&drag.k==='dp'){const q=draft&&draft.cur;drag=null;if(draft&&draft.pend&&q){draft.pend=0;polyAdd(draft.pi,q)}return}
-if(!drag)return;if(drag.k==='m'&&drag.was&&!drag.mv&&lastPT!=='mouse'){const s1=cur();if(s1&&TXT.includes(s1.ty)){drag=null;drawAll();syncP();pendIE=[s1,false];return}}
+if(!drag)return;if(drag.k==='ol'){drag=null;return}if(drag.k==='m'&&drag.was&&!drag.mv&&lastPT!=='mouse'){const s1=cur();if(s1&&TXT.includes(s1.ty)){drag=null;drawAll();syncP();pendIE=[s1,false];return}}
 if(drag.k==='hl'){const r=hlr;hlr=null;drag=null;drawAll();if(r)finishHl(r);return}const s=cur();let after=null;
  if(drag.k==='m'&&drag.addv&&!drag.mv&&s&&s.p){s.p=clone(drag.o.p);if(addVtx(s,drag.addv)){drag=null;drawAll();syncP();msg('折れ点を追加しました（点をクリックすると×で削除できます）');return}}
  if(drag.k==='c'&&s){const tiny=s.p?len(s.p[0],s.p[1])<3:(s.w<3||s.h<3);if(tiny){shapes=shapes.filter(x=>x!==s);sel=null}
@@ -692,16 +692,16 @@ ie.oninput=()=>{const s=shapes.find(x=>x.id===ed);if(!s)return;const f0=ffOf(s);
 ie.onblur=()=>closeIE();ie.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ie.blur()}else if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){const s=shapes.find(x=>x.id===ed),f0=s&&ffOf(s);if(f0&&f0.h<=28){e.preventDefault();ie.blur()}}e.stopPropagation()};
 
 /* ===== 元データ（PDF内の画像・図形）の検出と編集可能化 ===== */
-async function loadOps(P){if(P.ops)return P.ops;const O=pdfjsLib.OPS,ol=await P.pg.getOperatorList(),out=[],F=ol.fnArray,A=ol.argsArray,V=P.pg.view,PA=Math.max(1,(V[2]-V[0])*(V[3]-V[1]));let m=[1,0,0,1,0,0],fc=[0,0,0],st=[],subs=[],cu=null;
- const strk=new Set([O.stroke,O.closeStroke]),pureF=new Set([O.fill,O.eoFill]),both=new Set([O.fillStroke,O.eoFillStroke,O.closeFillStroke,O.closeEOFillStroke]),im=new Set([O.paintImageXObject,O.paintInlineImageXObject,O.paintImageMaskXObject,O.paintJpegXObject].filter(x=>x!==undefined));
+async function loadOps(P){if(P.ops)return P.ops;const O=pdfjsLib.OPS,ol=await P.pg.getOperatorList(),out=[],F=ol.fnArray,A=ol.argsArray,V=P.pg.view,PA=Math.max(1,(V[2]-V[0])*(V[3]-V[1]));let m=[1,0,0,1,0,0],fc=[0,0,0],lw=1,st=[],subs=[],cu=null;const sk=()=>Math.sqrt(Math.abs(m[0]*m[3]-m[1]*m[2]))||1;
+ const strk=new Set([O.stroke,O.closeStroke]),pureF=new Set([O.fill,O.eoFill]),eoS=new Set([O.eoFill,O.eoFillStroke,O.closeEOFillStroke]),both=new Set([O.fillStroke,O.eoFillStroke,O.closeFillStroke,O.closeEOFillStroke]),im=new Set([O.paintImageXObject,O.paintInlineImageXObject,O.paintImageMaskXObject,O.paintJpegXObject].filter(x=>x!==undefined));
  const bbS=L=>{let a=1e18,b=1e18,c=-1e18,d=-1e18;for(const s of L)for(const q of s){if(q[0]<a)a=q[0];if(q[0]>c)c=q[0];if(q[1]<b)b=q[1];if(q[1]>d)d=q[1]}return[a,b,c,d]};
- const emit=(fl,pure)=>{const L=subs.filter(s=>s.length);subs=[];cu=null;if(!L.length)return;const bb=bbS(L),ar=(bb[2]-bb[0])*(bb[3]-bb[1]);
+ const emit=(fl,pure,eo)=>{const L=subs.filter(s=>s.length);subs=[];cu=null;if(!L.length)return;const bb=bbS(L),ar=(bb[2]-bb[0])*(bb[3]-bb[1]),W=Math.max(lw,0)*sk(),ad=o=>{o.oi=out.length;o.lw=W;o.eo=!!eo;o.st=!fl||!pure;out.push(o)};
   if(pure&&(ar>.4*PA||(fc&&fc[0]>=240&&fc[1]>=240&&fc[2]>=240)))return;/* 背景の白塗り等は対象外 */
-  if(ar>.12*PA&&L.length>1){for(const s of L){const b2=bbS([s]);if((b2[2]-b2[0])*(b2[3]-b2[1])<=.25*PA)out.push({k:'path',fl,bb:b2,subs:fl?null:[s]})}return}
-  if(ar>.25*PA)return;out.push({k:'path',fl,bb,subs:fl?null:L})};
+  if(ar>.12*PA&&L.length>1){for(const s of L){const b2=bbS([s]);if((b2[2]-b2[0])*(b2[3]-b2[1])<=.25*PA)ad({k:'path',fl,bb:b2,subs:[s]})}return}
+  if(ar>.25*PA)return;ad({k:'path',fl,bb,subs:L})};
  for(let i=0;i<F.length;i++){const f=F[i],a=A[i];
-  if(f===O.save)st.push([m,fc]);else if(f===O.restore){const t=st.pop();if(t){m=t[0];fc=t[1]}}else if(f===O.transform)m=mul(m,a);
-  else if(f===O.paintFormXObjectBegin){st.push([m,fc]);if(a&&a[0])m=mul(m,a[0])}else if(f===O.paintFormXObjectEnd){const t=st.pop();if(t){m=t[0];fc=t[1]}}
+  if(f===O.save)st.push([m,fc,lw]);else if(f===O.restore){const t=st.pop();if(t){m=t[0];fc=t[1];lw=t[2]}}else if(f===O.setLineWidth)lw=a[0];else if(f===O.transform)m=mul(m,a);
+  else if(f===O.paintFormXObjectBegin){st.push([m,fc,lw]);if(a&&a[0])m=mul(m,a[0])}else if(f===O.paintFormXObjectEnd){const t=st.pop();if(t){m=t[0];fc=t[1];lw=t[2]}}
   else if(f===O.setFillRGBColor)fc=[a[0],a[1],a[2]];else if(f===O.setFillColorN||f===O.setFillColorSpace||f===O.setFillColor)fc=null;
   else if(f===O.constructPath){const ops=a[0],c=a[1];let j=0;for(const o of ops){
    if(o===O.rectangle){const x=c[j],y=c[j+1],w=c[j+2],h=c[j+3];j+=4;subs.push([[x,y],[x+w,y],[x+w,y+h],[x,y+h],[x,y]].map(q=>ap(m,q[0],q[1])));cu=null}
@@ -710,20 +710,28 @@ async function loadOps(P){if(P.ops)return P.ops;const O=pdfjsLib.OPS,ol=await P.
    else if(o===O.curveTo){if(!cu){cu=[];subs.push(cu)}for(let k=0;k<6;k+=2)cu.push(ap(m,c[j+k],c[j+k+1]));j+=6}
    else if(o===O.curveTo2||o===O.curveTo3){if(!cu){cu=[];subs.push(cu)}for(let k=0;k<4;k+=2)cu.push(ap(m,c[j+k],c[j+k+1]));j+=4}
    else if(o===O.closePath){if(cu&&cu.length)cu.push(cu[0])}}}
-  else if(strk.has(f))emit(false,false);else if(pureF.has(f))emit(true,true);else if(both.has(f))emit(true,false);else if(f===O.endPath){subs=[];cu=null}
-  else if(im.has(f))out.push({k:'img',fl:true,bb:bbS([[[0,0],[1,0],[1,1],[0,1]].map(u=>ap(m,u[0],u[1]))])})}
+  else if(strk.has(f))emit(false,false);else if(pureF.has(f))emit(true,true,eoS.has(f));else if(both.has(f))emit(true,false,eoS.has(f));else if(f===O.endPath){subs=[];cu=null}
+  else if(im.has(f))out.push({k:'img',oi:out.length,fl:true,bb:bbS([[[0,0],[1,0],[1,1],[0,1]].map(u=>ap(m,u[0],u[1]))])})}
  return P.ops=out}
 const segD=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],L=dx*dx+dy*dy;let t=L?((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L:0;t=Math.max(0,Math.min(1,t));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy)};
 /* クリック位置にある「図形1個／画像1個」だけを選ぶ（線は線の近く、塗り・画像は内側） */
-function hitOrig(i,p){const P=E.pages[i];if(!P.ops)return null;const vt=vp(P,1).transform,tol=5/z,PA=P.w*P.h;let best=null,bs=9,ba=1e18;
- for(const o of P.ops){const c=[[o.bb[0],o.bb[1]],[o.bb[2],o.bb[3]],[o.bb[0],o.bb[3]],[o.bb[2],o.bb[1]]].map(q=>ap(vt,q[0],q[1])),xs=c.map(q=>q[0]),ys=c.map(q=>q[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),w=x1-x0,h=y1-y0;
+function hitOrig(i,p){const P=E.pages[i];if(!P.ops)return null;const vt=vp(P,1).transform,tol=5/z,PA=P.w*P.h,used=new Set(shapes.filter(s=>s.pg===i&&s.oi!==undefined).map(s=>s.oi));let best=null,bs=9,ba=1e18;
+ for(const o of P.ops){if(o.oi!==undefined&&used.has(o.oi))continue;/* 移動・削除済みの元データは再選択しない（重複防止） */const c=[[o.bb[0],o.bb[1]],[o.bb[2],o.bb[3]],[o.bb[0],o.bb[3]],[o.bb[2],o.bb[1]]].map(q=>ap(vt,q[0],q[1])),xs=c.map(q=>q[0]),ys=c.map(q=>q[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),w=x1-x0,h=y1-y0;
   if(w*h>.25*PA||(w>P.w*.9&&h>P.h*.9))continue;if(p[0]<x0-tol||p[0]>x1+tol||p[1]<y0-tol||p[1]>y1+tol)continue;
   let cls=1;
   if(!o.fl&&o.subs){let md=1e9;for(const sb of o.subs){let a=ap(vt,sb[0][0],sb[0][1]);if(sb.length===1)md=Math.min(md,Math.hypot(p[0]-a[0],p[1]-a[1]));for(let k=1;k<sb.length;k++){const b=ap(vt,sb[k][0],sb[k][1]);md=Math.min(md,segD(p,a,b));a=b}}if(md>tol)continue;cls=0}
-  const ar=Math.max(w,1)*Math.max(h,1);if(cls<bs||(cls===bs&&ar<ba)){bs=cls;ba=ar;best={x:x0-1,y:y0-1,w:Math.max(w,1)+2,h:Math.max(h,1)+2}}}
+  const ar=Math.max(w,1)*Math.max(h,1);if(cls<bs||(cls===bs&&ar<ba)){bs=cls;ba=ar;best={x:x0-1,y:y0-1,w:Math.max(w,1)+2,h:Math.max(h,1)+2,oi:o.oi}}}
  return best}
-async function cropRender(P,o,k){const sc=Math.min(8,Math.max(2,2600/Math.max(o.w,o.h))),v=P.pg.getViewport({scale:sc,rotation:(P.pg.rotate+P.rot)%360,offsetX:-o.x*sc,offsetY:-o.y*sc}),c=document.createElement('canvas');c.width=Math.max(1,Math.ceil(o.w*sc));c.height=Math.max(1,Math.ceil(o.h*sc));const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await P.pg.render({canvasContext:x,viewport:v}).promise;imgs[k]=c.width*c.height>4e6?c.toDataURL('image/jpeg',.92):c.toDataURL('image/png')}
-function lift(){if(!ot)return cur();const o=ot;ot=null;snap();const P=E.pages[o.pg],k='i'+uid++,s=mk(o.pg,'orig',{x:o.x,y:o.y,w:o.w,h:o.h,ox:o.x,oy:o.y,ow:o.w,oh:o.h,k});sel=s.id;pl.push(cropRender(P,o,k).then(()=>draw(o.pg)));return s}
+/* 元データの形（塗り／線）だけを切り抜く。周りの罫線などは含めない。ck には元位置を隠す白い形を作る */
+function opMask(P,o,sc,grow){const op=o.oi!==undefined&&P.ops?P.ops.find(q=>q.oi===o.oi):null,W=Math.max(1,Math.ceil(o.w*sc)),H=Math.max(1,Math.ceil(o.h*sc)),m=document.createElement('canvas');m.width=W;m.height=H;const g=m.getContext('2d');g.fillStyle=g.strokeStyle='#fff';g.lineJoin=g.lineCap='round';
+ if(!op||op.k!=='path'||!op.subs){g.fillRect(0,0,W,H);return m}
+ const vt=vp(P,1).transform,pth=new Path2D();for(const sb of op.subs){sb.forEach((q,j)=>{const a=ap(vt,q[0],q[1]),X=(a[0]-o.x)*sc,Y=(a[1]-o.y)*sc;j?pth.lineTo(X,Y):pth.moveTo(X,Y)})}
+ const ks=Math.hypot(vt[0],vt[1])||1;if(op.fl)g.fill(pth,op.eo?'evenodd':'nonzero');if(op.st||!op.fl){g.lineWidth=Math.max(1,(op.lw||1)*ks*sc)+grow*2;g.stroke(pth)}else if(grow){g.lineWidth=grow*2;g.stroke(pth)}return m}
+async function cropRender(P,o,k){const sc=Math.min(8,Math.max(2,2600/Math.max(o.w,o.h))),v=P.pg.getViewport({scale:sc,rotation:(P.pg.rotate+P.rot)%360,offsetX:-o.x*sc,offsetY:-o.y*sc}),c=document.createElement('canvas');c.width=Math.max(1,Math.ceil(o.w*sc));c.height=Math.max(1,Math.ceil(o.h*sc));const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await P.pg.render({canvasContext:x,viewport:v}).promise;
+ if(o.oi!==undefined&&P.ops){x.globalCompositeOperation='destination-in';x.drawImage(opMask(P,o,sc,Math.max(.8,sc*.12)),0,0);x.globalCompositeOperation='source-over';
+  const cs=Math.min(sc,4),cv=opMask(P,o,cs,Math.max(1.5,cs*.6));imgs[k+'c']=cv.toDataURL('image/png');imgs[k]=c.toDataURL('image/png')}
+ else imgs[k]=c.width*c.height>4e6?c.toDataURL('image/jpeg',.92):c.toDataURL('image/png')}
+function lift(){if(!ot)return cur();const o=ot;ot=null;snap();const P=E.pages[o.pg],k='i'+uid++,s=mk(o.pg,'orig',{x:o.x,y:o.y,w:o.w,h:o.h,ox:o.x,oy:o.y,ow:o.w,oh:o.h,k,oi:o.oi,ck:o.oi!==undefined?k+'c':undefined});sel=s.id;pl.push(cropRender(P,o,k).then(()=>draw(o.pg)));return s}
 function zorder(c){const s=lift()||cur();if(!s)return msg('図形を選択してください');snap();const a=shapes,i=a.indexOf(s);
  if(c==='top'){a.splice(i,1);a.push(s)}else if(c==='bot'){a.splice(i,1);a.unshift(s)}
  else{const d=c==='up'?1:-1;let j=i+d;while(j>=0&&j<a.length&&a[j].pg!==s.pg)j+=d;if(j>=0&&j<a.length)[a[i],a[j]]=[a[j],a[i]]}
@@ -1041,7 +1049,7 @@ $('#stf').onchange=async e=>{const fs=[...e.target.files];e.target.value='';for(
 
 /* ===== 削除・元に戻す・やり直し ===== */
 function delS(){if(ot)lift();const s=cur();if(!s)return;snap();
- if(s.ty==='orig'){const i=shapes.indexOf(s);shapes[i]={id:uid++,pg:s.pg,ty:'rect',x:s.ox,y:s.oy,w:s.ow,h:s.oh,sc:'#ffffff',fc:'#ffffff',fa:1,sw:0,tc:'#000000',fs:18,tx:''};sel=shapes[i].id;msg('元データを白塗りで隠しました（この白い矩形を削除すると元に戻ります）')}
+ if(s.ty==='orig'){const i=shapes.indexOf(s);shapes[i]={id:uid++,pg:s.pg,ty:'rect',x:s.ox,y:s.oy,w:s.ow,h:s.oh,sc:'#ffffff',fc:'#ffffff',fa:1,sw:0,tc:'#000000',fs:18,tx:'',oi:s.oi};sel=shapes[i].id;msg('元データを白塗りで隠しました（この白い矩形を削除すると元に戻ります）')}
  else{shapes=shapes.filter(x=>x!==s);sel=null}drawAll();syncP()}
 function unde(){if(undo.length){redo.push(JSON.stringify(shapes));shapes=JSON.parse(undo.pop());if(!cur())sel=null;ot=null;drawAll();syncP();ffVals()}}
 function rede(){if(redo.length){undo.push(JSON.stringify(shapes));shapes=JSON.parse(redo.pop());if(!cur())sel=null;ot=null;drawAll();syncP();ffVals()}}
