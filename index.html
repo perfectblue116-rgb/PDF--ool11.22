@@ -730,7 +730,7 @@ function zorder(c){const s=lift()||cur();if(!s)return msg('図形を選択して
  drawAll();syncP()}
 
 /* ===== 寸法設定・ズーム・高解像度再描画 ===== */
-const schedRR=()=>{clearTimeout(rrT);rrT=setTimeout(rr,120)};
+let rrBusy=false;const schedRR=()=>{clearTimeout(rrT);rrT=setTimeout(rr,60)};
 function dropTile(P){if(P.tc){P.tc.remove();P.tc=null;P.tr=null}}
 async function tileRR(P,tok,sN){const R=$('#pages').getBoundingClientRect(),r=P.wrap.getBoundingClientRect(),k=r.width/P.w;if(!k)return;const cl=(a,hi)=>Math.min(hi,Math.max(0,a));
  const nx1=cl((R.left-r.left)/k,P.w),nx2=cl((R.right-r.left)/k,P.w),ny1=cl((R.top-r.top)/k,P.h),ny2=cl((R.bottom-r.top)/k,P.h);if(nx2-nx1<.5||ny2-ny1<.5){dropTile(P);return}
@@ -740,10 +740,15 @@ async function tileRR(P,tok,sN){const R=$('#pages').getBoundingClientRect(),r=P.
  const w=x2-x1,h=y2-y1,rot=P.rot,v=P.pg.getViewport({scale:sc,rotation:(P.pg.rotate+P.rot)%360,offsetX:-x1*sc,offsetY:-y1*sc}),c=document.createElement('canvas');c.width=Math.max(1,Math.ceil(w*sc));c.height=Math.max(1,Math.ceil(h*sc));
  await P.pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;if(tok!==rrTok||rot!==P.rot||!P.svg||!P.svg.parentNode)return;
  c.style.cssText=`position:absolute;left:${x1/P.w*100}%;top:${y1/P.h*100}%;width:${w/P.w*100}%;height:${h/P.h*100}%;pointer-events:none`;P.wrap.insertBefore(c,P.svg);if(P.tc)P.tc.remove();P.tc=c;P.tr={x1,y1,x2,y2,sc}}
-async function rr(){const tok=++rrTok,dpr=window.devicePixelRatio||1,R=$('#pages').getBoundingClientRect();for(const P of E.pages){if(tok!==rrTok)return;if(!P.pg||!P.dc)continue;const r=P.wrap.getBoundingClientRect();if(r.bottom<R.top-300||r.top>R.bottom+300){dropTile(P);continue}
+async function rr(){const tok=++rrTok,dpr=window.devicePixelRatio||1,R=$('#pages').getBoundingClientRect(),FAR=Math.max(3000,(R.bottom-R.top)*4);rrBusy=true;try{
+ /* 表示中→近い順に描画。遠く離れたページは画像を解放してメモリを節約 */
+ const L=[];for(const P of E.pages){if(!P.pg||!P.dc||!P.wrap)continue;const r=P.wrap.getBoundingClientRect();if(r.bottom<R.top-FAR||r.top>R.bottom+FAR){dropTile(P);if(P.rs>0){const c=phCanvas(P);P.wrap.replaceChild(c,P.dc);P.dc=P.cv=c;P.rs=0}continue}
+  if(r.bottom<R.top-300||r.top>R.bottom+300){dropTile(P);continue}L.push([P,r.bottom<R.top?R.top-r.bottom:r.top>R.bottom?r.top-R.bottom:-1])}
+ L.sort((a,b)=>a[1]-b[1]);
+ for(const[P] of L){if(tok!==rrTok)return;const r=P.wrap.getBoundingClientRect();
  const sN=z*dpr,s=Math.min(Math.max(1.6,sN),Math.sqrt(1.6e7/(P.w*P.h)),16);
- if(!(s<=P.rs*1.05&&s>=P.rs*.5)){const v=vp(P,s),c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);await P.pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;if(tok!==rrTok)return;P.wrap.replaceChild(c,P.dc);P.dc=c;P.rs=s}
- if(sN>s*1.02&&r.bottom>R.top&&r.top<R.bottom)await tileRR(P,tok,sN);else dropTile(P)}}
+ if(!(s<=P.rs*1.05&&s>=P.rs*.5)){const v=vp(P,s),c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);await P.pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;if(tok!==rrTok)return;P.wrap.replaceChild(c,P.dc);P.dc=P.cv=c;P.rs=s}
+ if(sN>s*1.02&&r.bottom>R.top&&r.top<R.bottom)await tileRR(P,tok,sN);else dropTile(P)}}finally{if(tok===rrTok)rrBusy=false}}
 function updPg(){if(!E.pages.length||sec!=='ed')return;const R=$('#pages').getBoundingClientRect(),cy=(R.top+R.bottom)/2;let b=0,bd=1e12;E.pages.forEach((P,i)=>{const r=P.wrap.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-cy);if(d<bd){bd=d;b=i}});curPg=b;{const n=$('#bmpg');if(n&&n!==document.activeElement)n.value=b+1}$('#pi').textContent=`ページ ${b+1}/${E.pages.length}`;thSync();if(ffOpen&&ffPg!==b&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#ffl')))ffBuild()}
 $('#pages').addEventListener('scroll',()=>{schedRR();updPg()});
 /* 左ボタンを押したままドラッグで画面移動（選択ツールの空白部・灰色の背景。タッチは従来のスクロール） */
@@ -1041,8 +1046,11 @@ $('#imgf').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(
 function placeImgs(i,p){const P=E.pages[i];snap();const w=Math.min(160,P.w*.3);let x=Math.max(0,Math.min(p[0],P.w-w)),y=Math.max(0,p[1]);const x0=x;let rh=0,s;for(const m of pend){const h=w*m.r;if(x+w>P.w&&x>x0){x=x0;y+=rh+10;rh=0}s=mk(i,'image',{x,y,w,h,k:m.k});x+=w+10;rh=Math.max(rh,h)}pend=null;sel=s.id;tool='select';syncRib();drawAll();syncP()}
 
 /* ===== PDF読込・回転 ===== */
-async function paintBase(P){if(P.tc){P.tc.remove();P.tc=null;P.tr=null}const v1=vp(P,1),v=vp(P,1.6),c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);P.w=v1.width;P.h=v1.height;P.svg.setAttribute('viewBox',`0 0 ${P.w} ${P.h}`);
- if(P.dc&&P.dc.parentNode===P.wrap)P.wrap.replaceChild(c,P.dc);else P.wrap.insertBefore(c,P.svg);P.cv=c;P.dc=c;P.rs=1.6;P.mk=null;P.lum=null;P.ti=null;P.fnd=undefined;P.fl=null;P.flp=null;await P.pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise}
+/* lazy=true：寸法だけ確定して空のプレースホルダーを置く（実際の描画は表示範囲に入ったときに rr() が行う） */
+function phCanvas(P){const c=document.createElement('canvas');c.width=1;c.height=1;c.style.aspectRatio=`${P.w} / ${P.h}`;return c}
+async function paintBase(P,lazy){if(P.tc){P.tc.remove();P.tc=null;P.tr=null}const v1=vp(P,1);P.w=v1.width;P.h=v1.height;P.svg.setAttribute('viewBox',`0 0 ${P.w} ${P.h}`);P.mk=null;P.lum=null;P.ti=null;P.fnd=undefined;P.fl=null;P.flp=null;
+ let c,v;if(lazy){c=phCanvas(P);P.rs=0}else{v=vp(P,1.6);c=document.createElement('canvas');c.width=Math.ceil(v.width);c.height=Math.ceil(v.height);P.rs=1.6}
+ if(P.dc&&P.dc.parentNode===P.wrap)P.wrap.replaceChild(c,P.dc);else P.wrap.insertBefore(c,P.svg);P.cv=c;P.dc=c;if(!lazy)await P.pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise}
 function rotS(s,W,H,d){const m=(x,y)=>d>0?[H-y,x]:[y,W-x];if(s.p)s.p=s.p.map(q=>m(q[0],q[1]));if(s.tip)s.tip=m(s.tip[0],s.tip[1]);if(s.off)s.off=d>0?[-s.off[1],s.off[0]]:[s.off[1],-s.off[0]];
  if(s.x!==undefined){const c=m(s.x+s.w/2,s.y+s.h/2);if(['rect','ellipse','cloud','linkarea'].includes(s.ty))[s.w,s.h]=[s.h,s.w];s.x=c[0]-s.w/2;s.y=c[1]-s.h/2}}
 async function rotPage(i,d){const P=E.pages[i];if(!P)throw Error('PDFを開いてください');if(shapes.some(s=>s.pg===i&&s.ty==='orig'))throw Error('元データを移動した図形があるページは回転できません（先に回転してから編集してください）');
@@ -1085,9 +1093,12 @@ async function loadEd(f,pre){let bytes=pre?new Uint8Array(pre.bytes):new Uint8Ar
  let PA=[];if(!data){try{const r=await stripPolyAnnots(bytes);if(r){const np=await pdfjsLib.getDocument({data:r.bytes.slice()}).promise;bytes=r.bytes;pdf=np;PA=r.items}}catch(er){PA=[]}}
  E.pdf=pdf;E.bytes=bytes;E.name=f.name.replace(/\.pdf$/i,'').replace(/_PW$/,'').replace(/_編集$/,'');E.pages=[];E.mm=data&&data.mm||0;shapes=data?data.shapes||[]:[];imgs=data?data.imgs||{}:{};sel=null;ot=null;undo=[];redo=[];draft=null;pl=[];curPg=0;bmSel=-1;uid=Math.max(1,...shapes.map(s=>s.id+1),...Object.keys(imgs).map(k=>(+k.slice(1)||0)+1),data&&data.uid||1);
  E.bm=data&&data.bm?data.bm:await readOutline(pdf);$('#pages').innerHTML='';
- for(let n=1;n<=pdf.numPages;n++){const pg=await pdf.getPage(n),w=document.createElement('div'),svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),P={w:0,h:0,svg,wrap:w,pg,rot:data&&data.rots?data.rots[n-1]||0:0,dc:null,ops:null,mm:data&&data.mms?data.mms[n-1]||0:0,mf:(data&&data.mfs&&data.mfs[n-1]&&data.mfs[n-1].length)?data.mfs[n-1]:null};
-  w.className='pg';w.append(svg);$('#pages').append(w);E.pages.push(P);bind(svg,n-1);await paintBase(P);setZ();msg(`読込中 ${n}/${pdf.numPages}`)}
- const nAnn=PA.length?addAnnShapes(PA):0;if(nAnn)drawAll();updPg();syncP();rbm();if(E.bm.length&&!bmOpen&&!thOpen)bmToggle(true);thSel=new Set([0]);thAnchor=0;thAuto=true;if(thOpen)thBuild();else if(!bmOpen&&innerWidth>=700)thToggle(true);if(data)msg('編集データを復元しました');else if(nAnn)msg(`PDF内の多角形注釈${nAnn}個を編集可能な図形に変換しました（クリックで選択→●で頂点移動／小さい○で頂点追加／頂点を右クリックで削除）`);(async()=>{for(const P of E.pages){try{await loadOps(P)}catch(er){}}if(E.pages.length<=40){let n=0;for(const P of E.pages){try{n+=(await findFields(P)).length}catch(er){}}const fi=await ffAutoFont();if(n){msg(`記入欄を${n}か所検出しました。${fi}入力したいときは「ページ」タブの「記入欄パネル」を開くと、検出した欄が青枠で表示されます`)}else if(fi)msg(fi)}})()}
+ const PGS=await Promise.all(Array.from({length:pdf.numPages},(_,k)=>pdf.getPage(k+1))),FR=document.createDocumentFragment();
+ for(let n=1;n<=pdf.numPages;n++){const pg=PGS[n-1],w=document.createElement('div'),svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),P={w:0,h:0,svg,wrap:w,pg,rot:data&&data.rots?data.rots[n-1]||0:0,dc:null,ops:null,mm:data&&data.mms?data.mms[n-1]||0:0,mf:(data&&data.mfs&&data.mfs[n-1]&&data.mfs[n-1].length)?data.mfs[n-1]:null};
+  w.className='pg';w.append(svg);FR.append(w);E.pages.push(P);bind(svg,n-1);await paintBase(P,true)}
+ $('#pages').append(FR);setZ();clearTimeout(rrT);await rr();
+ const nAnn=PA.length?addAnnShapes(PA):0;if(nAnn)drawAll();updPg();syncP();rbm();if(E.bm.length&&!bmOpen&&!thOpen)bmToggle(true);thSel=new Set([0]);thAnchor=0;thAuto=true;if(thOpen)thBuild();else if(!bmOpen&&innerWidth>=700)thToggle(true);if(data)msg('編集データを復元しました');else if(nAnn)msg(`PDF内の多角形注釈${nAnn}個を編集可能な図形に変換しました（クリックで選択→●で頂点移動／小さい○で頂点追加／頂点を右クリックで削除）`);(async()=>{const me=E.pdf,idle=async()=>{do{await new Promise(r=>setTimeout(r,rrBusy?200:30))}while(rrBusy)};await new Promise(r=>setTimeout(r,800));
+  for(const P of E.pages){await idle();if(E.pdf!==me)return;try{await loadOps(P)}catch(er){}}if(E.pages.length<=40){let n=0;for(const P of E.pages){await idle();if(E.pdf!==me)return;try{n+=(await findFields(P)).length}catch(er){}}const fi=await ffAutoFont();if(n){msg(`記入欄を${n}か所検出しました。${fi}入力したいときは「ページ」タブの「記入欄パネル」を開くと、検出した欄が青枠で表示されます`)}else if(fi)msg(fi)}})()}
 
 /* ===== PDF保存 ===== */
 const hex=h=>rgb(parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255),b64=u=>Uint8Array.from(atob(u.split(',')[1]),c=>c.charCodeAt(0));
@@ -1216,7 +1227,7 @@ async function pgEdit(plan){closeIE();ot=null;draft=null;await Promise.all(pl);p
  E.bm.forEach(b=>{if(mp.has(b.p))b.p=mp.get(b.p);else{let k=b.p;while(k<old.length&&!mp.has(k))k++;b.p=k<old.length?mp.get(k):np.length-1}});
  E.pdf=pdf;E.bytes=nb;E.pages=np;const R=$('#pages'),sy=R.scrollTop;R.innerHTML='';
  for(let i=0;i<np.length;i++){const P=np[i],w=document.createElement('div'),svg=document.createElementNS('http://www.w3.org/2000/svg','svg');w.className='pg';w.append(svg);if(P.tc){P.tc.remove();P.tc=null;P.tr=null}P.wrap=w;P.svg=svg;R.append(w);bind(svg,i);
-  if(P.dc&&P.w){w.insertBefore(P.dc,svg);svg.setAttribute('viewBox',`0 0 ${P.w} ${P.h}`)}else{P.dc=null;await paintBase(P)}}
+  if(P.dc&&P.w){w.insertBefore(P.dc,svg);svg.setAttribute('viewBox',`0 0 ${P.w} ${P.h}`)}else{P.dc=null;await paintBase(P,true)}}
  undo=[];redo=[];curPg=Math.min(curPg,np.length-1);setZ();R.scrollTop=sy;drawAll();updPg();syncP();rbm();thBuild();if(ffOpen)ffBuild()}
 async function thInsert(files,at){const docs=[];for(const f of files){const b=new Uint8Array(await f.arrayBuffer());if(looksEnc(b))throw Error(`「${f.name}」はパスワード保護されているため追加できません`);docs.push(await PDFDocument.load(b,{ignoreEncryption:true}))}
  const add=[];docs.forEach(d=>{for(let k=0;k<d.getPageCount();k++)add.push({d,k})});if(!add.length)throw Error('追加できるページがありません');
