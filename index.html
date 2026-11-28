@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PDFツール</title>
+<title>PDFツール</title><meta name="app-version" content="2026-11-28-wheel">
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#2563eb"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="PDFツール">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -176,7 +176,7 @@ body.panning,body.panning *{cursor:grabbing!important;user-select:none!important
 </div>
 <div class="tb hide" id="stw"><b>スタンプ</b><span id="stl"></span><button id="stadd2" class="pri">＋登録</button><span style="color:var(--mu)">画像をクリック→ページ上で貼り付け位置をクリック（JPG/PNG）</span><input type="file" id="stf" accept="image/*" multiple hidden></div>
 <div class="hint hide" id="hint">
-<b>基本</b>：「ホーム→開く」でPDFを読込（ドラッグ&amp;ドロップも可）。図形は右クリックで色・透過・線幅・種類切替・複製・重ね順・削除。Ctrl+Z で元に戻す。作業画面上でマウスホイールを回すとページ送り（ページが画面より大きいときは画面単位で送ってから次ページへ）。Ctrl+ホイールで拡大縮小、Shift+ホイールで横スクロール、Alt+ホイールで通常スクロール。選択ツールで何もない所（または灰色の背景）を左ボタンで押したままドラッグすると画面移動。<br>
+<b>基本</b>：「ホーム→開く」でPDFを読込（ドラッグ&amp;ドロップも可）。図形は右クリックで色・透過・線幅・種類切替・複製・重ね順・削除。Ctrl+Z で元に戻す。作業画面上でマウスホイールを回すとページ送り（ページが画面より大きいときは画面単位で送ってから次ページへ）。Ctrl+ホイールで拡大縮小、Shift+ホイールで横スクロール、Alt+ホイールで通常スクロール。［版 2026-11-28 ホイール改修］選択ツールで何もない所（または灰色の背景）を左ボタンで押したままドラッグすると画面移動。<br>
 <b>テキスト</b>：「枠付テキスト」は枠の中に文字入力、「吹き出し」は枠＋引き出し線(矢印)、「引き出し線」は枠なしで水平線の上に文字入力。図形をダブルクリックで文字編集（Enterで改行）。吹き出し／引き出し線は、最初にクリックした点が矢印の先端になり、次にクリック（またはドラッグ）した位置にボックスが置かれます。先端は橙色の●ドラッグで移動。<br>
 <b>元データの選択</b>：何も図形が無い所をクリックすると、PDFに元から入っている画像・図形を選択できます（「元データも選択」で切替）。ドラッグで移動、Deleteで白塗り削除、右クリックで重ね順など。選択した範囲は画像として切り出して編集可能にします。<br>
 <b>サムネイル</b>：左端のアイコンまたは「ホーム／表示→サムネイル」で開閉。クリックでそのページへ移動（青枠は現在の表示範囲）、Ctrl／Shiftで複数選択し、🗑またはDeleteで削除。サムネイルをドラッグで並べ替え（複数選択して移動も可）、空白部分からドラッグで範囲選択。別のPDFをサムネイル欄へドロップすると、青線の位置にページを追加します（保存でPDFに反映）。<br>
@@ -1334,7 +1334,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)autoSave(tr
  ['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,e=>e.preventDefault()));
 })();
 /* ===== PWA：インストール／PDFの「プログラムから開く」対応 ===== */
-if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 if('launchQueue' in window)launchQueue.setConsumer(async lp=>{if(!lp.files||!lp.files.length)return;try{const f=await lp.files[0].getFile();showSec('ed');await run(()=>loadEd(f));msg('')}catch(e){msg('ファイルを開けませんでした: '+(e.message||e))}});
 </script><div id="fab" style="display:none;position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;gap:8px;align-items:center;background:var(--cd);border:1px solid var(--bd);border-radius:999px;padding:8px 10px;box-shadow:0 4px 18px #0006;font-size:15px"><span style="color:var(--mu);padding:0 6px">点を打って</span><button id="fabun" style="padding:10px 14px">↶ 1点戻す</button><button id="fabok" class="pri" style="padding:10px 18px;font-weight:700">✓ 確定</button><button id="fabx" style="padding:10px 14px">✕ 取消</button></div>
 <script>
